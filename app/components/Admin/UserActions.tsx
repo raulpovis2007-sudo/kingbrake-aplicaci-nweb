@@ -1,0 +1,199 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useEscape } from "@/hooks/useEscape";
+
+interface Props {
+  userId: string;
+  role: "ADMIN" | "CLIENT";
+  status: "ACTIVE" | "SUSPENDED";
+  isSelf?: boolean;
+  onEditName: (userId: string) => void;
+  onEditRole: (userId: string) => void;
+  onSuspend: (userId: string) => void;
+  onDelete: (userId: string) => void;
+  onResetPassword?: (userId: string) => void;
+}
+
+export function UserActions({
+  userId,
+  role,
+  status,
+  isSelf = false,
+  onEditName,
+  onEditRole,
+  onSuspend,
+  onDelete,
+  onResetPassword,
+}: Props) {
+  const [open, setOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEscape(() => {
+    if (open) setOpen(false);
+  });
+
+  // Cerrar al hacer click fuera
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Detectar si el dropdown queda cortado abajo
+  useEffect(() => {
+    if (open && menuRef.current) {
+      const rect = menuRef.current.getBoundingClientRect();
+      const overflowsBottom = rect.bottom > window.innerHeight;
+      setDropUp(overflowsBottom);
+    }
+  }, [open]);
+
+  const handleToggle = () => setOpen((v) => !v);
+
+  // Para administradores, solo mostrar opción de cambiar rol
+  const isAdmin = role === "ADMIN";
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={handleToggle}
+        className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        aria-label="Acciones de usuario"
+        aria-expanded={open}
+      >
+        <span className="text-xl leading-none">⋮</span>
+      </button>
+
+      {open && (
+        <div
+          ref={menuRef}
+          className={`absolute right-0 z-20 w-48 rounded-md border bg-white shadow-lg ${
+            dropUp ? "bottom-full mb-2" : "top-full mt-2"
+          }`}
+          role="menu"
+        >
+          <ul className="py-1 text-sm">
+            {/* Editar nombre */}
+            <li role="menuitem">
+              <button
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                onClick={() => {
+                  onEditName(userId);
+                  setOpen(false);
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Editar nombre
+              </button>
+            </li>
+
+            {/* Cambiar rol */}
+            <li role="menuitem">
+              <button
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                onClick={() => {
+                  onEditRole(userId);
+                  setOpen(false);
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2a3 3 0 100 6 3 3 0 000-6zM3 14c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Cambiar rol
+              </button>
+            </li>
+
+            {/* Resetear contraseña - No mostrar para admins */}
+            {onResetPassword && !isAdmin && (
+              <li role="menuitem">
+                <button
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-blue-600"
+                  onClick={() => {
+                    onResetPassword(userId);
+                    setOpen(false);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M8 5v3l2 2M14 8A6 6 0 112 8a6 6 0 0112 0z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Resetear contraseña
+                </button>
+              </li>
+            )}
+
+            {/* Suspender / Reactivar - No mostrar para admins */}
+            {!isAdmin && (
+              <li role="menuitem">
+                <button
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-amber-600"
+                  onClick={() => {
+                    onSuspend(userId);
+                    setOpen(false);
+                  }}
+                >
+                  {status === "ACTIVE" ? (
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <rect x="3" y="2" width="4" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                      <rect x="9" y="2" width="4" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M4 2l10 6-10 6V2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  {status === "ACTIVE" ? "Suspender" : "Reactivar"}
+                </button>
+              </li>
+            )}
+
+            {/* Eliminar - No mostrar para admins ni para uno mismo */}
+            {!isSelf && !isAdmin && (
+              <li role="menuitem">
+                <hr className="my-1 border-gray-200" />
+                <button
+                  className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                  onClick={() => {
+                    onDelete(userId);
+                    setOpen(false);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M2 4h12M5 4V3a1 1 0 011-1h4a1 1 0 011 1v1M6 7v5M10 7v5M3 4l1 9a2 2 0 002 2h4a2 2 0 002-2l1-9"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Eliminar
+                </button>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}

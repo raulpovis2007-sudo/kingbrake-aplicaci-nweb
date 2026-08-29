@@ -1,0 +1,182 @@
+import { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { db } from "@/lib/db";
+import bcrypt from "bcryptjs";
+
+export const authOptions: NextAuthOptions = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  adapter: PrismaAdapter(db) as any,
+
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Credenciales requeridas");
+        }
+
+        const user = await db.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user || !user.password) {
+          throw new Error("Usuario no encontrado");
+        }
+
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isValid) {
+          throw new Error("Contraseña incorrecta");
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        };
+      },
+    }),
+  ],
+
+  session: {
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60, // 7 días — plataforma con pagos, reducir ventana de sesiones robadas
+  },
+
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
+
+  callbacks: {
+    // Callback para manejar redirects - asegura que se respete el callbackUrl
+    async redirect({ url, baseUrl }) {
+      // Si la URL comienza con el baseUrl, permitirla
+      if (url.startsWith(baseUrl)) return url;
+      // Si es una ruta relativa, agregarla al baseUrl
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Por defecto, ir a /redirect para que determine según el rol
+      return `${baseUrl}/redirect`;
+    },
+
+    async signIn({ user, account }) {
+      // Verificar suspensión para CUALQUIER proveedor
+      if (user?.email) {
+        const dbUser = await db.user.findUnique({
+          where: { email: user.email },
+          select: { status: true },
+        });
+        if (dbUser?.status === "SUSPENDED") {
+          return "/login?suspended=true";
+        }
+      }
+
+      // Lógica específica para Google
+      if (account?.provider === "google") {
+        const existingUser = await db.user.findUnique({
+          where: { email: user.email! },
+        });
+
+        if (existingUser) {
+          // Actualizar imagen si cambió o no existe
+          if (user.image && existingUser.image !== user.image) {
+            await db.user.update({
+              where: { id: existingUser.id },
+              data: { image: user.image },
+            });
+          }
+
+          // Vincular cuenta Google si no está creada
+          const existingAccount = await db.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+          });
+
+          if (!existingAccount) {
+            await db.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                refresh_token: account.refresh_token,
+                id_token: account.id_token,
+                expires_at: account.expires_at,
+              },
+            });
+          }
+        } else {
+          // Crear usuario nuevo y su cuenta Google
+          await db.user.create({
+            data: {
+              email: user.email!,
+              name: user.name || "Usuario Google",
+              emailVerified: new Date(),
+              image: user.image,
+              password: null,
+              role: "CLIENT",
+              accounts: {
+                create: {
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  refresh_token: account.refresh_token,
+                  id_token: account.id_token,
+                  expires_at: account.expires_at,
+                },
+              },
+            },
+          });
+        }
+      }
+
+      return true; // Permite el login
+    },
+
+    async jwt({ token, user }) {
+      if (user) {
+        const dbUser = await db.user.findUnique({
+          where: { email: token.email! },
+        });
+
+        if (dbUser) {
+          token.id = String(dbUser.id);
+          token.role = dbUser.role;
+          token.name = dbUser.name;
+          token.picture = dbUser.image;
+        }
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.name = token.name as string;
+        session.user.image = token.picture as string | null;
+      }
+      return session;
+    },
+  },
+
+  debug: process.env.NODE_ENV === "development",
+};

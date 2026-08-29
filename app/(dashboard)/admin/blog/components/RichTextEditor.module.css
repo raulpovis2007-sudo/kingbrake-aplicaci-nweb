@@ -1,0 +1,341 @@
+.editorWrapper {
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  transition: border-color 0.2s ease;
+}
+
+.editorWrapper:focus-within {
+  border-color: #fe0008;
+}
+
+.editor {
+  background: white;
+}
+
+/* Quill overrides */
+.editor :global(.ql-toolbar) {
+  border: none;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fafafa;
+  padding: 0.75rem;
+}
+
+.editor :global(.ql-container) {
+  border: none;
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+
+.editor :global(.ql-editor) {
+  min-height: 300px;
+  padding: 1rem;
+  line-height: 1.7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.editor :global(.ql-editor.ql-blank::before) {
+  color: #999;
+  font-style: normal;
+}
+
+.editor :global(.ql-editor h1) {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.875rem;
+}
+
+.editor :global(.ql-editor h2) {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.editor :global(.ql-editor h3) {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.editor :global(.ql-editor h4) {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+/* Size picker styling */
+.editor :global(.ql-snow .ql-picker.ql-size) {
+  width: 70px;
+}
+
+.editor :global(.ql-snow .ql-picker.ql-size .ql-picker-label::before),
+.editor :global(.ql-snow .ql-picker.ql-size .ql-picker-item::before) {
+  content: attr(data-value);
+}
+
+.editor :global(.ql-editor p) {
+  margin-bottom: 1rem;
+}
+
+/* Lists */
+.editor :global(.ql-editor ul),
+.editor :global(.ql-editor ol) {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.editor :global(.ql-editor ul) {
+  list-style-type: disc;
+}
+
+.editor :global(.ql-editor ol) {
+  list-style-type: decimal;
+}
+
+.editor :global(.ql-editor li) {
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.editor :global(.ql-editor li::marker) {
+  color: #000000;
+  font-weight: 600;
+}
+
+/* Alignment */
+.editor :global(.ql-editor .ql-align-center) {
+  text-align: center;
+}
+
+.editor :global(.ql-editor .ql-align-right) {
+  text-align: right;
+}
+
+.editor :global(.ql-editor .ql-align-justify) {
+  text-align: justify;
+}
+
+/* Indentation */
+.editor :global(.ql-editor .ql-indent-1) {
+  padding-left: 2rem;
+}
+
+.editor :global(.ql-editor .ql-indent-2) {
+  padding-left: 4rem;
+}
+
+.editor :global(.ql-editor .ql-indent-3) {
+  padding-left: 6rem;
+}
+
+.editor :global(.ql-editor blockquote) {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: #f9f9f9;
+  border-left: 4px solid #fe0008;
+  font-style: italic;
+}
+
+/* Línea divisoria */
+.editor :global(.ql-editor hr) {
+  width: 100%;
+  height: 1px;
+  border: none;
+  background: #d1d5db;
+  margin: 1.5rem 0;
+}
+
+/* Botón de línea divisoria en toolbar */
+.editor :global(.ql-toolbar .ql-divider) {
+  width: 28px !important;
+  position: relative;
+}
+
+.editor :global(.ql-toolbar .ql-divider::after) {
+  content: '—';
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.editor :global(.ql-editor a) {
+  color: #fe0008;
+  text-decoration: none;
+}
+
+.editor :global(.ql-editor a u),
+.editor :global(.ql-editor a.underlined) {
+  text-decoration: underline;
+}
+
+.editor :global(.ql-editor img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.editor :global(.ql-editor iframe) {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* Asegurar que los iconos SVG se muestren */
+.editor :global(.ql-toolbar button svg) {
+  display: inline-block !important;
+  width: 18px;
+  height: 18px;
+}
+
+.editor :global(.ql-toolbar .ql-stroke) {
+  stroke: #444;
+}
+
+.editor :global(.ql-toolbar .ql-fill) {
+  fill: #444;
+}
+
+/* Toolbar buttons hover */
+.editor :global(.ql-toolbar button:hover),
+.editor :global(.ql-toolbar .ql-picker-label:hover) {
+  color: #fe0008;
+}
+
+.editor :global(.ql-toolbar button.ql-active),
+.editor :global(.ql-toolbar .ql-picker-label.ql-active) {
+  color: #fe0008;
+}
+
+.editor :global(.ql-toolbar button:hover .ql-stroke),
+.editor :global(.ql-toolbar button.ql-active .ql-stroke) {
+  stroke: #fe0008;
+}
+
+.editor :global(.ql-toolbar button:hover .ql-fill),
+.editor :global(.ql-toolbar button.ql-active .ql-fill) {
+  fill: #fe0008;
+}
+
+/* Link tooltip styling */
+.editor :global(.ql-tooltip) {
+  background-color: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px 12px;
+  z-index: 1000;
+}
+
+.editor :global(.ql-tooltip input[type="text"]) {
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  width: 200px;
+  margin-right: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.editor :global(.ql-tooltip input[type="text"]:focus) {
+  border-color: #fe0008;
+}
+
+.editor :global(.ql-tooltip a.ql-action),
+.editor :global(.ql-tooltip a.ql-remove) {
+  color: #fe0008;
+  font-weight: 500;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.editor :global(.ql-tooltip a.ql-action:hover),
+.editor :global(.ql-tooltip a.ql-remove:hover) {
+  text-decoration: underline;
+}
+
+.editor :global(.ql-tooltip.ql-editing a.ql-action::after) {
+  content: 'Guardar';
+}
+
+.editor :global(.ql-tooltip::before) {
+  content: 'URL:';
+  margin-right: 8px;
+  color: #666;
+}
+
+.editor :global(.ql-tooltip a.ql-preview) {
+  color: #fe0008;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Botón de ancla en toolbar */
+.editor :global(.ql-toolbar .ql-anchor) {
+  width: 28px !important;
+  position: relative;
+}
+
+.editor :global(.ql-toolbar .ql-anchor::after) {
+  content: '#';
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Estilo para anclas en el contenido */
+.editor :global(.ql-editor span.ql-anchor),
+.editor :global(.ql-editor span[id]) {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border: 1px dashed #fe0008;
+  border-radius: 3px;
+  padding: 0 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editor :global(.ql-editor span.ql-anchor:hover),
+.editor :global(.ql-editor span[id]:hover) {
+  background: linear-gradient(135deg, #ffe0b2 0%, #ffcc80 100%);
+  border-color: #e65100;
+  box-shadow: 0 2px 4px rgba(255, 107, 0, 0.2);
+}
+
+.editor :global(.ql-editor span.ql-anchor::before),
+.editor :global(.ql-editor span[id]::before) {
+  content: '⚓ ';
+  font-size: 0.75em;
+}
+
+/* Tooltip visual para indicar que es editable */
+.editor :global(.ql-editor span.ql-anchor::after),
+.editor :global(.ql-editor span[id]::after) {
+  content: ' (clic para editar)';
+  font-size: 0.65em;
+  color: #888;
+  font-weight: normal;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.editor :global(.ql-editor span.ql-anchor:hover::after),
+.editor :global(.ql-editor span[id]:hover::after) {
+  opacity: 1;
+}
+
+/* ============================================ */
+/* TOOLTIPS - Se agregan via JavaScript        */
+/* ============================================ */
+
+/* Los tooltips se agregan dinámicamente con el atributo title nativo del navegador */
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+  background: #fafafa;
+  border-radius: 8px;
+}

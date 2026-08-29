@@ -1,0 +1,68 @@
+.heroSection {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.carouselContainer {
+  position: absolute;
+  inset: 0;
+  background-color: #0e1469;
+}
+
+.carouselContainer :global(.splide),
+.carouselContainer :global(.splide__track),
+.carouselContainer :global(.splide__list),
+.carouselContainer :global(.splide__slide) {
+  height: 100%;
+}
+
+.carouselContainer :global(.splide__slide) {
+  position: relative;
+}
+
+.carouselContainer :global(.splide__pagination) {
+  bottom: 16px;
+  z-index: 2;
+}
+
+.carouselContainer :global(.splide__pagination__page) {
+  background: rgba(255, 255, 255, 0.5);
+  width: 10px;
+  height: 10px;
+}
+
+.carouselContainer :global(.splide__pagination__page.is-active) {
+  background: #ffffff;
+  transform: scale(1.2);
+}
+
+.carouselContainer :global(.splide__arrow) {
+  background: rgba(255, 255, 255, 0.8);
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.carouselContainer:hover :global(.splide__arrow) {
+  opacity: 1;
+}
+
+.carouselContainer :global(.splide__arrow:hover) {
+  background: #ffffff;
+}
+
+.carouselContainer :global(.splide__arrow svg) {
+  fill: #0e1469;
+  width: 16px;
+  height: 16px;
+}
+
+.slideImage {
+  object-fit: cover;
+  object-position: center;
+}
+

@@ -1,0 +1,606 @@
+/* ============================================
+   Footer Component Styles
+   ============================================ */
+
+.footer {
+  background-color: #131211;
+  width: 100%;
+  padding: 100px 0 40px;
+  border-radius: 25px 25px 0px 0px;
+  margin-top: 40px;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ============================================
+   Logo Styles
+   ============================================ */
+
+.logoMobile {
+  display: none;
+}
+
+.logoDesktop {
+  display: block;
+}
+
+.logoImage {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ============================================
+   Sección Principal - 4 Columnas
+   ============================================ */
+
+.mainSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 100px;
+  margin-bottom: 30px;
+}
+
+/* Grupo de columnas: Navegación, Planes, Contacto */
+.columnsGroup {
+  display: flex;
+  gap: 80px;
+}
+
+/* Columna 1: Logo + Redes + CTA */
+.brandColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 36px;
+  align-items: center;
+}
+
+.socialIcons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.socialIcons a:hover {
+  opacity: 0.7;
+}
+
+.socialIcons img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0) invert(1);
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background-color: #fe0008;
+  color: #ffffff;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 16px 28px;
+  border-radius: 100px;
+  border: 2px solid #fe0008;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  width: fit-content;
+  margin-top: 8px;
+}
+
+.ctaButton:hover {
+  background-color: transparent;
+  color: #fe0008;
+}
+
+.ctaButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Columnas de navegación */
+.navColumn,
+.plansColumn,
+.contactColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.columnTitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 20px 0;
+  text-transform: none;
+}
+
+.servicesTitle {
+  margin-top: 28px;
+}
+
+.contactTitle {
+  display: block;
+}
+
+/* Línea divisora solo para móvil (arriba de contacto) */
+.dividerMobile {
+  display: none;
+}
+
+/* Línea divisora debajo de contacto - solo móvil */
+.dividerAfterContact {
+  display: none;
+}
+
+/* Línea divisora arriba de keywords - solo PC */
+.dividerDesktop {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+  margin-bottom: 40px;
+}
+
+.navLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.navLinks a {
+  color: #ffffff;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.navLinks a:hover {
+  color: #fe0008;
+}
+
+/* Link Premium con badge */
+.premiumLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.popularBadge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  /* Glassmorphism */
+  background: linear-gradient(
+    135deg,
+    rgba(20, 20, 25, 0.92) 0%,
+    rgba(35, 35, 45, 0.88) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  /* Texto champagne */
+  color: #E8D5B7;
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Sombras refinadas */
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* Para el shimmer */
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Borde dorado sutil */
+.popularBadge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 100px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 115, 0.5) 0%,
+    rgba(180, 145, 90, 0.25) 50%,
+    rgba(212, 175, 115, 0.5) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Shimmer sutil */
+.popularBadge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  animation: shimmer-footer-badge 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes shimmer-footer-badge {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
+}
+
+/* Columna de Contacto */
+.contactItems {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.contactIcon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contactIcon img {
+  width: 16px;
+  height: 16px;
+}
+
+.contactItem span,
+.contactItem a {
+  color: #ffffff;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.contactItem a:hover {
+  color: #fe0008;
+}
+
+/* ============================================
+   Línea Divisora
+   ============================================ */
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+  margin: 40px 0;
+}
+
+/* ============================================
+   Sección de Keywords SEO
+   ============================================ */
+
+.keywordsSection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 4px;
+  text-align: center;
+  line-height: 1.8;
+}
+
+.keyword {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.separator {
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 8px;
+}
+
+/* ============================================
+   Sección de Enlaces Legales
+   ============================================ */
+
+.legalSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin: 28px 0;
+  text-align: center;
+}
+
+.legalLink {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.legalLink:hover {
+  color: #fe0008;
+  text-decoration: underline;
+}
+
+.legalSeparator {
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0 4px;
+  font-size: 13px;
+}
+
+/* ============================================
+   Libro de Reclamaciones
+   ============================================ */
+
+.complaintRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.complaintLegal {
+  color: rgba(255, 255, 255, 0.4);
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* ============================================
+   Copyright
+   ============================================ */
+
+.copyright {
+  text-align: center;
+}
+
+.copyright p {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* ============================================
+   Responsive - Tablet (max-width: 991px)
+   ============================================ */
+
+@media screen and (max-width: 991px) {
+  .mainSection {
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .brandColumn {
+    align-items: center;
+    text-align: center;
+  }
+
+  .columnsGroup {
+    width: 100%;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .ctaButton {
+    margin-top: 16px;
+  }
+
+  .navColumn,
+  .plansColumn,
+  .contactColumn {
+    align-items: flex-start;
+  }
+}
+
+/* ============================================
+   Responsive - Mobile (max-width: 767px)
+   ============================================ */
+
+@media screen and (max-width: 767px) {
+  .footer {
+    padding: 60px 0 32px;
+  }
+
+  .container {
+    padding: 0 24px;
+  }
+
+  /* Logo móvil centrado arriba */
+  .logoMobile {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  .logoDesktop {
+    display: none;
+  }
+
+  .logoImage {
+    height: 44px;
+  }
+
+  /* Sección principal en móvil: columna */
+  .mainSection {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* Grupo de columnas en móvil: grid para posicionar nav, planes y contacto */
+  .columnsGroup {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 24px;
+    width: 100%;
+  }
+
+  /* Navegación - columna izquierda */
+  .navColumn {
+    grid-column: 1;
+    grid-row: 1;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* Planes + Servicios - columna derecha */
+  .plansColumn {
+    grid-column: 2;
+    grid-row: 1;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* Contacto - ancho completo, alineado izquierda */
+  .contactColumn {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-items: flex-start;
+  }
+
+  /* Ocultar título "Contacto" en móvil */
+  .contactTitle {
+    display: none;
+  }
+
+  /* Mostrar línea divisora arriba de contacto en móvil */
+  .dividerMobile {
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin-bottom: 24px;
+  }
+
+  /* Mostrar línea divisora debajo de contacto en móvil */
+  .dividerAfterContact {
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin-top: 24px;
+  }
+
+  /* Ocultar línea divisora de PC en móvil */
+  .dividerDesktop {
+    display: none;
+  }
+
+  /* Brand column (redes + CTA) - ancho completo */
+  .brandColumn {
+    align-items: flex-start;
+    gap: 20px;
+    order: 1;
+    width: 100%;
+  }
+
+  .navLinks {
+    align-items: flex-start;
+  }
+
+  .contactItems {
+    align-items: flex-start;
+  }
+
+  .contactItem {
+    justify-content: flex-start;
+  }
+
+  .socialIcons {
+    justify-content: flex-start;
+  }
+
+  .ctaButton {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .divider {
+    margin: 32px 0;
+  }
+
+  .keywordsSection {
+    justify-content: center;
+    text-align: center;
+    gap: 6px 2px;
+    line-height: 2;
+  }
+
+  .keyword {
+    font-size: 12px;
+  }
+
+  .separator {
+    margin: 0 6px;
+  }
+}
+
+/* ============================================
+   Responsive - Small Mobile (max-width: 479px)
+   ============================================ */
+
+@media screen and (max-width: 479px) {
+  .container {
+    padding: 0 24px;
+  }
+
+  .logoImage {
+    height: 38px;
+  }
+
+  .ctaButton {
+    padding: 14px 24px;
+    font-size: 13px;
+  }
+
+  .mainSection {
+    gap: 28px 0px;
+  }
+}
