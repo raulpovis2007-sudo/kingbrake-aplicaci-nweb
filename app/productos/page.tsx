@@ -1,13 +1,18 @@
+import { Suspense } from "react";
+import BuscadorRepuestos from "./BuscadorRepuestos";
+
 export const metadata = {
-  title: "Catálogo de Productos | King Brake Peru",
-  description: "Explora nuestro catálogo de pastillas de freno, discos, zapatas y tambores. Compatibles con las marcas más populares en Perú.",
+  title: "Buscar Repuestos | King Brake Peru",
+  description:
+    "Busca repuestos de freno compatibles con tu vehículo. Pastillas, discos, zapatas, tambores y más.",
 };
 
 export default function ProductosPage() {
   return (
     <main>
-      <h1>Catálogo de Productos</h1>
-      {/* TODO: Grid de productos + filtros por categoría y vehículo */}
+      <Suspense>
+        <BuscadorRepuestos />
+      </Suspense>
     </main>
   );
 }

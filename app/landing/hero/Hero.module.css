@@ -23,42 +23,21 @@
   position: relative;
 }
 
-.carouselContainer :global(.splide__pagination) {
-  bottom: 16px;
-  z-index: 2;
+.carouselContainer :global(.splide__pagination),
+.carouselContainer :global(.splide__arrows) {
+  display: none;
 }
 
-.carouselContainer :global(.splide__pagination__page) {
-  background: rgba(255, 255, 255, 0.5);
-  width: 10px;
-  height: 10px;
-}
-
-.carouselContainer :global(.splide__pagination__page.is-active) {
-  background: #ffffff;
-  transform: scale(1.2);
-}
-
-.carouselContainer :global(.splide__arrow) {
-  background: rgba(255, 255, 255, 0.8);
-  width: 40px;
-  height: 40px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.carouselContainer:hover :global(.splide__arrow) {
-  opacity: 1;
-}
-
-.carouselContainer :global(.splide__arrow:hover) {
-  background: #ffffff;
-}
-
-.carouselContainer :global(.splide__arrow svg) {
-  fill: #0e1469;
-  width: 16px;
-  height: 16px;
+.carouselContainer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+  z-index: 1;
+  pointer-events: none;
 }
 
 .slideImage {

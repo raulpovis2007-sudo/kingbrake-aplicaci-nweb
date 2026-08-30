@@ -3,7 +3,7 @@
    ============================================ */
 
 .faq-container {
-  background-color: #fee2e2;
+  background-color: #e8eaf6;
   border-radius: 60px 60px 0 0;
   padding: 100px 20px 55px 20px;
   width: 100%;
@@ -118,7 +118,7 @@
 }
 
 .faq-heading {
-  color: var(--shark--950);
+  color: #0e1469;
   text-transform: uppercase;
   margin-top: 0;
   margin-bottom: 0;

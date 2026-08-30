@@ -200,7 +200,7 @@ export default function ResetPassword() {
     <div className={styles.container}>
       <aside className={styles.illustrationSection}>
         <Image
-          src="/assets/images/login-side.webp"
+          src="/assets/images/login.jpeg"
           alt=""
           fill
           className={styles.illustrationImage}

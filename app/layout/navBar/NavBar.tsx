@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from "react";
 import styles from "./NavBar.module.css";
 
 import { X } from "lucide-react";
+import { LINEAS_PRODUCTO } from "@/lib/lineas-producto";
 
 // Componente para el avatar del usuario con manejo de carga
 function UserAvatar({
@@ -316,11 +317,36 @@ export default function NavBar() {
               <span className={styles["navbar-text"]}>Inicio</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
             </a>
-            <a href="/productos" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
-              <span className={styles["navbar-text"]}>Productos</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
-            </a>
-            <a href="/#nosotros" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
+
+            {/* Productos con mega menu */}
+            <div className={styles["productos-wrapper"]}>
+              <a href="/productos" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
+                <span className={styles["navbar-text"]}>Productos</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
+              </a>
+              <div className={styles["mega-menu"]}>
+                <div className={styles["mega-menu-inner"]}>
+                  {LINEAS_PRODUCTO.map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/productos?linea=${cat.slug}`}
+                      className={styles["mega-item"]}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className={styles["mega-item-img"]}>
+                        <Image src={cat.imagen} alt={cat.nombre} fill sizes="80px" style={{ objectFit: "cover" }} />
+                      </div>
+                      <span className={styles["mega-item-name"]}>{cat.nombre}</span>
+                    </Link>
+                  ))}
+                  <Link href="/productos" className={styles["mega-view-all"]} onClick={() => setIsMobileMenuOpen(false)}>
+                    Ver todo el catálogo →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <a href="/nosotros" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
               <span className={styles["navbar-text"]}>Quiénes somos</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
             </a>

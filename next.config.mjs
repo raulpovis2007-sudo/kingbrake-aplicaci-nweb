@@ -59,6 +59,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'i.imgur.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
       // ponytail: si el blog necesita más dominios, agregar aquí explícitamente
       // NO usar hostname: '**' — permite SSRF vía next/image
     ],
@@ -172,7 +176,7 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://connect.facebook.net https://analytics.tiktok.com https://maps.googleapis.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: blob: https://res.cloudinary.com https://*.googleusercontent.com https://images.unsplash.com https://i.imgur.com https://kingbrake.com",
+              "img-src 'self' data: blob: https://res.cloudinary.com https://*.googleusercontent.com https://images.unsplash.com https://i.imgur.com https://kingbrake.com https://*.tile.openstreetmap.org",
               "font-src 'self' https://fonts.gstatic.com",
               "connect-src 'self' https://maps.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
               "frame-src 'self' https://www.google.com https://www.youtube.com",

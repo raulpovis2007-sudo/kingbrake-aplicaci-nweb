@@ -11,6 +11,8 @@ import {
   Users,
   FileText,
   PlayCircle,
+  ImageIcon,
+  CalendarDays,
   Settings,
   LogOut,
 } from 'lucide-react';
@@ -24,6 +26,8 @@ const navItems = [
   { href: '/admin/usuarios', label: 'Usuarios', icon: Users },
   { href: '/admin/blog', label: 'Blog', icon: FileText },
   { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
+  { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
+  { href: '/admin/eventos', label: 'Eventos', icon: CalendarDays },
   { href: '/admin/configuracion', label: 'Configuración', icon: Settings },
 ];
 

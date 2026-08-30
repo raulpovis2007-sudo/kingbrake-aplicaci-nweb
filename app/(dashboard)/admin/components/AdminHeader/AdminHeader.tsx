@@ -1,7 +1,6 @@
 'use client';
 
 import { Menu, X } from 'lucide-react';
-import { NotificationBell } from '@/app/components/NotificationBell/NotificationBell';
 import styles from './AdminHeader.module.css';
 
 interface AdminHeaderProps {
@@ -33,8 +32,6 @@ export function AdminHeader({ userName, onToggleSidebar, sidebarOpen }: AdminHea
       </div>
 
       <div className={styles.rightSection}>
-        <NotificationBell />
-
         <div className={styles.userInfo}>
           <div className={styles.avatar}>{initials}</div>
           <span className={styles.userName}>{userName}</span>

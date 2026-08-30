@@ -5,7 +5,7 @@ export async function getBrands() {
 }
 
 export async function getModelsByBrand(brandId: string) {
-  const res = await fetch(`/api/vehicles/models/${brandId}`);
+  const res = await fetch(`/api/vehicles/models?brandId=${brandId}`);
   if (!res.ok) throw new Error('Error al obtener modelos');
   return res.json();
 }

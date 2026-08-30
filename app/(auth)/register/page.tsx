@@ -366,7 +366,7 @@ function RegisterContent() {
             <div className={styles.container}>
                 <aside className={styles.illustrationSection}>
                     <Image
-                        src="/assets/images/login-side.webp"
+                        src="/assets/images/login.jpeg"
                         alt=""
                         fill
                         className={styles.illustrationImage}
@@ -458,7 +458,7 @@ function RegisterContent() {
             {/* LEFT SIDE: Illustration Section */}
             <aside className={styles.illustrationSection}>
                 <Image
-                    src="/assets/images/login-side.webp"
+                    src="/assets/images/login.jpeg"
                     alt=""
                     fill
                     className={styles.illustrationImage}

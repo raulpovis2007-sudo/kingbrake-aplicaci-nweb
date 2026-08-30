@@ -83,10 +83,7 @@ export default function ReelsSection() {
     setSelectedIndex(null);
   };
 
-  // No renderizar si no hay reels
-  if (!loading && reels.length === 0) {
-    return null;
-  }
+  const hasReels = !loading && reels.length > 0;
 
   return (
     <section className={styles.section} id="reels">
@@ -104,25 +101,27 @@ export default function ReelsSection() {
             </p>
           </div>
 
-          {/* Controles de navegación (desktop) */}
-          <div className={styles.navControls}>
-            <button
-              className={`${styles.navButton} ${!canScrollLeft ? styles.navDisabled : ""}`}
-              onClick={() => scroll("left")}
-              disabled={!canScrollLeft}
-              aria-label="Anterior"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <button
-              className={`${styles.navButton} ${!canScrollRight ? styles.navDisabled : ""}`}
-              onClick={() => scroll("right")}
-              disabled={!canScrollRight}
-              aria-label="Siguiente"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </div>
+          {/* Controles de navegación (desktop) — solo si hay reels */}
+          {hasReels && (
+            <div className={styles.navControls}>
+              <button
+                className={`${styles.navButton} ${!canScrollLeft ? styles.navDisabled : ""}`}
+                onClick={() => scroll("left")}
+                disabled={!canScrollLeft}
+                aria-label="Anterior"
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button
+                className={`${styles.navButton} ${!canScrollRight ? styles.navDisabled : ""}`}
+                onClick={() => scroll("right")}
+                disabled={!canScrollRight}
+                aria-label="Siguiente"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Grid de reels */}
@@ -133,7 +132,7 @@ export default function ReelsSection() {
             <div className={styles.skeleton} />
             <div className={styles.skeleton} />
           </div>
-        ) : (
+        ) : hasReels ? (
           <div className={styles.scrollWrapper}>
             {/* Gradientes laterales */}
             {canScrollLeft && <div className={styles.gradientLeft} />}
@@ -154,13 +153,19 @@ export default function ReelsSection() {
               ))}
             </div>
           </div>
+        ) : (
+          <p className={styles.emptyMessage}>
+            Próximamente compartiremos tips y contenido educativo sobre frenado.
+          </p>
         )}
 
         {/* Indicador de scroll (mobile) */}
-        <div className={styles.scrollIndicator}>
-          <span>Desliza para ver más</span>
-          <ChevronRight size={16} />
-        </div>
+        {hasReels && (
+          <div className={styles.scrollIndicator}>
+            <span>Desliza para ver más</span>
+            <ChevronRight size={16} />
+          </div>
+        )}
       </div>
 
       {/* Modal del visor */}

@@ -22,8 +22,8 @@ export default function Hero() {
     const splide = new Splide(el, {
       type: "loop",
       drag: true,
-      arrows: true,
-      pagination: true,
+      arrows: false,
+      pagination: false,
       speed: 600,
       autoplay: true,
       interval: 5000,

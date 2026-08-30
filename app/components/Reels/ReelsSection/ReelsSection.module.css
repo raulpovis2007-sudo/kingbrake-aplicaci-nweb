@@ -137,6 +137,15 @@
   /* scroll-snap-align: start; */
 }
 
+/* Empty State */
+.emptyMessage {
+  text-align: center;
+  color: #888;
+  font-size: 0.95rem;
+  padding: 48px 16px;
+  margin: 0;
+}
+
 /* Loading State */
 .loading {
   display: flex;

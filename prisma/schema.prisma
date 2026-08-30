@@ -107,11 +107,45 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  category Category @relation(fields: [categoryId], references: [id])
+  category      Category               @relation(fields: [categoryId], references: [id])
+  compatibility ProductCompatibility[]
 
   @@index([categoryId])
   @@index([isActive])
   @@index([featured])
+}
+
+// ============================================
+// VEHÍCULOS Y COMPATIBILIDAD
+// ============================================
+
+model VehicleBrand {
+  id     String         @id @default(cuid())
+  name   String         @unique
+  slug   String         @unique
+  models VehicleModel[]
+}
+
+model VehicleModel {
+  id            String                 @id @default(cuid())
+  name          String
+  yearFrom      Int
+  yearTo        Int
+  brandId       String
+  brand         VehicleBrand           @relation(fields: [brandId], references: [id])
+  compatibility ProductCompatibility[]
+
+  @@index([brandId])
+}
+
+model ProductCompatibility {
+  id             String       @id @default(cuid())
+  productId      String
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  vehicleModelId String
+  vehicleModel   VehicleModel @relation(fields: [vehicleModelId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, vehicleModelId])
 }
 
 
@@ -162,6 +196,31 @@ model BlogPost {
   @@index([createdAt])
 }
 
+
+// ============================================
+// BANNERS / CAMPAÑAS
+// ============================================
+
+enum BannerType {
+  BANNER
+  EVENT
+}
+
+model Banner {
+  id        String     @id @default(cuid())
+  title     String     @db.VarChar(100)
+  image     String     @db.VarChar(500)
+  link      String?    @db.VarChar(500)
+  type      BannerType @default(BANNER)
+  sortOrder Int        @default(0)
+  isActive  Boolean    @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([isActive, type, sortOrder])
+}
 
 // ============================================
 // REELS EDUCATIVOS
