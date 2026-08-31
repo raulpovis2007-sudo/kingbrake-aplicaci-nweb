@@ -9,13 +9,14 @@ export const revalidate = 300;
 
 // Pre-generar páginas de categorías en build time
 export async function generateStaticParams() {
-  const categories = await db.blogCategory.findMany({
-    select: { slug: true },
-  });
-
-  return categories.map((category) => ({
-    slug: category.slug,
-  }));
+  try {
+    const categories = await db.blogCategory.findMany({
+      select: { slug: true },
+    });
+    return categories.map((category) => ({ slug: category.slug }));
+  } catch {
+    return [];
+  }
 }
 
 interface Props {

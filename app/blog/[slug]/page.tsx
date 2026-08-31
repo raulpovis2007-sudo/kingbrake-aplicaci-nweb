@@ -14,14 +14,15 @@ export const revalidate = 600;
 // Pre-generar las páginas de posts publicados en build time
 // Esto reduce Function Invocations significativamente
 export async function generateStaticParams() {
-  const posts = await db.blogPost.findMany({
-    where: { published: true },
-    select: { slug: true },
-  });
-
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  try {
+    const posts = await db.blogPost.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch {
+    return [];
+  }
 }
 
 interface Props {
