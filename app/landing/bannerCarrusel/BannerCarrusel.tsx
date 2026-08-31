@@ -41,7 +41,7 @@ export default function BannerCarrusel() {
     });
     splideInstance.current.mount();
 
-    return () => splideInstance.current?.destroy();
+    return () => { splideInstance.current?.destroy(); };
   }, [banners]);
 
   if (banners.length === 0) return (

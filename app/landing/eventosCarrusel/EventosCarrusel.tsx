@@ -47,7 +47,7 @@ export default function EventosCarrusel() {
     });
     splideInstance.current.mount();
 
-    return () => splideInstance.current?.destroy();
+    return () => { splideInstance.current?.destroy(); };
   }, [eventos]);
 
   if (eventos.length === 0) return (

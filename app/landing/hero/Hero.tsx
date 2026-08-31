@@ -32,7 +32,7 @@ export default function Hero() {
     });
     splide.mount();
 
-    return () => splide.destroy();
+    return () => { splide.destroy(); };
   }, []);
 
   return (
