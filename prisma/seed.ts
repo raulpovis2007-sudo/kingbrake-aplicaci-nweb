@@ -158,11 +158,31 @@ async function main() {
   await prisma.distributor.deleteMany();
   await prisma.distributor.createMany({
     data: [
+      // Lima
       { name: "King Brake Central", address: "Av. Iquitos 1234, La Victoria, Lima", lat: -12.0650, lng: -77.0200, phone: "+51999888777" },
       { name: "Autopartes San Juan", address: "Av. Los Héroes 567, San Juan de Miraflores, Lima", lat: -12.1560, lng: -76.9720, phone: "+51999777666" },
       { name: "Frenos Express Comas", address: "Av. Tupac Amaru 3456, Comas, Lima", lat: -11.9460, lng: -77.0490, phone: "+51999666555" },
       { name: "Repuestos El Pacifico", address: "Av. Colonial 890, Callao", lat: -12.0560, lng: -77.1020, phone: "+51999555444" },
       { name: "Auto Frenos Lima Norte", address: "Av. Universitaria 4567, Los Olivos, Lima", lat: -11.9820, lng: -77.0710, phone: "+51999444333" },
+      // Arequipa
+      { name: "Frenos del Sur Arequipa", address: "Av. Ejército 456, Cayma, Arequipa", lat: -16.3989, lng: -71.5350, phone: "+51954111222" },
+      { name: "Autopartes Arequipa Centro", address: "Calle Mercaderes 312, Cercado, Arequipa", lat: -16.4090, lng: -71.5375, phone: "+51954222333" },
+      // Trujillo
+      { name: "King Brake Trujillo", address: "Av. España 1520, Trujillo, La Libertad", lat: -8.1116, lng: -79.0288, phone: "+51944111222" },
+      // Chiclayo
+      { name: "Frenos Chiclayo", address: "Av. Balta 890, Chiclayo, Lambayeque", lat: -6.7714, lng: -79.8409, phone: "+51974111222" },
+      // Cusco
+      { name: "Autofrenos Cusco", address: "Av. de la Cultura 1200, Cusco", lat: -13.5250, lng: -71.9672, phone: "+51984111222" },
+      // Piura
+      { name: "Repuestos Piura Norte", address: "Av. Grau 650, Piura", lat: -5.1945, lng: -80.6328, phone: "+51964111222" },
+      // Huancayo
+      { name: "Frenos Huancayo", address: "Calle Real 1450, Huancayo, Junín", lat: -12.0651, lng: -75.2049, phone: "+51934111222" },
+      // Ica
+      { name: "King Brake Ica", address: "Av. San Martín 380, Ica", lat: -14.0755, lng: -75.7342, phone: "+51924111222" },
+      // Tacna
+      { name: "Autopartes Tacna", address: "Av. Bolognesi 520, Tacna", lat: -18.0146, lng: -70.2536, phone: "+51952111222" },
+      // Pucallpa
+      { name: "Frenos Pucallpa", address: "Jr. Tarapacá 340, Pucallpa, Ucayali", lat: -8.3791, lng: -74.5539, phone: "+51962111222" },
     ],
   });
 
