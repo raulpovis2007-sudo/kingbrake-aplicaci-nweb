@@ -12,22 +12,18 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { name, phone, address, district } = body;
+    const { name, phone } = body;
 
     const updatedUser = await db.user.update({
       where: { id: session.user.id },
       data: {
         name: name || null,
         phone: phone || null,
-        address: address || null,
-        district: district || null,
       },
       select: {
         id: true,
         name: true,
         phone: true,
-        address: true,
-        district: true,
       },
     });
 
