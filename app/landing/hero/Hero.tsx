@@ -7,9 +7,9 @@ import Image from "next/image";
 import styles from "./Hero.module.css";
 
 const HERO_IMAGES = [
-  "/assets/images/1PORTA-1.jpeg",
-  "/assets/images/1PORTA-2.PNG",
-  "/assets/images/1PORTA-3.PNG",
+  "/assets/images/PORTADA-1.png",
+  "/assets/images/PORTADA-2.png",
+  "/assets/images/PORTADA-3.png",
 ];
 
 export default function Hero() {
