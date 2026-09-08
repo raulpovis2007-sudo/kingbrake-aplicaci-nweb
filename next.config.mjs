@@ -17,6 +17,10 @@ const nextConfig = {
   // IMAGE OPTIMIZATION
   // ============================================================
   images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+
     // Formatos modernos - AVIF es ~50% más pequeño que WebP
     formats: ['image/avif', 'image/webp'],
 

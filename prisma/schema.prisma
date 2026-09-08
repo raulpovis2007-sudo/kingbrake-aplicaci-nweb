@@ -157,6 +157,7 @@ model Distributor {
   id       String  @id @default(cuid())
   name     String
   address  String
+  region   String  @default("Lima")
   lat      Float
   lng      Float
   phone    String?

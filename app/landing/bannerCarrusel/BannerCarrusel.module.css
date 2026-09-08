@@ -6,8 +6,20 @@
 .container {
   max-width: 1100px;
   margin: 0 auto;
-  border-radius: 16px;
-  overflow: hidden;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 24px;
+  color: #0e1469;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .slide {
@@ -15,38 +27,19 @@
   display: block;
   width: 100%;
   aspect-ratio: 3 / 1;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .slideImage {
   object-fit: cover;
 }
 
-.container :global(.splide__pagination) {
-  bottom: 12px;
-}
-
-.container :global(.splide__pagination__page) {
-  background: rgba(255, 255, 255, 0.5);
-  width: 8px;
-  height: 8px;
-}
-
-.container :global(.splide__pagination__page.is-active) {
-  background: #ffffff;
-  transform: scale(1.2);
-}
-
-.emptyState {
-  max-width: 1100px;
-  margin: 0 auto;
-  text-align: center;
-  padding: 48px 16px;
-}
-
 .emptyText {
   color: #999;
   font-size: 0.95rem;
   font-style: italic;
+  text-align: center;
 }
 
 @media (max-width: 767px) {

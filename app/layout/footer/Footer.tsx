@@ -103,7 +103,7 @@ export default function Footer() {
               <h4 className={styles.columnTitle}>Navegación</h4>
               <nav className={styles.navLinks}>
                 <a href="/">Inicio</a>
-                <a href="/productos">Productos</a>
+                <a href="/catalogo">Productos</a>
                 <a href="/#nosotros">Quiénes somos</a>
                 <a href="/#distribuidores">Distribuidores</a>
                 <a href="#blog">Blog</a>

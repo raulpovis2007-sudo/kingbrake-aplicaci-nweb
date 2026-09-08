@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import NavBar from './navBar/NavBar';
 import Footer from './footer/Footer';
 import WhatsappFlotante from './whatsappFlotante/WhatsappFlotante';
+import Chatbot from '../components/Chatbot/Chatbot';
 
 
 const ADMIN_ROUTES = ['/admin'];
@@ -32,6 +33,7 @@ export function LayoutShell({ children }: { children: React.ReactNode }) {
       <NavBar />
       {children}
       <Footer />
+      <Chatbot />
       <WhatsappFlotante />
     </>
   );

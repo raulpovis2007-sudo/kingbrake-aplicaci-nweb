@@ -12,11 +12,7 @@ import FAQ from "./landing/faq/FAQ";
 export default function Home() {
   return (
     <>
-      <a href="#main-content" className="skip-link">
-        Saltar al contenido principal
-      </a>
-
-      <main id="main-content">
+      <main>
         <Hero />
 
         <LineaProductos />
@@ -27,7 +23,7 @@ export default function Home() {
 
         {/* TODO: Por qué King Brake — 4 cards: Calidad, Durabilidad, Compatibilidad, Soporte */}
 
-        <MetricasSection />
+        {/* <MetricasSection /> */}
 
         <GoogleReviews />
 
@@ -35,7 +31,7 @@ export default function Home() {
 
         <BlogSection />
 
-        <Distribuidores />
+        {/* <Distribuidores /> */}
 
         <FAQ />
       </main>

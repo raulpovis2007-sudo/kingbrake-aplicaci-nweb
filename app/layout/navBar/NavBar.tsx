@@ -8,8 +8,6 @@ import { useState, useRef, useEffect } from "react";
 import styles from "./NavBar.module.css";
 
 import { X } from "lucide-react";
-import { LINEAS_PRODUCTO } from "@/lib/lineas-producto";
-
 // Componente para el avatar del usuario con manejo de carga
 function UserAvatar({
   src,
@@ -69,6 +67,11 @@ export default function NavBar() {
 
   // Solo aplicar el tema transparente (texto blanco) en la página principal
   const isHeroPage = pathname === "/";
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   //*Hace referencia a un elemento del DOM
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -261,7 +264,9 @@ export default function NavBar() {
             aria-expanded={isMobileMenuOpen}
             aria-label="Abrir menú de navegación"
           >
-            <img src="/assets/icons/barritas.svg" alt="barras" />
+            <span className={styles["hamburger-line"]} />
+            <span className={styles["hamburger-line"]} />
+            <span className={styles["hamburger-line"]} />
           </button>
         )}
 
@@ -313,45 +318,25 @@ export default function NavBar() {
 
           {/* Items del menú */}
           <nav className={styles["sidebar-nav"]}>
-            <a href="/" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
+            <a href="/" className={`${styles["navbar-item"]} ${isActive("/") ? styles["navbar-item-active"] : ""}`} onClick={() => setIsMobileMenuOpen(false)}>
               <span className={styles["navbar-text"]}>Inicio</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
             </a>
 
-            {/* Productos con mega menu */}
-            <div className={styles["productos-wrapper"]}>
-              <a href="/productos" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
-                <span className={styles["navbar-text"]}>Productos</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
-              </a>
-              <div className={styles["mega-menu"]}>
-                <div className={styles["mega-menu-inner"]}>
-                  {LINEAS_PRODUCTO.map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={`/productos?linea=${cat.slug}`}
-                      className={styles["mega-item"]}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className={styles["mega-item-img"]}>
-                        <Image src={cat.imagen} alt={cat.nombre} fill sizes="80px" style={{ objectFit: "cover" }} />
-                      </div>
-                      <span className={styles["mega-item-name"]}>{cat.nombre}</span>
-                    </Link>
-                  ))}
-                  <Link href="/productos" className={styles["mega-view-all"]} onClick={() => setIsMobileMenuOpen(false)}>
-                    Ver todo el catálogo →
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <a href="/nosotros" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
+            <a href="/catalogo" className={`${styles["navbar-item"]} ${isActive("/catalogo") ? styles["navbar-item-active"] : ""}`} onClick={() => setIsMobileMenuOpen(false)}>
+              <span className={styles["navbar-text"]}>Catálogo</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
+            </a>
+            <a href="/nosotros" className={`${styles["navbar-item"]} ${isActive("/nosotros") ? styles["navbar-item-active"] : ""}`} onClick={() => setIsMobileMenuOpen(false)}>
               <span className={styles["navbar-text"]}>Quiénes somos</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
             </a>
-            <a href="/#distribuidores" className={styles["navbar-item"]} onClick={() => setIsMobileMenuOpen(false)}>
+            <a href="/distribuidores" className={`${styles["navbar-item"]} ${isActive("/distribuidores") ? styles["navbar-item-active"] : ""}`} onClick={() => setIsMobileMenuOpen(false)}>
               <span className={styles["navbar-text"]}>Red de distribuidores</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
+            </a>
+            <a href="/eventos" className={`${styles["navbar-item"]} ${isActive("/eventos") ? styles["navbar-item-active"] : ""}`} onClick={() => setIsMobileMenuOpen(false)}>
+              <span className={styles["navbar-text"]}>Soporte Técnico</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
             </a>
           </nav>

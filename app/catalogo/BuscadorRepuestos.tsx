@@ -1,11 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LINEAS_PRODUCTO } from "@/lib/lineas-producto";
 import styles from "./BuscadorRepuestos.module.css";
+
+const PER_PAGE = 10;
+
+const BRAND_ONLY_SLUGS = ["sistema-hidraulico"];
+const NO_FILTER_SLUGS = ["liquido-para-freno"];
 
 interface Brand {
   id: string;
@@ -34,13 +40,15 @@ type SearchState = "idle" | "loading" | "results" | "empty" | "error";
 
 export default function BuscadorRepuestos() {
   const searchParams = useSearchParams();
-  const lineaSlug = searchParams.get("linea");
+  const lineaSlug = searchParams.get("linea") || "pastillas-de-freno";
   const linea = LINEAS_PRODUCTO.find((l) => l.slug === lineaSlug);
+
+  const isBrandOnly = BRAND_ONLY_SLUGS.includes(lineaSlug);
+  const isNoFilter = NO_FILTER_SLUGS.includes(lineaSlug);
 
   const [brandId, setBrandId] = useState("");
   const [modelId, setModelId] = useState("");
-  const [year, setYear] = useState("");
-  const [categorySlug, setCategorySlug] = useState("");
+  const [generation, setGeneration] = useState("");
 
   const [brands, setBrands] = useState<Brand[]>([]);
   const [models, setModels] = useState<Model[]>([]);
@@ -48,16 +56,17 @@ export default function BuscadorRepuestos() {
   const [searchState, setSearchState] = useState<SearchState>("idle");
 
   useEffect(() => {
+    if (isNoFilter) return;
     fetch("/api/vehicles/brands")
       .then((r) => r.json())
       .then(setBrands)
       .catch(() => {});
-  }, []);
+  }, [isNoFilter]);
 
   useEffect(() => {
     setModelId("");
-    setYear("");
-    if (!brandId) {
+    setGeneration("");
+    if (!brandId || isBrandOnly) {
       setModels([]);
       return;
     }
@@ -65,31 +74,53 @@ export default function BuscadorRepuestos() {
       .then((r) => r.json())
       .then(setModels)
       .catch(() => setModels([]));
-  }, [brandId]);
+  }, [brandId, isBrandOnly]);
 
   useEffect(() => {
-    setYear("");
+    setGeneration("");
   }, [modelId]);
 
+  // Auto-load products for no-filter lines
   useEffect(() => {
-    if (linea && linea.categorias.length === 1) {
-      setCategorySlug(linea.categorias[0].slug);
-    } else {
-      setCategorySlug("");
+    if (!isNoFilter || !linea) return;
+    setSearchState("loading");
+    fetch(`/api/products?linea=${lineaSlug}`)
+      .then((r) => r.json())
+      .then((data: Product[]) => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+          setSearchState(data.length > 0 ? "results" : "empty");
+        } else {
+          setSearchState("empty");
+        }
+      })
+      .catch(() => setSearchState("error"));
+  }, [isNoFilter, lineaSlug, linea]);
+
+  // Reset state on linea change
+  useEffect(() => {
+    setBrandId("");
+    setModelId("");
+    setGeneration("");
+    if (!isNoFilter) {
+      setSearchState("idle");
+      setProducts([]);
     }
-    setSearchState("idle");
-    setProducts([]);
-  }, [lineaSlug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lineaSlug, isNoFilter]);
 
   const selectedModel = models.find((m) => m.id === modelId);
-  const years = selectedModel
+  const generations = selectedModel
     ? Array.from(
         { length: selectedModel.yearTo - selectedModel.yearFrom + 1 },
         (_, i) => selectedModel.yearTo - i,
-      )
+      ).map((y) => String(y))
     : [];
 
-  const canSearch = !!(lineaSlug && brandId && modelId && year && categorySlug);
+  const canSearch = isNoFilter
+    ? false
+    : isBrandOnly
+      ? !!(lineaSlug && brandId)
+      : !!(lineaSlug && brandId && modelId && generation);
 
   const handleSearch = useCallback(async () => {
     if (!canSearch) return;
@@ -101,9 +132,8 @@ export default function BuscadorRepuestos() {
         body: JSON.stringify({
           linea: lineaSlug,
           brandId,
-          modelId,
-          year: parseInt(year),
-          categorySlug,
+          modelId: modelId || undefined,
+          year: generation ? parseInt(generation) : undefined,
         }),
       });
       if (!res.ok) throw new Error();
@@ -113,7 +143,18 @@ export default function BuscadorRepuestos() {
     } catch {
       setSearchState("error");
     }
-  }, [canSearch, lineaSlug, brandId, modelId, year, categorySlug]);
+  }, [canSearch, lineaSlug, brandId, modelId, generation]);
+
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(products.length / PER_PAGE));
+  const paginated = useMemo(
+    () => products.slice((page - 1) * PER_PAGE, page * PER_PAGE),
+    [products, page],
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [products]);
 
   if (!linea) {
     return (
@@ -127,7 +168,7 @@ export default function BuscadorRepuestos() {
             {LINEAS_PRODUCTO.map((l) => (
               <Link
                 key={l.slug}
-                href={`/productos?linea=${l.slug}`}
+                href={`/catalogo?linea=${l.slug}`}
                 className={styles.lineaCard}
               >
                 <div className={styles.lineaCardImg}>
@@ -154,7 +195,7 @@ export default function BuscadorRepuestos() {
         {LINEAS_PRODUCTO.map((l) => (
           <Link
             key={l.slug}
-            href={`/productos?linea=${l.slug}`}
+            href={`/catalogo?linea=${l.slug}`}
             className={`${styles.lineaTab} ${l.slug === lineaSlug ? styles.lineaTabActive : ""}`}
           >
             {l.nombre}
@@ -163,101 +204,86 @@ export default function BuscadorRepuestos() {
       </nav>
 
       <div className={styles.layout}>
-        <aside className={styles.filters}>
-          <h2 className={styles.filtersTitle}>Buscar repuestos</h2>
+        {!isNoFilter && (
+          <aside className={styles.filters}>
+            <h2 className={styles.filtersTitle}>Buscar repuestos</h2>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="brand">
-              Marca
-            </label>
-            <select
-              id="brand"
-              className={styles.select}
-              value={brandId}
-              onChange={(e) => setBrandId(e.target.value)}
-            >
-              <option value="">Seleccionar marca</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="model">
-              Modelo
-            </label>
-            <select
-              id="model"
-              className={styles.select}
-              value={modelId}
-              onChange={(e) => setModelId(e.target.value)}
-              disabled={!brandId}
-            >
-              <option value="">
-                {brandId ? "Seleccionar modelo" : "Primero selecciona marca"}
-              </option>
-              {models.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="year">
-              Año
-            </label>
-            <select
-              id="year"
-              className={styles.select}
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              disabled={!modelId}
-            >
-              <option value="">
-                {modelId ? "Seleccionar año" : "Primero selecciona modelo"}
-              </option>
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {linea.categorias.length > 1 && (
             <div className={styles.field}>
-              <label className={styles.label} htmlFor="type">
-                Tipo de repuesto
+              <label className={styles.label} htmlFor="brand">
+                Marca
               </label>
               <select
-                id="type"
+                id="brand"
                 className={styles.select}
-                value={categorySlug}
-                onChange={(e) => setCategorySlug(e.target.value)}
+                value={brandId}
+                onChange={(e) => setBrandId(e.target.value)}
               >
-                <option value="">Seleccionar tipo</option>
-                {linea.categorias.map((c) => (
-                  <option key={c.slug} value={c.slug}>
-                    {c.nombre}
+                <option value="">Seleccionar marca</option>
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
                   </option>
                 ))}
               </select>
             </div>
-          )}
 
-          <button
-            className={styles.searchButton}
-            disabled={!canSearch}
-            onClick={handleSearch}
-          >
-            Buscar
-          </button>
-        </aside>
+            {!isBrandOnly && (
+              <>
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="model">
+                    Modelo
+                  </label>
+                  <select
+                    id="model"
+                    className={styles.select}
+                    value={modelId}
+                    onChange={(e) => setModelId(e.target.value)}
+                    disabled={!brandId}
+                  >
+                    <option value="">
+                      {brandId ? "Seleccionar modelo" : "Primero selecciona marca"}
+                    </option>
+                    {models.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.label} htmlFor="generation">
+                    Generación
+                  </label>
+                  <select
+                    id="generation"
+                    className={styles.select}
+                    value={generation}
+                    onChange={(e) => setGeneration(e.target.value)}
+                    disabled={!modelId}
+                  >
+                    <option value="">
+                      {modelId ? "Seleccionar generación" : "Primero selecciona modelo"}
+                    </option>
+                    {generations.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+
+            <button
+              className={styles.searchButton}
+              disabled={!canSearch}
+              onClick={handleSearch}
+            >
+              Buscar
+            </button>
+          </aside>
+        )}
 
         <section className={styles.results} aria-live="polite">
           {searchState === "idle" && (
@@ -282,8 +308,9 @@ export default function BuscadorRepuestos() {
                 Encuentra el repuesto exacto para tu vehículo
               </p>
               <p className={styles.stateText}>
-                Completa los filtros de marca, modelo y año para ver repuestos
-                compatibles.
+                {isBrandOnly
+                  ? "Selecciona una marca para ver repuestos compatibles."
+                  : "Completa los filtros de marca, modelo y generación para ver repuestos compatibles."}
               </p>
             </div>
           )}
@@ -302,7 +329,7 @@ export default function BuscadorRepuestos() {
                 encontrado{products.length !== 1 ? "s" : ""}
               </p>
               <div className={styles.productList}>
-                {products.map((p) => (
+                {paginated.map((p) => (
                   <article key={p.id} className={styles.productCard}>
                     <div className={styles.productImage}>
                       {p.images[0] ? (
@@ -344,6 +371,27 @@ export default function BuscadorRepuestos() {
                   </article>
                 ))}
               </div>
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    className={styles.pageBtn}
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className={styles.pageInfo}>
+                    {page} / {totalPages}
+                  </span>
+                  <button
+                    className={styles.pageBtn}
+                    disabled={page === totalPages}
+                    onClick={() => setPage(page + 1)}
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
             </>
           )}
 
@@ -363,8 +411,8 @@ export default function BuscadorRepuestos() {
               </svg>
               <p className={styles.stateTitle}>Sin resultados</p>
               <p className={styles.stateText}>
-                No encontramos repuestos con estos filtros. Intenta con otro
-                modelo o tipo de repuesto.
+                No encontramos repuestos con estos filtros. Intenta con otra
+                selección.
               </p>
             </div>
           )}

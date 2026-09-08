@@ -12,6 +12,7 @@ import {
   Rocket,
   ArrowRight,
   ChevronDown,
+  CheckCircle,
 } from "lucide-react";
 import styles from "./Nosotros.module.css";
 
@@ -68,28 +69,37 @@ const scaleIn = {
 const VALORES = [
   {
     icon: ShieldCheck,
-    titulo: "Calidad certificada",
-    texto: "Cada componente pasa por rigurosos controles de calidad antes de llegar a nuestros clientes.",
+    titulo: "Compromiso con la calidad",
+    texto: "Cada componente pasa por rigurosos controles para garantizar seguridad y rendimiento.",
     accent: "#fe0008",
   },
   {
-    icon: Target,
-    titulo: "Precisión en compatibilidad",
-    texto: "Base de datos actualizada con más de 200 modelos de vehículos del mercado peruano.",
+    icon: Handshake,
+    titulo: "Honestidad y transparencia",
+    texto: "Relaciones comerciales basadas en la confianza y la comunicación directa con nuestros clientes.",
     accent: "#0e1469",
   },
   {
-    icon: Handshake,
-    titulo: "Compromiso con el cliente",
-    texto: "Asesoría técnica personalizada y soporte post-venta para talleres y mecánicos.",
+    icon: Target,
+    titulo: "Orientación al cliente",
+    texto: "Asesoría técnica especializada y servicio enfocado en la satisfacción de distribuidores y talleres.",
     accent: "#fe0008",
   },
   {
     icon: Lightbulb,
-    titulo: "Innovación constante",
-    texto: "Incorporamos materiales y tecnologías de última generación en nuestros productos.",
+    titulo: "Innovación y mejora continua",
+    texto: "Incorporamos materiales y tecnologías de última generación para mantenernos a la vanguardia.",
     accent: "#0e1469",
   },
+];
+
+const POR_QUE = [
+  "Especialistas en sistemas de frenos.",
+  "Amplio portafolio de productos.",
+  "Calidad garantizada.",
+  "Cobertura nacional.",
+  "Asesoría técnica especializada.",
+  "Compromiso con nuestros clientes.",
 ];
 
 const CIFRAS = [
@@ -192,23 +202,32 @@ export default function Nosotros() {
             </motion.div>
 
             <motion.div className={styles.historiaTexto} variants={fadeUp}>
-              <span className={styles.sectionLabel}>Nuestra historia</span>
+              <span className={styles.sectionLabel}>¿Quiénes somos?</span>
               <h2 className={styles.sectionTitle}>
-                Más de 15 años frenando<br />con confianza
+                King Brake Perú
               </h2>
               <p className={styles.bodyText}>
-                King Brake nació en Lima con una misión clara: ofrecer
-                componentes de frenado de la más alta calidad al mercado
-                peruano. Desde nuestros inicios, nos hemos enfocado en
-                entender las necesidades reales de talleres, mecánicos y
-                conductores que buscan seguridad sin compromisos.
+                KING BRAKE PERÚ es una empresa especializada en la importación
+                y comercialización de repuestos para sistemas de frenos
+                automotrices. Nos enfocamos exclusivamente en productos de
+                frenado para vehículos livianos y comerciales, ofreciendo
+                soluciones confiables, seguras y de alta calidad para el
+                mercado peruano.
               </p>
               <p className={styles.bodyText}>
-                Hoy contamos con una red de más de 50 puntos de venta a nivel
-                nacional y un catálogo que cubre las marcas y modelos más
-                populares del Perú. Cada producto que lleva nuestro nombre pasa
-                por estrictos controles de calidad, porque sabemos que en el
-                frenado no hay margen de error.
+                Atendemos a distribuidores, mayoristas, casas de repuestos y
+                talleres especializados en todo el país.
+              </p>
+              <span className={styles.sectionLabel}>Nuestra historia</span>
+              <p className={styles.bodyText}>
+                Desde nuestros inicios, hemos trabajado con un objetivo claro:
+                convertirnos en un aliado estratégico para nuestros clientes,
+                ofreciendo productos con una excelente relación entre calidad,
+                rendimiento y precio. Gracias a la confianza de nuestros
+                clientes y al compromiso de nuestro equipo, hoy contamos con
+                una presencia cada vez mayor en las principales ciudades del
+                Perú y continuamos ampliando nuestro portafolio y cobertura
+                comercial.
               </p>
             </motion.div>
           </motion.div>
@@ -270,10 +289,9 @@ export default function Nosotros() {
               </div>
               <h3 className={styles.mvTitle}>Nuestra misión</h3>
               <p className={styles.mvText}>
-                Proveer componentes de frenado confiables y de alta
-                performance, accesibles para todo el mercado automotriz
-                peruano, respaldados por asesoría técnica y un servicio
-                cercano al cliente.
+                Proporcionar soluciones completas para sistemas de frenos,
+                ofreciendo productos de alta calidad que garanticen seguridad,
+                confianza y un excelente desempeño para nuestros clientes.
               </p>
             </motion.div>
 
@@ -284,10 +302,9 @@ export default function Nosotros() {
               </div>
               <h3 className={styles.mvTitle}>Nuestra visión</h3>
               <p className={styles.mvText}>
-                Ser la marca referente en componentes de frenado en el Perú,
-                reconocida por la calidad de nuestros productos, la amplitud
-                de nuestra cobertura y la confianza que generamos en cada
-                cliente.
+                Consolidarnos como una de las marcas líderes en sistemas de
+                frenos del Perú, destacando por nuestra calidad, innovación,
+                cobertura nacional y servicio al cliente.
               </p>
             </motion.div>
           </motion.div>
@@ -358,6 +375,64 @@ export default function Nosotros() {
         </div>
       </section>
 
+      {/* ══════════ POR QUÉ ELEGIRNOS ══════════ */}
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={stagger}
+          >
+            <motion.span className={styles.sectionLabelCenter} variants={fadeUp}>
+              Nuestra propuesta
+            </motion.span>
+            <motion.h2 className={styles.sectionTitleCenter} variants={fadeUp}>
+              ¿Por qué elegir King Brake?
+            </motion.h2>
+            <motion.div className={styles.porQueGrid} variants={stagger}>
+              {POR_QUE.map((item) => (
+                <motion.div key={item} className={styles.porQueItem} variants={fadeUp}>
+                  <CheckCircle size={20} strokeWidth={2} className={styles.porQueIcon} />
+                  <span>{item}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════ COMPROMISO ══════════ */}
+      <section className={styles.compromisoSection}>
+        <div className={styles.container}>
+          <motion.div
+            className={styles.compromisoInner}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            variants={stagger}
+          >
+            <motion.span className={styles.sectionLabelCenter} variants={fadeUp}>
+              Lo que nos mueve
+            </motion.span>
+            <motion.h2 className={styles.sectionTitleCenter} variants={fadeUp}>
+              Nuestro compromiso
+            </motion.h2>
+            <motion.p className={styles.compromisoText} variants={fadeUp}>
+              En KING BRAKE creemos que el crecimiento de nuestra empresa se
+              construye sobre la confianza de nuestros clientes, la calidad de
+              nuestros productos y el compromiso de cada integrante de nuestro
+              equipo.
+            </motion.p>
+            <motion.p className={styles.compromisoText} variants={fadeUp}>
+              Cada colaborador representa nuestra marca y contribuye a ofrecer
+              un servicio responsable, profesional y orientado a la satisfacción
+              del cliente.
+            </motion.p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* ══════════ CTA ══════════ */}
       <section className={styles.ctaSection}>
         <div className={styles.ctaOrb} />
@@ -377,7 +452,7 @@ export default function Nosotros() {
               tambores y componentes hidráulicos.
             </motion.p>
             <motion.div variants={fadeUp}>
-              <Link href="/productos" className={styles.ctaButton}>
+              <Link href="/catalogo" className={styles.ctaButton}>
                 <span>Ver catálogo</span>
                 <ArrowRight size={18} strokeWidth={2.2} />
               </Link>

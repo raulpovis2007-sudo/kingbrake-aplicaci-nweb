@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const distributors = await db.distributor.findMany({
       where: { isActive: true },
-      select: { id: true, name: true, address: true, lat: true, lng: true, phone: true },
+      select: { id: true, name: true, address: true, region: true, lat: true, lng: true, phone: true },
       orderBy: { name: "asc" },
     });
     return NextResponse.json(distributors, {

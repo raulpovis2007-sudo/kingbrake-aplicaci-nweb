@@ -89,7 +89,7 @@
   gap: 12px;
   background-color: #fe0008;
   color: #ffffff;
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 14px;
   font-weight: 600;
   padding: 16px 28px;
@@ -121,7 +121,7 @@
 
 .columnTitle {
   color: rgba(255, 255, 255, 0.6);
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 14px;
   font-weight: 500;
   margin: 0 0 20px 0;
@@ -162,7 +162,7 @@
 
 .navLinks a {
   color: #ffffff;
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -197,7 +197,7 @@
   -webkit-backdrop-filter: blur(8px);
   /* Texto champagne */
   color: #E8D5B7;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Barlow', sans-serif;
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 1px;
@@ -292,7 +292,7 @@
 .contactItem span,
 .contactItem a {
   color: #ffffff;
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 14px;
   font-weight: 400;
   text-decoration: none;
@@ -329,7 +329,7 @@
 
 .keyword {
   color: rgba(255, 255, 255, 0.5);
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 13px;
   font-weight: 400;
 }
@@ -355,7 +355,7 @@
 
 .legalLink {
   color: rgba(255, 255, 255, 0.5);
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 13px;
   font-weight: 400;
   text-decoration: none;
@@ -387,7 +387,7 @@
 
 .complaintLegal {
   color: rgba(255, 255, 255, 0.4);
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 12px;
   font-weight: 400;
 }
@@ -402,7 +402,7 @@
 
 .copyright p {
   color: rgba(255, 255, 255, 0.5);
-  font-family: Inter, sans-serif;
+  font-family: Barlow, sans-serif;
   font-size: 14px;
   font-weight: 400;
   margin: 0;

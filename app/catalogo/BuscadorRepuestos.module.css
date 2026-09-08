@@ -367,6 +367,45 @@
   height: 56px;
 }
 
+/* ── Pagination ── */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.pageBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #0e1469;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.pageBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.pageInfo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
 /* ── Mobile ── */
 
 @media (max-width: 767px) {
