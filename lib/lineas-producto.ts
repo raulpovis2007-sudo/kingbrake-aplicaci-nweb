@@ -1,7 +1,7 @@
-export interface SubCategoria {
+export interface ProductoItem {
   nombre: string;
-  slug: string;
   imagen: string;
+  imagenesPorPresentacion?: Record<string, string>;
   descripcion: string;
   subtitulo: string;
   badge: string;
@@ -9,24 +9,23 @@ export interface SubCategoria {
   presentaciones: string[];
 }
 
-export interface LineaProducto {
-  nombre: string;
+export interface SubCategoria extends ProductoItem {
   slug: string;
-  imagen: string;
+  items?: ProductoItem[];
+}
+
+export interface LineaProducto extends ProductoItem {
+  slug: string;
   categoriaLabel: string;
-  descripcion: string;
-  subtitulo: string;
-  badge: string;
-  tip: string;
-  presentaciones: string[];
   categorias: SubCategoria[];
+  items?: ProductoItem[];
 }
 
 export const LINEAS_PRODUCTO: LineaProducto[] = [
   {
     nombre: "Pastillas de freno",
     slug: "pastillas-de-freno",
-    imagen: "/assets/images/linea-productos/pastilla-freno.webp",
+    imagen: "/assets/images/productos/1 - PASTILLAS.png",
     categoriaLabel: "Sistema de frenado",
     descripcion:
       "Nuestras pastillas de freno King Brake están diseñadas con compuestos de alta tecnología que garantizan una **frenada segura y silenciosa**. Disponibles en formulaciones **ceramicadas** y **semimetálicas**, adaptadas a las condiciones de manejo en Perú.",
@@ -38,7 +37,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Ceramic Ultra",
         slug: "ceramic-ultra",
-        imagen: "/assets/images/linea-productos/pastilla-freno.webp",
+        imagen: "/assets/images/productos/1.1 - CERAMIC-ULTRA.png",
         descripcion: "Pastillas ceramicadas de **alto rendimiento** con tecnología de última generación. Diseñadas para frenado **silencioso**, baja emisión de polvo y máxima durabilidad en condiciones urbanas y de carretera.",
         subtitulo: "FRENADO SILENCIOSO",
         badge: "Formulación cerámica premium para vehículos livianos",
@@ -48,7 +47,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Ceramic Heavy",
         slug: "ceramic-heavy",
-        imagen: "/assets/images/linea-productos/pastilla-freno.webp",
+        imagen: "/assets/images/productos/1.3 - CERAMIC-HEAVY.png",
         descripcion: "Pastillas ceramicadas de **servicio pesado** para vehículos que exigen mayor capacidad de frenado. Compuesto reforzado que soporta **altas temperaturas** y cargas pesadas sin perder eficiencia.",
         subtitulo: "RESISTENCIA EXTREMA",
         badge: "Para SUVs, camionetas y vehículos de carga liviana",
@@ -58,7 +57,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Metal Power",
         slug: "metal-power",
-        imagen: "/assets/images/linea-productos/pastilla-freno.webp",
+        imagen: "/assets/images/productos/1.2 - METAL-POWER.png",
         descripcion: "Pastillas semimetálicas con **máxima potencia de frenado**. Compuesto de alto coeficiente de fricción que garantiza una respuesta **inmediata** en cualquier condición de manejo.",
         subtitulo: "POTENCIA MÁXIMA",
         badge: "Alto coeficiente de fricción para frenado potente",
@@ -70,7 +69,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
   {
     nombre: "Zapatas",
     slug: "zapatas",
-    imagen: "/assets/images/linea-productos/zapatas.png",
+    imagen: "/assets/images/productos/2.1-ZAPATAS.png",
     categoriaLabel: "Sistema de frenado",
     descripcion:
       "Las zapatas King Brake ofrecen un **rendimiento confiable** en sistemas de freno de tambor. Fabricadas con materiales de fricción de alta calidad que aseguran una **larga vida útil** y frenado consistente.",
@@ -83,7 +82,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
   {
     nombre: "Discos y tambores",
     slug: "discos-y-tambores",
-    imagen: "/assets/images/linea-productos/disco-tambores.png",
+    imagen: "/assets/images/productos/3-DISCOS-Y-TAMBORES.png",
     categoriaLabel: "Sistema de frenado",
     descripcion:
       "Discos ventilados y tambores King Brake fabricados en **fundición de alta resistencia**. Diseñados para soportar altas temperaturas y ofrecer una **disipación de calor superior**, reduciendo el riesgo de fatiga de frenado.",
@@ -95,7 +94,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Discos",
         slug: "discos",
-        imagen: "/assets/images/linea-productos/disco-tambores.png",
+        imagen: "/assets/images/productos/3.1-DISCOS.png",
         descripcion: "Discos de freno King Brake fabricados en **fundición gris de alta resistencia**. Diseño ventilado que permite una **disipación de calor óptima**, reduciendo la fatiga térmica y manteniendo un frenado estable.",
         subtitulo: "DISIPACIÓN DE CALOR",
         badge: "Disponibles en ventilado y sólido",
@@ -105,7 +104,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Tambores",
         slug: "tambores",
-        imagen: "/assets/images/linea-productos/disco-tambores.png",
+        imagen: "/assets/images/productos/3.2-TAMBORES.png",
         descripcion: "Tambores de freno King Brake de **fundición balanceada** para un frenado uniforme y sin vibraciones. Compatibles con los principales modelos del mercado peruano.",
         subtitulo: "FRENADO UNIFORME",
         badge: "Fundición balanceada de alta calidad",
@@ -117,7 +116,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
   {
     nombre: "Sistema hidráulico",
     slug: "sistema-hidraulico",
-    imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
+    imagen: "/assets/images/productos/4-SISTEMA-HIDRAULICO.png",
     categoriaLabel: "Componentes hidráulicos",
     descripcion:
       "Componentes del sistema hidráulico de frenos King Brake: **cilindros maestros, cilindros de rueda y kits de reparación**. Cada pieza es sometida a pruebas de presión para garantizar un funcionamiento **libre de fugas**.",
@@ -127,29 +126,39 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
     presentaciones: ["Cilindro maestro", "Cilindro de rueda", "Kit de reparación"],
     categorias: [
       {
-        nombre: "Master",
-        slug: "master",
-        imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
-        descripcion: "Cilindro maestro de freno King Brake con **precisión de sellado** y materiales resistentes a la corrosión. Convierte la fuerza del pedal en presión hidráulica para un frenado **seguro y proporcional**.",
-        subtitulo: "CONTROL PRECISO",
-        badge: "Probado a alta presión antes de salir de fábrica",
-        tip: "** Reemplaza si notas que el pedal de freno se siente esponjoso.",
+        nombre: "Master y Servo",
+        slug: "master-y-servo",
+        imagen: "/assets/images/productos/4.1-MASTER.png",
+        descripcion: "Cilindro maestro y servofreno King Brake para un control total del sistema de frenado.",
+        subtitulo: "CONTROL Y ASISTENCIA",
+        badge: "Probados a alta presión antes de salir de fábrica",
+        tip: "",
         presentaciones: ["Unidad"],
-      },
-      {
-        nombre: "Servo",
-        slug: "servo",
-        imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
-        descripcion: "Servofreno King Brake que **amplifica la fuerza de frenado** mediante vacío del motor. Reduce el esfuerzo necesario en el pedal para una conducción más cómoda y segura.",
-        subtitulo: "ASISTENCIA DE FRENADO",
-        badge: "Mayor confort y seguridad al frenar",
-        tip: "** Si el pedal se endurece con el motor encendido, revisa el servo.",
-        presentaciones: ["Unidad"],
+        items: [
+          {
+            nombre: "Master",
+            imagen: "/assets/images/productos/4.1-MASTER.png",
+            descripcion: "Cilindro maestro King Brake. Convierte la fuerza del pedal en presión hidráulica con **precisión de sellado** para un frenado seguro y progresivo.",
+            subtitulo: "CONTROL HIDRÁULICO",
+            badge: "Probado a alta presión antes de salir de fábrica",
+            tip: "** Reemplaza el master si el pedal se siente esponjoso o pierde firmeza.",
+            presentaciones: ["Unidad"],
+          },
+          {
+            nombre: "Servo",
+            imagen: "/assets/images/productos/4-SISTEMA-HIDRAULICO.png",
+            descripcion: "Servofreno King Brake que **amplifica la fuerza de frenado** mediante vacío del motor, proporcionando mayor confort y seguridad al conductor.",
+            subtitulo: "ASISTENCIA DE FRENADO",
+            badge: "Amplificación de fuerza para frenado asistido",
+            tip: "** Revisa el servo si el pedal se endurece con el motor encendido.",
+            presentaciones: ["Unidad"],
+          },
+        ],
       },
       {
         nombre: "Bomba de Freno",
         slug: "bomba-de-freno",
-        imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
+        imagen: "/assets/images/productos/4.3-BOMBA-DE-FRENO-Y-EMBRAGUE.png",
         descripcion: "Bomba de freno King Brake con **sellos de alta durabilidad** y cuerpo resistente a la presión. Distribuye el líquido de frenos hacia las ruedas de forma **equilibrada y sin fugas**.",
         subtitulo: "DISTRIBUCIÓN EQUILIBRADA",
         badge: "Sellado hermético garantizado",
@@ -159,7 +168,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Bomba de Embrague",
         slug: "bomba-de-embrague",
-        imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
+        imagen: "/assets/images/productos/4.3-BOMBA-DE-FRENO-Y-EMBRAGUE.png",
         descripcion: "Bomba de embrague King Brake diseñada para una **operación suave y precisa** del sistema de embrague hidráulico. Materiales anticorrosivos para mayor durabilidad.",
         subtitulo: "EMBRAGUE SUAVE",
         badge: "Compatible con los principales modelos del mercado",
@@ -169,7 +178,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Bombín de Rueda",
         slug: "bombin-de-rueda",
-        imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
+        imagen: "/assets/images/productos/4.2-BOMBIN-DE-FRENO-EMBRAGUE.png",
         descripcion: "Bombín de rueda King Brake con **pistones de precisión** que accionan las zapatas contra el tambor. Sellado hermético para evitar fugas y mantener la presión de frenado.",
         subtitulo: "ACCIÓN DIRECTA",
         badge: "Pistones de precisión con sellado hermético",
@@ -179,7 +188,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Bombín auxiliar de Embrague",
         slug: "bombin-auxiliar-de-embrague",
-        imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
+        imagen: "/assets/images/productos/4.2-BOMBIN-DE-FRENO-EMBRAGUE.png",
         descripcion: "Bombín auxiliar (cilindro receptor) de embrague King Brake. Recibe la presión hidráulica y **acciona la horquilla del embrague** con precisión para un cambio de marcha suave.",
         subtitulo: "CAMBIO PRECISO",
         badge: "Para un desembrague suave y sin esfuerzo",
@@ -189,7 +198,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Kit de reparación de Embrague",
         slug: "kit-de-reparacion-de-embrague",
-        imagen: "/assets/images/linea-productos/sistema-hidraulico.png",
+        imagen: "/assets/images/productos/4.4-KIT-DE-REPARACION-DE-EMBRAGUE.png",
         descripcion: "Kit completo de reparación King Brake con **retenes, resortes y pistones** para restaurar el funcionamiento del sistema hidráulico de embrague sin reemplazar la unidad completa.",
         subtitulo: "RESTAURACIÓN COMPLETA",
         badge: "Incluye todos los componentes para la reparación",
@@ -199,21 +208,21 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
     ],
   },
   {
-    nombre: "Líquido para freno",
-    slug: "liquido-para-freno",
-    imagen: "/assets/images/linea-productos/lubricantes.png",
+    nombre: "Lubricantes de freno",
+    slug: "lubricantes-de-freno",
+    imagen: "/assets/images/productos/5-LUBRICANTES-DE-FRENO.png",
     categoriaLabel: "Fluidos y lubricantes",
     descripcion:
-      "Líquido de frenos King Brake formulado con **aditivos anticorrosivos** que protegen el sistema hidráulico. Cumple con especificaciones **DOT 3 y DOT 4**, garantizando un punto de ebullición alto para un frenado seguro.",
+      "Lubricante de freno King Brake formulado con **aditivos anticorrosivos** que protegen el sistema hidráulico. Cumple con especificaciones **DOT 3 y DOT 4**, garantizando un punto de ebullición alto para un frenado seguro.",
     subtitulo: "PROTECCIÓN DEL SISTEMA",
     badge: "Ideal para todo tipo de vehículos livianos y pesados",
-    tip: "** Analiza y cambia el líquido para frenos cada 10,000 km o 01 vez al año.",
+    tip: "** Analiza y cambia los lubricantes de frenos cada 10,000 km o 01 vez al año.",
     presentaciones: ["118 ml (4 onzas)", "250 ml", "500 ml", "1 litro"],
     categorias: [
       {
         nombre: "Limpiador de frenos",
         slug: "limpiador-de-frenos",
-        imagen: "/assets/images/linea-productos/lubricantes.png",
+        imagen: "/assets/images/productos/5.1-LIMPIADOR-DE-FRENOS.png",
         descripcion: "Limpiador de frenos King Brake que **elimina grasa, aceite y residuos** de las superficies de frenado. Fórmula de evaporación rápida que no deja residuos.",
         subtitulo: "LIMPIEZA PROFUNDA",
         badge: "Evaporación rápida, sin residuos",
@@ -221,10 +230,10 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
         presentaciones: ["300 ml", "500 ml"],
       },
       {
-        nombre: "Líquidos de frenos",
-        slug: "liquidos-de-frenos",
-        imagen: "/assets/images/linea-productos/lubricantes.png",
-        descripcion: "Líquido de frenos King Brake con **alto punto de ebullición** y aditivos anticorrosivos. Cumple especificaciones **DOT 3 y DOT 4** para un frenado seguro en todas las condiciones.",
+        nombre: "Líquido para frenos",
+        slug: "liquido-para-frenos",
+        imagen: "/assets/images/productos/5.2-LIQUIDOOS-DE-FRENOS-DOT-3.png",
+        descripcion: "Líquido para frenos King Brake con **alto punto de ebullición** y aditivos anticorrosivos. Cumple especificaciones **DOT 3 y DOT 4** para un frenado seguro en todas las condiciones.",
         subtitulo: "PROTECCIÓN HIDRÁULICA",
         badge: "Especificaciones DOT 3 y DOT 4",
         tip: "** Cambia el líquido de frenos cada 10,000 km o 1 vez al año.",
@@ -233,7 +242,7 @@ export const LINEAS_PRODUCTO: LineaProducto[] = [
       {
         nombre: "Grasas para frenos",
         slug: "grasas-para-frenos",
-        imagen: "/assets/images/linea-productos/lubricantes.png",
+        imagen: "/assets/images/productos/5.5-GRASAS-PARA-FRENOS-CERAMIC-EXTREME.png",
         descripcion: "Grasa especial King Brake para **lubricación de componentes de freno**. Resistente a altas temperaturas, previene ruidos y desgaste prematuro de guías y pines.",
         subtitulo: "LUBRICACIÓN TÉRMICA",
         badge: "Resistente a temperaturas extremas",

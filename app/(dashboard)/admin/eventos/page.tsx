@@ -132,42 +132,41 @@ export default function AdminEventosPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Eventos y Exhibiciones</h1>
+          <h1 className={styles.title}>Nuevas Aplicaciones</h1>
           <p className={styles.subtitle}>
-            Gestiona las fotos de eventos del carrusel de la landing
+            Gestiona las publicaciones de nuevas aplicaciones
             {saving && <span className={styles.savingBadge}>Guardando...</span>}
           </p>
         </div>
         <Link href="/admin/eventos/nuevo" className={styles.addButton}>
           <Plus size={20} />
-          Nuevo Evento
+          Nueva publicación
         </Link>
       </div>
 
       {eventos.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><CalendarDays size={48} /></div>
-          <p>No hay eventos todavía</p>
+          <p>No hay publicaciones todavía</p>
           <Link href="/admin/eventos/nuevo" className={styles.addButton}>
             <Plus size={20} />
-            Crear primer evento
+            Crear primera publicación
           </Link>
         </div>
       ) : (
         <>
           <p className={styles.dragHint}>
             <GripVertical size={16} />
-            Arrastra las filas para reordenar los eventos
+            Arrastra las filas para reordenar las publicaciones
           </p>
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th style={{ width: 40 }}></th>
-                  <th>Evento</th>
+                  <th>Publicación</th>
+                  <th>Fecha</th>
                   <th>Link</th>
-                  <th>Inicio</th>
-                  <th>Fin</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -194,13 +193,12 @@ export default function AdminEventosPage() {
                         </div>
                       </div>
                     </td>
+                    <td className={styles.viewsCell}>{formatDate(evento.startDate)}</td>
                     <td>
                       <span className={styles.viewsCell} style={{ fontSize: "0.8rem" }}>
                         {evento.link ? evento.link.slice(0, 40) + (evento.link.length > 40 ? "..." : "") : "Sin link"}
                       </span>
                     </td>
-                    <td className={styles.viewsCell}>{formatDate(evento.startDate)}</td>
-                    <td className={styles.viewsCell}>{formatDate(evento.endDate)}</td>
                     <td>
                       <button
                         onClick={() => toggleActive(evento)}

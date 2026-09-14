@@ -11,7 +11,7 @@ export async function POST() {
     }
 
     if (!isCloudinaryConfigured()) {
-      return NextResponse.json({ error: "Cloudinary no está configurado" }, { status: 500 });
+      return NextResponse.json({ error: "Cloudinary no está configurado. Verifique las variables CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET." }, { status: 500 });
     }
 
     const timestamp = Math.round(new Date().getTime() / 1000);

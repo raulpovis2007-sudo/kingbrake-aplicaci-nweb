@@ -7,7 +7,7 @@ const QUICK_REPLIES = [
   {
     label: "Productos disponibles",
     answer:
-      "Contamos con pastillas de freno (ceramicadas y semimetálicas), zapatas, discos de freno, tambores, componentes del sistema hidráulico y líquido para freno. Todos con garantía King Brake.",
+      "Contamos con pastillas de freno (ceramicadas y semimetálicas), zapatas, discos de freno, tambores, componentes del sistema hidráulico y lubricantes para freno. Todos con garantía King Brake.",
   },
   {
     label: "Compatibilidad vehicular",

@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
         title: true,
         image: true,
         link: true,
+        startDate: true,
       },
     });
 

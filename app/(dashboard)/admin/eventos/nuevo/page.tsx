@@ -101,7 +101,7 @@ export default function NuevoEventoPage() {
         <Link href="/admin/eventos" className={formStyles.backButton}>
           <ArrowLeft size={20} /> Volver
         </Link>
-        <h1 className={formStyles.title}>Nuevo Evento</h1>
+        <h1 className={formStyles.title}>Nueva Aplicación</h1>
       </div>
 
       <form onSubmit={handleSubmit} className={formStyles.form}>
@@ -111,7 +111,7 @@ export default function NuevoEventoPage() {
 
             <div className={formStyles.formGroup}>
               <label className={formStyles.label}>Título <span className={formStyles.required}>*</span></label>
-              <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Ej: Feria Autopartes Lima 2026" className={formStyles.input} maxLength={100} />
+              <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Ej: Nueva aplicación Toyota Hilux 2024" className={formStyles.input} maxLength={100} />
             </div>
 
             <div className={formStyles.formGroup}>
@@ -148,7 +148,7 @@ export default function NuevoEventoPage() {
             <div className={formStyles.formActions}>
               <Link href="/admin/eventos" className={formStyles.cancelButton}>Cancelar</Link>
               <button type="submit" disabled={saving || uploading} className={formStyles.submitButton}>
-                {saving ? "Guardando..." : <><Save size={18} /> Crear Evento</>}
+                {saving ? "Guardando..." : <><Save size={18} /> Publicar</>}
               </button>
             </div>
           </div>

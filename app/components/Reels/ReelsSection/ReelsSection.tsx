@@ -74,8 +74,14 @@ export default function ReelsSection() {
   };
 
   const openViewer = (index: number) => {
-    // Track apertura desde la grid
-    trackReelView(reels[index], "landing_grid");
+    const reel = reels[index];
+    trackReelView(reel, "landing_grid");
+
+    if (!reel.videoUrl && reel.embedUrl && reel.embedType === "INSTAGRAM") {
+      window.open(reel.embedUrl, "_blank", "noopener");
+      return;
+    }
+
     setSelectedIndex(index);
   };
 

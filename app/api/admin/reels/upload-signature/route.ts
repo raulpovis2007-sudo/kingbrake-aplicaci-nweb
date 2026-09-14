@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     // Verificar configuración de Cloudinary
     if (!isCloudinaryConfigured()) {
       return NextResponse.json(
-        { error: "Cloudinary no está configurado" },
+        { error: "Cloudinary no está configurado. Verifique las variables CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET." },
         { status: 500 }
       );
     }

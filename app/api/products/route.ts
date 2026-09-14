@@ -6,7 +6,7 @@ const LINEA_TO_CATEGORIES: Record<string, string[]> = {
   "zapatas": ["zapatas"],
   "discos-y-tambores": ["discos-de-freno", "tambores"],
   "sistema-hidraulico": ["componentes-hidraulicos"],
-  "liquido-para-freno": ["liquido-de-frenos"],
+  "lubricantes-de-freno": ["liquido-para-frenos"],
 };
 
 export async function GET(req: NextRequest) {

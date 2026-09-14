@@ -125,7 +125,7 @@ export default function EditarEventoPage() {
     <div className={formStyles.container}>
       <div className={formStyles.header}>
         <Link href="/admin/eventos" className={formStyles.backButton}><ArrowLeft size={20} /> Volver</Link>
-        <h1 className={formStyles.title}>Editar Evento</h1>
+        <h1 className={formStyles.title}>Editar publicación</h1>
       </div>
 
       <form onSubmit={handleSubmit} className={formStyles.form}>

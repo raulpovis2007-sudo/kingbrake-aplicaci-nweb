@@ -19,7 +19,7 @@ async function main() {
       { name: "Discos de Freno", slug: "discos-de-freno", description: "Discos de freno ventilados y sólidos", icon: "disc", order: 4 },
       { name: "Tambores", slug: "tambores", description: "Tambores de freno de alta resistencia", icon: "drum", order: 5 },
       { name: "Componentes Hidráulicos", slug: "componentes-hidraulicos", description: "Cilindros maestros, bombines y mangueras de freno", icon: "hydraulic", order: 6 },
-      { name: "Líquido de Frenos", slug: "liquido-de-frenos", description: "Líquidos de freno DOT 3 y DOT 4", icon: "fluid", order: 7 },
+      { name: "Líquido para frenos", slug: "liquido-para-frenos", description: "Líquido para frenos DOT 3 y DOT 4", icon: "fluid", order: 7 },
     ].map((c) => prisma.category.create({ data: c })),
   );
 
@@ -42,7 +42,7 @@ async function main() {
     prisma.product.create({ data: { name: "Tambor de Freno Trasero Compacto", slug: "tambor-freno-trasero-compacto", description: "Tambor trasero para compactos. Hierro fundido de alta densidad.", price: 119.90, sku: "KB-TB-002", stock: 10, categoryId: tambores.id } }),
     prisma.product.create({ data: { name: "Cilindro Maestro de Freno", slug: "cilindro-maestro-freno", description: "Cilindro maestro de freno. Compatible con múltiples modelos.", price: 185.00, sku: "KB-CH-001", stock: 12, categoryId: hidraulicos.id } }),
     prisma.product.create({ data: { name: "Kit Reparación Bombín", slug: "kit-reparacion-bombin", description: "Kit completo de reparación para bombín de freno trasero.", price: 35.90, sku: "KB-CH-002", stock: 30, categoryId: hidraulicos.id } }),
-    prisma.product.create({ data: { name: "Líquido de Frenos DOT 4", slug: "liquido-frenos-dot4", description: "Líquido de frenos DOT 4 de alta performance. 500ml.", price: 28.90, sku: "KB-LF-001", stock: 80, categoryId: liquidos.id } }),
+    prisma.product.create({ data: { name: "Líquido de Freno DOT 4", slug: "liquido-freno-dot4", description: "Líquido de freno DOT 4 de alta performance. 500ml.", price: 28.90, sku: "KB-LF-001", stock: 80, categoryId: liquidos.id } }),
   ]);
 
   // ── Marcas de vehículos ──
@@ -139,7 +139,7 @@ async function main() {
     12: sedanModels,          // Compacto
     13: allModelRecords,      // Cilindro maestro → todos
     14: sedanModels,          // Kit bombín → sedán
-    15: allModelRecords,      // Líquido → todos
+    15: allModelRecords,      // Lubricante → todos
   };
 
   for (let i = 0; i < products.length; i++) {

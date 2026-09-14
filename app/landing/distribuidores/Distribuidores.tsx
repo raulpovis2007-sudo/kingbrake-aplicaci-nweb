@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import { MapPin, Phone, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
@@ -55,9 +55,36 @@ export default function Distribuidores() {
     setSelectedId(null);
   }, [region]);
 
-  const handleSelect = (id: string) => {
-    setSelectedId(id === selectedId ? null : id);
-  };
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const scrollToId = useRef<string | null>(null);
+
+  const handleSelect = useCallback((id: string) => {
+    const next = id === selectedId ? null : id;
+    setSelectedId(next);
+
+    if (!next) return;
+
+    const idx = filtered.findIndex((d) => d.id === next);
+    if (idx === -1) return;
+
+    const targetPage = Math.floor(idx / PER_PAGE) + 1;
+    if (targetPage !== page) {
+      setPage(targetPage);
+      scrollToId.current = next;
+    } else {
+      cardRefs.current.get(next)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [selectedId, filtered, page]);
+
+  useEffect(() => {
+    if (scrollToId.current) {
+      const id = scrollToId.current;
+      scrollToId.current = null;
+      requestAnimationFrame(() => {
+        cardRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+    }
+  }, [page]);
 
   const mapsUrl = (d: Distributor) =>
     `https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lng}`;
@@ -90,6 +117,7 @@ export default function Distribuidores() {
               {paginated.map((d) => (
                 <div
                   key={d.id}
+                  ref={(el) => { if (el) cardRefs.current.set(d.id, el); else cardRefs.current.delete(d.id); }}
                   className={`${styles.card} ${selectedId === d.id ? styles.cardActive : ""}`}
                   onClick={() => handleSelect(d.id)}
                 >

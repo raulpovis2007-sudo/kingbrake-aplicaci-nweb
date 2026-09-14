@@ -38,7 +38,7 @@ export default function LineaProductos() {
           ))}
         </div>
 
-        <div className={`${styles.collage} ${items.length === 1 ? styles.collageSingle : items.length === 2 ? styles.collageTwo : items.length === 3 ? styles.collageThree : styles.collageGrid}`}>
+        <div className={styles.collage}>
           {items.map((item) => (
             <Link
               key={item.href}

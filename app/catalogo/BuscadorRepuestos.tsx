@@ -11,7 +11,7 @@ import styles from "./BuscadorRepuestos.module.css";
 const PER_PAGE = 10;
 
 const BRAND_ONLY_SLUGS = ["sistema-hidraulico"];
-const NO_FILTER_SLUGS = ["liquido-para-freno"];
+const NO_FILTER_SLUGS = ["lubricantes-de-freno"];
 
 interface Brand {
   id: string;

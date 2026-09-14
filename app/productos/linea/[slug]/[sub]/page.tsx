@@ -32,11 +32,13 @@ export default function SubCategoriaPage({ params }: Props) {
     ...linea,
     nombre: sub.nombre,
     imagen: sub.imagen,
+    imagenesPorPresentacion: sub.imagenesPorPresentacion,
     descripcion: sub.descripcion,
     subtitulo: sub.subtitulo,
     badge: sub.badge,
     tip: sub.tip,
     presentaciones: sub.presentaciones,
+    items: sub.items,
   };
 
   const relacionadas = linea.categorias
