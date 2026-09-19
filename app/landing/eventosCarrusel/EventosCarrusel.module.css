@@ -8,31 +8,46 @@
   margin: 0 auto;
 }
 
-.header {
+.titleBlock {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   margin-bottom: 24px;
 }
 
-.title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #0e1469;
-  margin: 0;
+.accentIcon {
+  color: #fe0008;
+  fill: #fe0008;
+  margin-bottom: 4px;
 }
 
-.navControls {
+.title {
+  font-size: 32px;
+  font-weight: 300;
+  color: #0e1469;
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.titleBold {
+  font-weight: 800;
+}
+
+/* Flechas a los lados del carrusel */
+.carouselRow {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
 }
 
 .navBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 2px solid #0e1469;
   background: transparent;
@@ -51,19 +66,22 @@
   pointer-events: none;
 }
 
-/* Scroll area */
-.scrollArea {
-  position: relative;
+.viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .grid {
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding-bottom: 4px;
+  cursor: grab;
+  user-select: none;
 }
 
 .grid::-webkit-scrollbar {
@@ -73,19 +91,20 @@
 /* Card — vertical reel format */
 .slide {
   position: relative;
-  flex: 0 0 calc(33.333% - 11px);
-  min-width: 240px;
-  aspect-ratio: 4/5;
+  flex: 0 0 calc((100% - 32px) / 3);
+  min-width: 200px;
+  aspect-ratio: 9/16;
   border-radius: 14px;
   overflow: hidden;
-  scroll-snap-align: start;
   text-decoration: none;
   cursor: pointer;
+  scroll-snap-align: start;
 }
 
 .slideImage {
   object-fit: cover;
   transition: transform 0.4s ease;
+  pointer-events: none;
 }
 
 .slide:hover .slideImage {
@@ -129,15 +148,18 @@
 
 @media (max-width: 640px) {
   .title {
-    font-size: 1.4rem;
+    font-size: 26px;
   }
 
   .slide {
     flex: 0 0 75%;
-    min-width: 200px;
   }
 
-  .navControls {
+  .navBtn {
     display: none;
+  }
+
+  .carouselRow {
+    gap: 0;
   }
 }

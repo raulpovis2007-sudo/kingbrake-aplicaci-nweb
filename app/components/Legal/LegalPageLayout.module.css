@@ -30,8 +30,10 @@
   transition: opacity 0.2s ease;
 }
 
-.logoLink img {
-  filter: brightness(0);
+.logoImage {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 .logoLink:hover {

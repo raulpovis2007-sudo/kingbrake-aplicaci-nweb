@@ -97,6 +97,7 @@ model Product {
   name        String
   slug        String   @unique
   description String   @db.Text
+  detalle     String?  @db.Text
   price       Float
   sku         String   @unique
   images      String[]

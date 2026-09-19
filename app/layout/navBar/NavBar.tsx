@@ -234,14 +234,17 @@ export default function NavBar() {
             aria-label="Ir al inicio"
             className={styles["logo-link"]}
           >
-            <Image
-              src="/assets/images/logo-principal.webp"
-              alt="King Brake"
-              width={200}
-              height={60}
-              priority
-              className={styles["logo-image"]}
-            />
+            <picture>
+              <source media="(max-width: 767px)" srcSet="/assets/images/logo-racing-mobil.webp" />
+              <Image
+                src="/assets/images/logo-racing-desktop.webp"
+                alt="King Brake"
+                width={200}
+                height={60}
+                priority
+                className={styles["logo-image"]}
+              />
+            </picture>
           </Link>
         </div>
 
@@ -287,7 +290,7 @@ export default function NavBar() {
           <div className={styles["sidebar-header"]}>
             <Link href="/" className={styles["sidebar-logo-link"]}>
               <Image
-                src="/assets/images/logo-principal.webp"
+                src="/assets/images/logo-racing-mobil.webp"
                 alt="King Brake"
                 width={140}
                 height={42}

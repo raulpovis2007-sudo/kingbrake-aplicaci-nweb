@@ -14,7 +14,7 @@ export default function PoliticaPrivacidadPage() {
   return (
     <LegalPageLayout
       title="Política de Privacidad"
-      lastUpdated="01 de Agosto de 2026"
+      lastUpdated="19 de Septiembre de 2026"
     >
       <section>
         <p>
@@ -34,16 +34,16 @@ export default function PoliticaPrivacidadPage() {
             <strong>Nombre comercial:</strong> King Brake Peru
           </li>
           <li>
-            <strong>RUC:</strong> TODO_RUC
+            <strong>RUC:</strong> 20611801867
           </li>
           <li>
-            <strong>Domicilio:</strong> TODO_DIRECCION, Lima, Perú
+            <strong>Domicilio:</strong> Av. Wiesse Mza. A Lote. 4a A.H. Enrique Montenegro, San Juan De Lurigancho - Lima, Perú
           </li>
           <li>
-            <strong>Correo electrónico:</strong> TODO_EMAIL
+            <strong>Correo electrónico:</strong> contabilidad@kingbrake.com
           </li>
           <li>
-            <strong>Teléfono:</strong> +51 TODO_TELEFONO
+            <strong>Teléfono:</strong> +51 993 214 144
           </li>
         </ul>
       </section>
@@ -57,6 +57,7 @@ export default function PoliticaPrivacidadPage() {
           <li>Número de teléfono</li>
           <li>Correo electrónico</li>
           <li>Dirección de envío</li>
+          <li>RUC (opcional)</li>
         </ul>
 
         <h3>2.2. Datos del Vehículo (opcional)</h3>
@@ -177,7 +178,7 @@ export default function PoliticaPrivacidadPage() {
         </ul>
         <p>
           Para ejercer estos derechos, envíe un correo a{" "}
-          <strong>TODO_EMAIL</strong> con el asunto {'"'}Solicitud ARCO{'"'}.
+          <strong>contabilidad@kingbrake.com</strong> con el asunto {'"'}Solicitud ARCO{'"'}.
           Responderemos en un plazo de <strong>20 días hábiles</strong>.
         </p>
       </section>
@@ -271,9 +272,9 @@ export default function PoliticaPrivacidadPage() {
       <section>
         <h2>14. Contacto</h2>
         <ul>
-          <li><strong>Email:</strong> TODO_EMAIL</li>
-          <li><strong>Teléfono/WhatsApp:</strong> +51 TODO_TELEFONO</li>
-          <li><strong>Dirección:</strong> TODO_DIRECCION, Lima, Perú</li>
+          <li><strong>Email:</strong> contabilidad@kingbrake.com</li>
+          <li><strong>Teléfono/WhatsApp:</strong> +51 993 214 144</li>
+          <li><strong>Dirección:</strong> Av. República de Polonia 753, San Juan de Lurigancho 15419, Lima, Perú</li>
         </ul>
       </section>
 

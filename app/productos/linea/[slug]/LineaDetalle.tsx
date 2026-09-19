@@ -26,7 +26,7 @@ function renderDescripcion(text: string) {
 const WHATSAPP_NUMERO = "51999999999";
 
 function ProductoBlock({ item, categoriaLabel, lineaSlug }: { item: ProductoItem; categoriaLabel: string; lineaSlug: string }) {
-  const [presentacion, setPresentacion] = useState<string>(item.presentaciones[0]);
+  const [presentacion] = useState<string>(item.presentaciones[0]);
   const [zooming, setZooming] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const imagenBoxRef = useRef<HTMLDivElement>(null);
@@ -89,26 +89,6 @@ function ProductoBlock({ item, categoriaLabel, lineaSlug }: { item: ProductoItem
         <h2 className={styles.titulo}>{item.nombre}</h2>
         <p className={styles.descripcion}>{renderDescripcion(item.descripcion)}</p>
 
-        <h3 className={styles.subtitulo}>{item.subtitulo}</h3>
-        <div className={styles.badge}>{item.badge}</div>
-
-        {item.presentaciones.length > 1 && (
-          <div className={styles.presentacionGroup}>
-            <label className={styles.presentacionLabel}>PRESENTACIONES</label>
-            <div className={styles.pillGroup}>
-              {item.presentaciones.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  className={`${styles.pill} ${p === presentacion ? styles.pillActive : ""}`}
-                  onClick={() => setPresentacion(p)}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div className={styles.acciones}>
           <button onClick={handleCotizar} className={styles.cotizarBtn}>

@@ -72,7 +72,7 @@ export default function Distribuidores() {
       setPage(targetPage);
       scrollToId.current = next;
     } else {
-      cardRefs.current.get(next)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      cardRefs.current.get(next)?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [selectedId, filtered, page]);
 
@@ -81,7 +81,7 @@ export default function Distribuidores() {
       const id = scrollToId.current;
       scrollToId.current = null;
       requestAnimationFrame(() => {
-        cardRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        cardRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
       });
     }
   }, [page]);

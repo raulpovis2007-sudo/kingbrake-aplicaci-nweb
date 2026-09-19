@@ -14,7 +14,7 @@ export default function TerminosCondicionesPage() {
   return (
     <LegalPageLayout
       title="Términos y Condiciones"
-      lastUpdated="01 de Agosto de 2026"
+      lastUpdated="19 de Septiembre de 2026"
     >
       <section>
         <p>
@@ -33,19 +33,19 @@ export default function TerminosCondicionesPage() {
         </p>
         <ul>
           <li>
-            <strong>Nombre comercial:</strong> King Brake Peru
+            <strong>Nombre comercial:</strong> King Brake
           </li>
           <li>
-            <strong>RUC:</strong> TODO_RUC
+            <strong>RUC:</strong> 20611801867
           </li>
           <li>
-            <strong>Domicilio fiscal:</strong> TODO_DIRECCION, Lima, Perú
+            <strong>Domicilio fiscal:</strong> Av. Wiesse Mza. A Lote. 4a A.H. Enrique Montenegro, San Juan De Lurigancho - Lima, Perú
           </li>
           <li>
-            <strong>Correo electrónico:</strong> TODO_EMAIL
+            <strong>Correo electrónico:</strong> contabilidad@kingbrake.com
           </li>
           <li>
-            <strong>Teléfono:</strong> +51 TODO_TELEFONO
+            <strong>Teléfono:</strong> +51 993 214 144
           </li>
         </ul>
       </section>
@@ -64,7 +64,7 @@ export default function TerminosCondicionesPage() {
           </li>
           <li>
             <strong>{'"'}Producto{'"'}:</strong> Componentes de frenado automotriz
-            (pastillas, discos, zapatas, tambores y accesorios relacionados).
+            (pastillas, discos, zapatas, tambores, partes del sistema hidráulico, líquidos de frenos y accesorios relacionados).
           </li>
           <li>
             <strong>{'"'}Plataforma{'"'}:</strong> El sitio web www.kingbrake.com y
@@ -77,14 +77,15 @@ export default function TerminosCondicionesPage() {
         <h2>3. Productos y Catálogo</h2>
         <p>
           King Brake comercializa componentes de frenado automotriz incluyendo
-          pastillas ceramicadas, pastillas semimetálicas, zapatas, discos de freno
-          y tambores, compatibles con las marcas y modelos más populares en Perú.
+          pastillas ceramicadas, pastillas semimetálicas, zapatas, discos de freno,
+          tambores, partes del sistema hidráulico y líquidos de freno, compatibles
+          con las marcas y modelos más populares en Perú.
         </p>
 
         <h3>3.1. Información del Producto</h3>
         <p>
           Nos esforzamos por presentar información precisa sobre nuestros
-          productos (descripciones, precios, compatibilidad, imágenes). Sin
+          productos (descripciones, precios, compatibilidad, imágenes, etc). Sin
           embargo, pueden existir variaciones menores en color o presentación
           respecto a las imágenes mostradas.
         </p>
@@ -135,7 +136,7 @@ export default function TerminosCondicionesPage() {
         <h3>5.2. Medios de Pago</h3>
         <ul>
           <li>Transferencia bancaria</li>
-          <li>Yape o Plin</li>
+          <li>Billeteras digitales (Yape, Plin, etc)</li>
           <li>Efectivo (en puntos de venta)</li>
           <li>Coordinación directa vía WhatsApp</li>
         </ul>
@@ -172,20 +173,13 @@ export default function TerminosCondicionesPage() {
       <section>
         <h2>7. Garantía de Productos</h2>
         <p>
-          King Brake garantiza que sus productos están libres de defectos de
-          fabricación. La garantía cubre:
+          En King Brake nos comprometemos con la calidad, confiabilidad y correcto
+          funcionamiento de nuestros productos para el sistema de frenos. Para
+          conocer los detalles sobre la garantía, consulte nuestra{" "}
+          <a href="/politica-de-cambios-y-devoluciones">
+            Política de Cambios y Devoluciones
+          </a>.
         </p>
-        <ul>
-          <li>Defectos de fabricación comprobables</li>
-          <li>Producto diferente al solicitado</li>
-        </ul>
-        <p>La garantía NO cubre:</p>
-        <ul>
-          <li>Desgaste normal por uso</li>
-          <li>Instalación incorrecta</li>
-          <li>Uso en vehículos no compatibles</li>
-          <li>Daños por accidentes o mal uso</li>
-        </ul>
       </section>
 
       <section>
@@ -201,27 +195,20 @@ export default function TerminosCondicionesPage() {
 
       <section>
         <h2>9. Limitaciones de Responsabilidad</h2>
-        <p>King Brake:</p>
-        <ul>
-          <li>
-            No se responsabiliza por daños derivados de la instalación
-            incorrecta de los productos.
-          </li>
-          <li>
-            No garantiza compatibilidad cuando el Cliente selecciona un producto
-            para un vehículo no listado en la ficha de compatibilidad.
-          </li>
-          <li>
-            La responsabilidad se limita al valor del producto adquirido.
-          </li>
-        </ul>
+        <p>
+          Para conocer los detalles sobre limitaciones de responsabilidad, consulte
+          nuestra{" "}
+          <a href="/politica-de-cambios-y-devoluciones">
+            Política de Cambios y Devoluciones
+          </a>.
+        </p>
       </section>
 
       <section>
         <h2>10. Propiedad Intelectual</h2>
         <p>
-          Todo el contenido del sitio web (textos, imágenes, logos, diseños) es
-          propiedad intelectual de King Brake Peru. Queda prohibida su
+          Todo el contenido del sitio web (textos, imágenes, logos, diseños, etc) es
+          propiedad intelectual de King Brake. Queda prohibida su
           reproducción, distribución o uso comercial sin autorización expresa.
         </p>
       </section>
@@ -272,13 +259,13 @@ export default function TerminosCondicionesPage() {
         <h2>15. Contacto</h2>
         <ul>
           <li>
-            <strong>Email:</strong> TODO_EMAIL
+            <strong>Email:</strong> contabilidad@kingbrake.com
           </li>
           <li>
-            <strong>Teléfono/WhatsApp:</strong> +51 TODO_TELEFONO
+            <strong>Teléfono/WhatsApp:</strong> +51 993 214 144
           </li>
           <li>
-            <strong>Dirección:</strong> TODO_DIRECCION, Lima, Perú
+            <strong>Dirección:</strong> Av. República de Polonia 753, San Juan de Lurigancho 15419, Lima, Perú
           </li>
         </ul>
       </section>

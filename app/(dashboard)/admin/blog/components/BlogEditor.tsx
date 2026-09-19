@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Eye, EyeOff, ArrowLeft, Monitor, Smartphone, Upload, Loader2 } from "lucide-react";
 import styles from "./BlogEditor.module.css";
-import RichTextEditor from "./RichTextEditor";
+import RichTextEditor from "../../components/RichTextEditor/RichTextEditor";
 
 function isValidImageUrl(url: string): boolean {
   if (!url) return false;

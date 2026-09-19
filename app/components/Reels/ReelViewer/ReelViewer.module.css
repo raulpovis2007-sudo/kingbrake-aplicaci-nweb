@@ -53,23 +53,10 @@
   gap: 8px;
 }
 
-.logoIcon {
-  width: 32px;
-  height: 32px;
-  background: #ffc107;
-  color: #1a1a1a;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.logoText {
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
+.logoImg {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
 }
 
 .headerActions {

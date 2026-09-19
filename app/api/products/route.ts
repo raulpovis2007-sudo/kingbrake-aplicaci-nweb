@@ -1,30 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-const LINEA_TO_CATEGORIES: Record<string, string[]> = {
-  "pastillas-de-freno": ["pastillas-ceramicadas", "pastillas-semimetalicas"],
-  "zapatas": ["zapatas"],
-  "discos-y-tambores": ["discos-de-freno", "tambores"],
-  "sistema-hidraulico": ["componentes-hidraulicos"],
-  "lubricantes-de-freno": ["liquido-para-frenos"],
-};
-
 export async function GET(req: NextRequest) {
   const lineaSlug = req.nextUrl.searchParams.get("linea");
   if (!lineaSlug) {
     return NextResponse.json({ error: "Parámetro linea requerido" }, { status: 400 });
   }
 
-  const categorySlugs = LINEA_TO_CATEGORIES[lineaSlug];
-  if (!categorySlugs) {
-    return NextResponse.json({ error: "Línea inválida" }, { status: 400 });
-  }
-
   try {
     const products = await db.product.findMany({
       where: {
         isActive: true,
-        category: { slug: { in: categorySlugs } },
+        category: { slug: lineaSlug },
       },
       select: {
         id: true,
@@ -34,9 +21,10 @@ export async function GET(req: NextRequest) {
         price: true,
         sku: true,
         images: true,
+        featured: true,
         category: { select: { name: true, slug: true } },
       },
-      orderBy: { name: "asc" },
+      orderBy: [{ featured: "desc" }, { name: "asc" }],
     });
 
     return NextResponse.json(products);

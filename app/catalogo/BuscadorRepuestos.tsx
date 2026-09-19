@@ -33,6 +33,7 @@ interface Product {
   price: number;
   sku: string;
   images: string[];
+  featured?: boolean;
   category: { name: string; slug: string };
 }
 

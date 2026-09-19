@@ -27,27 +27,23 @@
   flex: 1;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: #fee2e2;
+.accentIcon {
   color: #fe0008;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  fill: #fe0008;
+  margin-bottom: 4px;
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-size: 32px;
+  font-weight: 300;
+  color: #0e1469;
   margin: 0 0 8px 0;
   line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.titleBold {
+  font-weight: 800;
 }
 
 .subtitle {
@@ -91,6 +87,9 @@
 /* Scroll Wrapper */
 .scrollWrapper {
   position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .gradientLeft,

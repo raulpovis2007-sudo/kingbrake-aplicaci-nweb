@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, Play, Crown } from "lucide-react";
 import ReelCard, { ReelData } from "../ReelCard/ReelCard";
 import ReelViewer from "../ReelViewer/ReelViewer";
 import { useReelsAnalytics } from "@/app/hooks/useReelsAnalytics";
@@ -74,14 +74,7 @@ export default function ReelsSection() {
   };
 
   const openViewer = (index: number) => {
-    const reel = reels[index];
-    trackReelView(reel, "landing_grid");
-
-    if (!reel.videoUrl && reel.embedUrl && reel.embedType === "INSTAGRAM") {
-      window.open(reel.embedUrl, "_blank", "noopener");
-      return;
-    }
-
+    trackReelView(reels[index], "landing_grid");
     setSelectedIndex(index);
   };
 
@@ -97,11 +90,8 @@ export default function ReelsSection() {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerContent}>
-            <div className={styles.badge}>
-              <Play size={14} />
-              <span>Tips en video</span>
-            </div>
-            <h2 className={styles.title}>Tips de frenado</h2>
+            <Crown size={28} className={styles.accentIcon} />
+            <h2 className={styles.title}>Tips de <span className={styles.titleBold}>Frenado</span></h2>
             <p className={styles.subtitle}>
               Consejos de expertos sobre mantenimiento y componentes de frenado
             </p>

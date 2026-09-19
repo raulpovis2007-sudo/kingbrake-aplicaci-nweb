@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Cropper, { Area } from "react-easy-crop";
 import {
   ArrowLeft,
   Save,
   Play,
-  Instagram,
-  Youtube,
   Upload,
   X,
   Loader2,
   ImageIcon,
   Video,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import styles from "./ReelForm.module.css";
 
@@ -21,18 +22,14 @@ import styles from "./ReelForm.module.css";
 // TIPOS
 // ============================================
 
-type EmbedType = "INSTAGRAM" | "TIKTOK" | "YOUTUBE_SHORTS";
 type ReelCategory = "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS";
 
 interface FormData {
   title: string;
   description: string;
-  embedUrl: string;
-  embedType: EmbedType;
   thumbnailUrl: string;
-  videoUrl: string; // Video nativo (opcional - si existe, se usa en lugar del embed)
+  videoUrl: string;
   category: ReelCategory;
-  likes: number;
 }
 
 // ============================================
@@ -46,11 +43,24 @@ const categories: { value: ReelCategory; label: string }[] = [
   { value: "TESTIMONIOS", label: "Testimonios" },
 ];
 
-const platforms: { value: EmbedType; label: string; icon: JSX.Element }[] = [
-  { value: "INSTAGRAM", label: "Instagram", icon: <Instagram size={18} /> },
-  { value: "TIKTOK", label: "TikTok", icon: <Play size={18} /> },
-  { value: "YOUTUBE_SHORTS", label: "YouTube Shorts", icon: <Youtube size={18} /> },
-];
+
+// ============================================
+// HELPERS: Crop
+// ============================================
+
+async function getCroppedBlob(src: string, crop: Area): Promise<Blob> {
+  const img = await new Promise<HTMLImageElement>((resolve) => {
+    const i = new Image();
+    i.onload = () => resolve(i);
+    i.src = src;
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = crop.width;
+  canvas.height = crop.height;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height);
+  return new Promise((resolve) => canvas.toBlob((b) => resolve(b!), "image/webp", 0.9));
+}
 
 // ============================================
 // COMPONENTE PRINCIPAL
@@ -68,15 +78,22 @@ export default function NuevoReelPage() {
   const [dragActive, setDragActive] = useState(false);
   const [dragActiveVideo, setDragActiveVideo] = useState(false);
 
+  // Crop state
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const croppedAreaRef = useRef<Area | null>(null);
+
+  const onCropComplete = useCallback((_: Area, croppedPixels: Area) => {
+    croppedAreaRef.current = croppedPixels;
+  }, []);
+
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
-    embedUrl: "",
-    embedType: "INSTAGRAM",
     thumbnailUrl: "",
     videoUrl: "",
     category: "TIPS",
-    likes: 0,
   });
 
   const handleChange = (
@@ -91,60 +108,55 @@ export default function NuevoReelPage() {
   // UPLOAD DE THUMBNAIL
   // ============================================
 
-  const handleFileSelect = async (file: File) => {
-    // Validar tipo
+  const handleFileSelect = (file: File) => {
     if (!file.type.startsWith("image/")) {
       setError("El archivo debe ser una imagen");
       return;
     }
-
-    // Validar tamaño (5MB)
     if (file.size > 5 * 1024 * 1024) {
       setError("La imagen no debe superar 5MB");
       return;
     }
-
-    setUploading(true);
     setError(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImage(reader.result as string);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropConfirm = async () => {
+    if (!cropImage || !croppedAreaRef.current) return;
+    setCropImage(null);
+    setUploading(true);
 
     try {
-      // 1. Obtener firma para subida directa a Cloudinary
+      const blob = await getCroppedBlob(cropImage, croppedAreaRef.current);
+
       const signatureRes = await fetch("/api/admin/reels/upload-signature", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resourceType: "image" }),
       });
+      if (!signatureRes.ok) throw new Error("Error al obtener firma");
 
-      if (!signatureRes.ok) {
-        const signatureData = await signatureRes.json();
-        throw new Error(signatureData.error || "Error al obtener firma");
-      }
+      const { signature, timestamp, cloudName, apiKey, folder } = await signatureRes.json();
 
-      const { signature, timestamp, cloudName, apiKey, folder } =
-        await signatureRes.json();
-
-      // 2. Subir directamente a Cloudinary
-      const cloudinaryFormData = new FormData();
-      cloudinaryFormData.append("file", file);
-      cloudinaryFormData.append("signature", signature);
-      cloudinaryFormData.append("timestamp", timestamp.toString());
-      cloudinaryFormData.append("api_key", apiKey);
-      cloudinaryFormData.append("folder", folder);
+      const fd = new FormData();
+      fd.append("file", blob, "thumbnail.webp");
+      fd.append("signature", signature);
+      fd.append("timestamp", timestamp.toString());
+      fd.append("api_key", apiKey);
+      fd.append("folder", folder);
 
       const cloudinaryRes = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: cloudinaryFormData,
-        }
+        { method: "POST", body: fd }
       );
-
       const cloudinaryData = await cloudinaryRes.json();
-
-      if (!cloudinaryRes.ok) {
-        console.error("Cloudinary error:", cloudinaryData);
-        throw new Error(cloudinaryData.error?.message || "Error al subir la imagen a Cloudinary");
-      }
+      if (!cloudinaryRes.ok) throw new Error(cloudinaryData.error?.message || "Error al subir imagen");
 
       setFormData((prev) => ({ ...prev, thumbnailUrl: cloudinaryData.secure_url }));
     } catch (err) {
@@ -192,14 +204,12 @@ export default function NuevoReelPage() {
   // ============================================
 
   const handleVideoSelect = async (file: File) => {
-    // Validar tipo
     const validVideoTypes = ["video/mp4", "video/webm", "video/quicktime"];
     if (!validVideoTypes.includes(file.type)) {
       setError("El archivo debe ser un video (MP4, WebM o MOV)");
       return;
     }
 
-    // Validar tamaño (50MB)
     if (file.size > 50 * 1024 * 1024) {
       setError("El video no debe superar 50MB");
       return;
@@ -301,9 +311,8 @@ export default function NuevoReelPage() {
       setError("El título es obligatorio");
       return;
     }
-    // Validar que tenga al menos un video (nativo o embed)
-    if (!formData.videoUrl?.trim() && !formData.embedUrl.trim()) {
-      setError("Debes subir un video o proporcionar una URL de embed");
+    if (!formData.videoUrl?.trim()) {
+      setError("Debes subir un video");
       return;
     }
     if (!formData.thumbnailUrl.trim()) {
@@ -332,42 +341,6 @@ export default function NuevoReelPage() {
     } finally {
       setSaving(false);
     }
-  };
-
-  // Generar URL de embed para preview
-  const getEmbedPreviewUrl = () => {
-    if (!formData.embedUrl) return null;
-
-    try {
-      const url = formData.embedUrl;
-
-      if (formData.embedType === "INSTAGRAM") {
-        if (url.includes("instagram.com")) {
-          const cleanUrl = url.split("?")[0];
-          return cleanUrl.endsWith("/")
-            ? `${cleanUrl}embed`
-            : `${cleanUrl}/embed`;
-        }
-      }
-
-      if (formData.embedType === "TIKTOK") {
-        const match = url.match(/video\/(\d+)/);
-        if (match) {
-          return `https://www.tiktok.com/embed/v2/${match[1]}`;
-        }
-      }
-
-      if (formData.embedType === "YOUTUBE_SHORTS") {
-        const match = url.match(/(?:shorts\/|v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-        if (match) {
-          return `https://www.youtube.com/embed/${match[1]}`;
-        }
-      }
-    } catch {
-      return null;
-    }
-
-    return null;
   };
 
   return (
@@ -419,64 +392,6 @@ export default function NuevoReelPage() {
               />
               <span className={styles.charCount}>
                 {formData.description.length}/300
-              </span>
-            </div>
-
-            {/* Plataforma */}
-            <div className={styles.formGroup}>
-              <label className={styles.label}>
-                Plataforma <span className={styles.required}>*</span>
-              </label>
-              <div className={styles.platformSelector}>
-                {platforms.map((platform) => (
-                  <button
-                    key={platform.value}
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        embedType: platform.value,
-                      }))
-                    }
-                    className={`${styles.platformButton} ${
-                      formData.embedType === platform.value
-                        ? styles.platformActive
-                        : ""
-                    }`}
-                  >
-                    {platform.icon}
-                    {platform.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* URL del video */}
-            <div className={styles.formGroup}>
-              <label className={styles.label}>
-                URL de embed <span className={styles.optional}>(opcional si hay video nativo)</span>
-              </label>
-              <input
-                type="url"
-                name="embedUrl"
-                value={formData.embedUrl}
-                onChange={handleChange}
-                placeholder={
-                  formData.embedType === "INSTAGRAM"
-                    ? "https://www.instagram.com/reel/ABC123/"
-                    : formData.embedType === "TIKTOK"
-                    ? "https://www.tiktok.com/@user/video/1234567890"
-                    : "https://www.youtube.com/shorts/ABC123"
-                }
-                className={styles.input}
-              />
-              <span className={styles.hint}>
-                Pega la URL completa del video desde{" "}
-                {formData.embedType === "INSTAGRAM"
-                  ? "Instagram"
-                  : formData.embedType === "TIKTOK"
-                  ? "TikTok"
-                  : "YouTube"}
               </span>
             </div>
 
@@ -544,10 +459,10 @@ export default function NuevoReelPage() {
               </span>
             </div>
 
-            {/* Video Nativo Upload (opcional) */}
+            {/* Video */}
             <div className={styles.formGroup}>
               <label className={styles.label}>
-                Video Nativo <span className={styles.optional}>(opcional)</span>
+                Video <span className={styles.required}>*</span>
               </label>
 
               {formData.videoUrl ? (
@@ -607,7 +522,7 @@ export default function NuevoReelPage() {
                 </div>
               )}
               <span className={styles.hint}>
-                Si subes un video nativo, se usará en lugar del embed de redes sociales
+                MP4, WebM o MOV (máx. 50MB)
               </span>
             </div>
 
@@ -628,28 +543,6 @@ export default function NuevoReelPage() {
                   </option>
                 ))}
               </select>
-            </div>
-
-            {/* Likes */}
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Likes</label>
-              <input
-                type="number"
-                name="likes"
-                value={formData.likes}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    likes: parseInt(e.target.value) || 0,
-                  }))
-                }
-                placeholder="0"
-                className={styles.input}
-                min={0}
-              />
-              <span className={styles.hint}>
-                Cantidad de likes del video en la red social
-              </span>
             </div>
 
             {/* Botones */}
@@ -703,16 +596,15 @@ export default function NuevoReelPage() {
               </div>
             </div>
 
-            {/* Preview del Embed */}
-            {getEmbedPreviewUrl() && (
+            {formData.videoUrl && (
               <div className={styles.embedPreview}>
                 <h4 className={styles.embedTitle}>Preview del video</h4>
                 <div className={styles.embedContainer}>
-                  <iframe
-                    src={getEmbedPreviewUrl()!}
-                    frameBorder="0"
-                    allowFullScreen
-                    allow="autoplay; encrypted-media"
+                  <video
+                    src={formData.videoUrl}
+                    controls
+                    playsInline
+                    style={{ width: "100%", borderRadius: "8px" }}
                   />
                 </div>
               </div>
@@ -720,6 +612,47 @@ export default function NuevoReelPage() {
           </div>
         </div>
       </form>
+
+      {/* Modal de recorte */}
+      {cropImage && (
+        <div className={styles.cropOverlay}>
+          <div className={styles.cropModal}>
+            <h3 className={styles.cropTitle}>Ajustar thumbnail</h3>
+            <div className={styles.cropContainer}>
+              <Cropper
+                image={cropImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={9 / 16}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className={styles.cropControls}>
+              <ZoomOut size={16} color="#9ca3af" />
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.1}
+                value={zoom}
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className={styles.cropSlider}
+              />
+              <ZoomIn size={16} color="#9ca3af" />
+            </div>
+            <div className={styles.cropActions}>
+              <button type="button" className={styles.cancelButton} onClick={() => setCropImage(null)}>
+                Cancelar
+              </button>
+              <button type="button" className={styles.submitButton} onClick={handleCropConfirm}>
+                Confirmar recorte
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

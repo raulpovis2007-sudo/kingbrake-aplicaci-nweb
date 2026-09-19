@@ -19,13 +19,16 @@ export default function LegalPageLayout({
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <Link href="/" className={styles.logoLink}>
-            <Image
-              src="/assets/images/kingbrake-logo.png"
-              alt="King Brake"
-              width={150}
-              height={40}
-              priority
-            />
+            <picture>
+              <source media="(max-width: 767px)" srcSet="/assets/images/logo-racing-mobil.webp" />
+              <img
+                src="/assets/images/logo-racing-desktop.webp"
+                alt="King Brake"
+                width={150}
+                height={40}
+                className={styles.logoImage}
+              />
+            </picture>
           </Link>
           <Link href="/" className={styles.backLink}>
             ← Volver al inicio

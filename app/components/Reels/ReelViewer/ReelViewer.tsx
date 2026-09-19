@@ -198,8 +198,7 @@ export default function ReelViewer({
         {/* Header */}
         <header className={styles.header}>
           <div className={styles.logo}>
-            <span className={styles.logoIcon}>V</span>
-            <span className={styles.logoText}>King Brake</span>
+            <img src="/assets/images/logo-racing-mobil.webp" alt="King Brake" className={styles.logoImg} />
           </div>
           <div className={styles.headerActions}>
             <button

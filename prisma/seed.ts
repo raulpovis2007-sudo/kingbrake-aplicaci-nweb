@@ -10,39 +10,38 @@ async function main() {
   await prisma.vehicleModel.deleteMany();
   await prisma.vehicleBrand.deleteMany();
 
-  // ── Categorías ──
+  // ── Categorías (5 líneas de producto) ──
   const categories = await Promise.all(
     [
-      { name: "Pastillas Ceramicadas", slug: "pastillas-ceramicadas", description: "Pastillas de freno con compuesto cerámico para mayor durabilidad y menor ruido", icon: "ceramic", order: 1 },
-      { name: "Pastillas Semimetálicas", slug: "pastillas-semimetalicas", description: "Pastillas de freno semimetálicas ideales para uso urbano y carretera", icon: "semimetallic", order: 2 },
-      { name: "Zapatas", slug: "zapatas", description: "Zapatas de freno para sistema de tambor", icon: "shoe", order: 3 },
-      { name: "Discos de Freno", slug: "discos-de-freno", description: "Discos de freno ventilados y sólidos", icon: "disc", order: 4 },
-      { name: "Tambores", slug: "tambores", description: "Tambores de freno de alta resistencia", icon: "drum", order: 5 },
-      { name: "Componentes Hidráulicos", slug: "componentes-hidraulicos", description: "Cilindros maestros, bombines y mangueras de freno", icon: "hydraulic", order: 6 },
-      { name: "Líquido para frenos", slug: "liquido-para-frenos", description: "Líquido para frenos DOT 3 y DOT 4", icon: "fluid", order: 7 },
+      { name: "Pastillas de freno", slug: "pastillas-de-freno", description: "Pastillas ceramicadas y semimetálicas", order: 1 },
+      { name: "Zapatas", slug: "zapatas", description: "Zapatas de freno para sistema de tambor", order: 2 },
+      { name: "Discos y tambores", slug: "discos-y-tambores", description: "Discos ventilados, sólidos y tambores", order: 3 },
+      { name: "Sistema hidráulico", slug: "sistema-hidraulico", description: "Cilindros maestros, servos, bombas, bombines y kits", order: 4 },
+      { name: "Lubricantes de freno", slug: "lubricantes-de-freno", description: "Limpiadores, líquidos y grasas para frenos", order: 5 },
     ].map((c) => prisma.category.create({ data: c })),
   );
 
-  const [ceramicadas, semimetalicas, zapatas, discos, tambores, hidraulicos, liquidos] = categories;
+  const [pastillas, zapatas, discosYTambores, sistemaHidraulico, lubricantes] = categories;
 
   // ── Productos ──
   const products = await Promise.all([
-    prisma.product.create({ data: { name: "Pastilla Ceramicada Delantera Universal", slug: "pastilla-ceramicada-del-universal", description: "Pastilla de freno ceramicada delantera. Frenado suave, bajo polvo y mínimo ruido.", price: 89.90, sku: "KB-PC-001", stock: 50, featured: true, categoryId: ceramicadas.id } }),
-    prisma.product.create({ data: { name: "Pastilla Ceramicada Delantera Sedán", slug: "pastilla-ceramicada-del-sedan", description: "Pastilla ceramicada de alto rendimiento para sedanes compactos.", price: 79.90, sku: "KB-PC-002", stock: 40, featured: true, categoryId: ceramicadas.id } }),
-    prisma.product.create({ data: { name: "Pastilla Ceramicada Delantera SUV", slug: "pastilla-ceramicada-del-suv", description: "Pastilla ceramicada para SUVs. Resistente a altas temperaturas.", price: 129.90, sku: "KB-PC-003", stock: 30, featured: true, categoryId: ceramicadas.id } }),
-    prisma.product.create({ data: { name: "Pastilla Semimetálica Delantera Camioneta", slug: "pastilla-semimetalica-del-camioneta", description: "Pastilla semimetálica reforzada. Ideal para uso pesado y off-road.", price: 119.90, sku: "KB-PS-001", stock: 25, categoryId: semimetalicas.id } }),
-    prisma.product.create({ data: { name: "Pastilla Semimetálica Delantera Sedán", slug: "pastilla-semimetalica-del-sedan", description: "Pastilla semimetálica económica para sedanes compactos.", price: 59.90, sku: "KB-PS-002", stock: 60, categoryId: semimetalicas.id } }),
-    prisma.product.create({ data: { name: "Pastilla Semimetálica Delantera Pick-up", slug: "pastilla-semimetalica-del-pickup", description: "Pastilla semimetálica de alto rendimiento para pick-ups. Trabajo pesado.", price: 114.90, sku: "KB-PS-003", stock: 20, categoryId: semimetalicas.id } }),
-    prisma.product.create({ data: { name: "Zapata de Freno Trasera Estándar", slug: "zapata-freno-trasera-estandar", description: "Zapata de freno trasera. Material de fricción de alta calidad.", price: 49.90, sku: "KB-ZP-001", stock: 40, categoryId: zapatas.id } }),
-    prisma.product.create({ data: { name: "Zapata de Freno Trasera Compacto", slug: "zapata-freno-trasera-compacto", description: "Zapata trasera para vehículos compactos. Ajuste perfecto y durabilidad.", price: 45.90, sku: "KB-ZP-002", stock: 35, categoryId: zapatas.id } }),
-    prisma.product.create({ data: { name: "Disco de Freno Ventilado Delantero", slug: "disco-freno-ventilado-delantero", description: "Disco de freno ventilado delantero. Mayor disipación de calor.", price: 189.90, sku: "KB-DF-001", stock: 15, featured: true, categoryId: discos.id } }),
-    prisma.product.create({ data: { name: "Disco de Freno Ventilado SUV", slug: "disco-freno-ventilado-suv", description: "Disco ventilado para SUVs medianos. Diámetro 280mm.", price: 229.90, sku: "KB-DF-002", stock: 12, categoryId: discos.id } }),
-    prisma.product.create({ data: { name: "Disco de Freno Sólido Trasero", slug: "disco-freno-solido-trasero", description: "Disco sólido trasero para sedanes. Acabado de precisión.", price: 149.90, sku: "KB-DF-003", stock: 18, categoryId: discos.id } }),
-    prisma.product.create({ data: { name: "Tambor de Freno Trasero Estándar", slug: "tambor-freno-trasero-estandar", description: "Tambor de freno trasero. Fundición de alta resistencia.", price: 139.90, sku: "KB-TB-001", stock: 10, categoryId: tambores.id } }),
-    prisma.product.create({ data: { name: "Tambor de Freno Trasero Compacto", slug: "tambor-freno-trasero-compacto", description: "Tambor trasero para compactos. Hierro fundido de alta densidad.", price: 119.90, sku: "KB-TB-002", stock: 10, categoryId: tambores.id } }),
-    prisma.product.create({ data: { name: "Cilindro Maestro de Freno", slug: "cilindro-maestro-freno", description: "Cilindro maestro de freno. Compatible con múltiples modelos.", price: 185.00, sku: "KB-CH-001", stock: 12, categoryId: hidraulicos.id } }),
-    prisma.product.create({ data: { name: "Kit Reparación Bombín", slug: "kit-reparacion-bombin", description: "Kit completo de reparación para bombín de freno trasero.", price: 35.90, sku: "KB-CH-002", stock: 30, categoryId: hidraulicos.id } }),
-    prisma.product.create({ data: { name: "Líquido de Freno DOT 4", slug: "liquido-freno-dot4", description: "Líquido de freno DOT 4 de alta performance. 500ml.", price: 28.90, sku: "KB-LF-001", stock: 80, categoryId: liquidos.id } }),
+    // Featured products (from lineas-producto.ts)
+    prisma.product.create({ data: { name: "Ceramic Ultra", slug: "ceramic-ultra", description: "Pastillas ceramicadas de alto rendimiento. Frenado silencioso, baja emisión de polvo y máxima durabilidad.", price: 89.90, sku: "KB-CU-001", stock: 100, featured: true, images: ["/assets/images/productos/1.1 - CERAMIC-ULTRA.png"], categoryId: pastillas.id } }),
+    prisma.product.create({ data: { name: "Ceramic Heavy", slug: "ceramic-heavy", description: "Pastillas ceramicadas de servicio pesado. Soporta altas temperaturas y cargas pesadas.", price: 99.90, sku: "KB-CH-001", stock: 100, featured: true, images: ["/assets/images/productos/1.3 - CERAMIC-HEAVY.png"], categoryId: pastillas.id } }),
+    prisma.product.create({ data: { name: "Metal Power", slug: "metal-power", description: "Pastillas semimetálicas con máxima potencia de frenado y respuesta inmediata.", price: 79.90, sku: "KB-MP-001", stock: 100, featured: true, images: ["/assets/images/productos/1.2 - METAL-POWER.png"], categoryId: pastillas.id } }),
+    prisma.product.create({ data: { name: "Zapatas", slug: "zapatas-king-brake", description: "Zapatas King Brake con materiales de fricción de alta calidad. Larga vida útil y frenado consistente.", price: 49.90, sku: "KB-ZP-100", stock: 100, featured: true, images: ["/assets/images/productos/2.1-ZAPATAS.png"], categoryId: zapatas.id } }),
+    prisma.product.create({ data: { name: "Discos", slug: "discos-king-brake", description: "Discos de freno en fundición gris de alta resistencia. Disipación de calor óptima.", price: 189.90, sku: "KB-DI-001", stock: 100, featured: true, images: ["/assets/images/productos/3.1-DISCOS.png"], categoryId: discosYTambores.id } }),
+    prisma.product.create({ data: { name: "Tambores", slug: "tambores-king-brake", description: "Tambores de freno de fundición balanceada. Frenado uniforme y sin vibraciones.", price: 139.90, sku: "KB-TA-001", stock: 100, featured: true, images: ["/assets/images/productos/3.2-TAMBORES.png"], categoryId: discosYTambores.id } }),
+    prisma.product.create({ data: { name: "Master", slug: "master-king-brake", description: "Cilindro maestro King Brake. Precisión de sellado para frenado seguro y progresivo.", price: 185.00, sku: "KB-MA-001", stock: 100, featured: true, images: ["/assets/images/productos/4.1-MASTER.png"], categoryId: sistemaHidraulico.id } }),
+    prisma.product.create({ data: { name: "Servo", slug: "servo-king-brake", description: "Servofreno King Brake que amplifica la fuerza de frenado mediante vacío del motor.", price: 250.00, sku: "KB-SV-001", stock: 100, featured: true, images: ["/assets/images/productos/4-SISTEMA-HIDRAULICO.png"], categoryId: sistemaHidraulico.id } }),
+    prisma.product.create({ data: { name: "Bomba de Freno", slug: "bomba-de-freno-king-brake", description: "Bomba de freno con sellos de alta durabilidad. Distribución equilibrada y sin fugas.", price: 165.00, sku: "KB-BF-001", stock: 100, featured: true, images: ["/assets/images/productos/4.3-BOMBA-DE-FRENO-Y-EMBRAGUE.png"], categoryId: sistemaHidraulico.id } }),
+    prisma.product.create({ data: { name: "Bomba de Embrague", slug: "bomba-de-embrague-king-brake", description: "Bomba de embrague con operación suave y precisa. Materiales anticorrosivos.", price: 145.00, sku: "KB-BE-001", stock: 100, featured: true, images: ["/assets/images/productos/4.3-BOMBA-DE-FRENO-Y-EMBRAGUE.png"], categoryId: sistemaHidraulico.id } }),
+    prisma.product.create({ data: { name: "Bombín de Rueda", slug: "bombin-de-rueda-king-brake", description: "Bombín de rueda con pistones de precisión. Sellado hermético.", price: 55.00, sku: "KB-BR-001", stock: 100, featured: true, images: ["/assets/images/productos/4.2-BOMBIN-DE-FRENO-EMBRAGUE.png"], categoryId: sistemaHidraulico.id } }),
+    prisma.product.create({ data: { name: "Bombín auxiliar de Embrague", slug: "bombin-auxiliar-embrague-king-brake", description: "Cilindro receptor de embrague. Cambio de marcha suave y preciso.", price: 65.00, sku: "KB-BA-001", stock: 100, featured: true, images: ["/assets/images/productos/4.2-BOMBIN-DE-FRENO-EMBRAGUE.png"], categoryId: sistemaHidraulico.id } }),
+    prisma.product.create({ data: { name: "Kit de reparación de Embrague", slug: "kit-reparacion-embrague-king-brake", description: "Kit completo con retenes, resortes y pistones para restaurar el sistema de embrague.", price: 35.90, sku: "KB-KR-001", stock: 100, featured: true, images: ["/assets/images/productos/4.4-KIT-DE-REPARACION-DE-EMBRAGUE.png"], categoryId: sistemaHidraulico.id } }),
+    prisma.product.create({ data: { name: "Limpiador de frenos", slug: "limpiador-de-frenos-king-brake", description: "Elimina grasa, aceite y residuos. Evaporación rápida sin residuos.", price: 25.00, sku: "KB-LI-001", stock: 100, featured: true, images: ["/assets/images/productos/5.1-LIMPIADOR-DE-FRENOS.png"], categoryId: lubricantes.id } }),
+    prisma.product.create({ data: { name: "Líquido para frenos", slug: "liquido-para-frenos-king-brake", description: "Líquido DOT 3 y DOT 4 con alto punto de ebullición y aditivos anticorrosivos.", price: 28.90, sku: "KB-LQ-001", stock: 100, featured: true, images: ["/assets/images/productos/5.2-LIQUIDOOS-DE-FRENOS-DOT-3.png"], categoryId: lubricantes.id } }),
+    prisma.product.create({ data: { name: "Grasas para frenos", slug: "grasas-para-frenos-king-brake", description: "Grasa especial resistente a altas temperaturas. Previene ruidos y desgaste.", price: 18.90, sku: "KB-GR-001", stock: 100, featured: true, images: ["/assets/images/productos/5.5-GRASAS-PARA-FRENOS-CERAMIC-EXTREME.png"], categoryId: lubricantes.id } }),
   ]);
 
   // ── Marcas de vehículos ──

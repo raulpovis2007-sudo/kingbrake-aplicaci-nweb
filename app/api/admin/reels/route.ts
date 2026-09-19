@@ -87,10 +87,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Debe tener al menos un video (nativo o embed)
-    if (!videoUrl && !embedUrl) {
+    if (!videoUrl) {
       return NextResponse.json(
-        { error: "Debes proporcionar un video nativo o una URL de embed" },
+        { error: "Debes subir un video" },
         { status: 400 }
       );
     }

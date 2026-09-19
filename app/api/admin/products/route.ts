@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, description, price, sku, images, stock, featured, isActive, categoryId } = body;
+  const { name, description, detalle, price, sku, images, stock, featured, isActive, categoryId } = body;
 
   if (!name?.trim()) {
     return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
@@ -84,6 +84,7 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       slug,
       description: description?.trim() || "",
+      detalle: detalle?.trim() || null,
       price: parseFloat(price),
       sku: sku.trim(),
       images: images || [],

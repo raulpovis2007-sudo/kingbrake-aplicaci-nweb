@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Crown } from "lucide-react";
 import { LINEAS_PRODUCTO } from "@/lib/lineas-producto";
 import styles from "./LineaProductos.module.css";
 
@@ -23,8 +24,12 @@ export default function LineaProductos() {
   return (
     <section className={styles.wrapper} id="linea-productos">
       <div className={styles.container}>
-        <p className={styles.subtitle}>Explora nuestros</p>
-        <h2 className={styles.title}>Productos</h2>
+        <div className={styles.titleBlock}>
+          <Crown size={28} className={styles.accentIcon} />
+          <h2 className={styles.title}>
+            Productos de <span className={styles.titleBold}>King Brake</span>
+          </h2>
+        </div>
 
         <div className={styles.tabs}>
           {LINEAS_PRODUCTO.map((cat, i) => (

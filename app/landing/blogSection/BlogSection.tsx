@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Crown } from "lucide-react";
 import styles from "./BlogSection.module.css";
 
 
@@ -115,7 +116,8 @@ export default function BlogSection() {
       {/* Blog Posts Grid */}
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Blog</h2>
+          <Crown size={28} className={styles.accentIcon} />
+          <h2 className={styles.title}>Nuestro <span className={styles.titleBold}>Blog</span></h2>
           <p className={styles.subtitle}>
             Tips de mantenimiento y guías sobre componentes de frenado
           </p>

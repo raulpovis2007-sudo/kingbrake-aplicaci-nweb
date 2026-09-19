@@ -27,7 +27,7 @@ export default function Footer() {
         {/* Logo - visible en móvil arriba */}
         <div className={styles.logoMobile}>
           <Image
-            src="/assets/images/logo-principal.webp"
+            src="/assets/images/logo-racing-mobil.webp"
             alt="King Brake"
             className={styles.logoImage}
             width={150}
@@ -42,7 +42,7 @@ export default function Footer() {
           <div className={styles.brandColumn}>
             <div className={styles.logoDesktop}>
               <Image
-                src="/assets/images/logo-principal.webp"
+                src="/assets/images/logo-racing-desktop.webp"
                 alt="King Brake"
                 className={styles.logoImage}
                 width={150}
@@ -112,13 +112,13 @@ export default function Footer() {
 
             {/* Columna: Categorías */}
             <div className={styles.plansColumn}>
-              <h4 className={styles.columnTitle}>Categorías</h4>
+              <h4 className={styles.columnTitle}>Productos</h4>
               <nav className={styles.navLinks}>
-                <a href="/productos?categoria=pastillas-ceramicadas">Pastillas Ceramicadas</a>
-                <a href="/productos?categoria=pastillas-semimetalicas">Pastillas Semimetálicas</a>
-                <a href="/productos?categoria=zapatas">Zapatas</a>
-                <a href="/productos?categoria=discos-de-freno">Discos de Freno</a>
-                <a href="/productos?categoria=tambores">Tambores</a>
+                <a href="/catalogo?linea=pastillas-de-freno">Pastillas de freno</a>
+                <a href="/catalogo?linea=zapatas">Zapatas</a>
+                <a href="/catalogo?linea=discos-y-tambores">Discos y tambores</a>
+                <a href="/catalogo?linea=sistema-hidraulico">Sistema hidráulico</a>
+                <a href="/catalogo?linea=lubricantes-de-freno">Lubricantes de freno</a>
               </nav>
             </div>
 
@@ -190,10 +190,7 @@ export default function Footer() {
         </div>
 
         {/* Libro de Reclamaciones */}
-        <div className={styles.complaintRow}>
-          <ComplaintBookButton variant="footer" mode="external" />
-          <span className={styles.complaintLegal}>Ley N° 29571</span>
-        </div>
+        
 
         {/* Copyright */}
         <div className={styles.copyright}>

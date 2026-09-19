@@ -5,7 +5,13 @@ import {
   Pencil, Trash2, Plus, X, Search, Eye, EyeOff, Star,
   Upload, Loader2, ImageIcon, Package,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import styles from "./AdminProductos.module.css";
+
+const RichTextEditor = dynamic(
+  () => import("../components/RichTextEditor/RichTextEditor"),
+  { ssr: false, loading: () => <div style={{ padding: "2rem", textAlign: "center", color: "#999" }}>Cargando editor...</div> }
+);
 
 interface Category {
   id: string;
@@ -17,6 +23,7 @@ interface Product {
   name: string;
   slug: string;
   description: string;
+  detalle: string | null;
   price: number;
   sku: string;
   images: string[];
@@ -31,6 +38,7 @@ interface Product {
 interface FormData {
   name: string;
   description: string;
+  detalle: string;
   price: string;
   sku: string;
   images: string[];
@@ -41,7 +49,7 @@ interface FormData {
 }
 
 const EMPTY_FORM: FormData = {
-  name: "", description: "", price: "", sku: "",
+  name: "", description: "", detalle: "", price: "", sku: "",
   images: [], stock: "0", featured: false, isActive: true, categoryId: "",
 };
 
@@ -98,6 +106,7 @@ export default function AdminProductosPage() {
     setForm({
       name: p.name,
       description: p.description,
+      detalle: p.detalle || "",
       price: p.price.toString(),
       sku: p.sku,
       images: [...p.images],
@@ -171,6 +180,7 @@ export default function AdminProductosPage() {
         ...form,
         price: parseFloat(form.price),
         stock: parseInt(form.stock) || 0,
+        detalle: form.detalle || null,
       }),
     });
 
@@ -391,6 +401,15 @@ export default function AdminProductosPage() {
                     placeholder="Descripción del producto..."
                     rows={3}
                     className={styles.textarea}
+                  />
+                </div>
+
+                <div className={styles.fieldFull}>
+                  <label>Detalle del producto (visible para el cliente)</label>
+                  <RichTextEditor
+                    value={form.detalle}
+                    onChange={(val) => setForm((p) => ({ ...p, detalle: val }))}
+                    placeholder="Escribe el contenido detallado del producto..."
                   />
                 </div>
 

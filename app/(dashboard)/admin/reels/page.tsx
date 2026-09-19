@@ -11,8 +11,6 @@ import {
   EyeOff,
   GripVertical,
   Play,
-  Instagram,
-  Youtube,
 } from "lucide-react";
 import styles from "./AdminReels.module.css";
 
@@ -20,15 +18,12 @@ import styles from "./AdminReels.module.css";
 // TIPOS
 // ============================================
 
-type EmbedType = "INSTAGRAM" | "TIKTOK" | "YOUTUBE_SHORTS";
 type ReelCategory = "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS";
 
 interface Reel {
   id: number;
   title: string;
   description: string | null;
-  embedUrl: string;
-  embedType: EmbedType;
   thumbnailUrl: string;
   category: ReelCategory;
   sortOrder: number;
@@ -54,12 +49,6 @@ const categoryColors: Record<ReelCategory, string> = {
   PRODUCTOS: "#10b981",
   INSTALACION: "#f59e0b",
   TESTIMONIOS: "#8b5cf6",
-};
-
-const embedIcons: Record<EmbedType, JSX.Element> = {
-  INSTAGRAM: <Instagram size={14} />,
-  TIKTOK: <Play size={14} />,
-  YOUTUBE_SHORTS: <Youtube size={14} />,
 };
 
 // ============================================
@@ -242,7 +231,6 @@ export default function AdminReelsPage() {
                   <th style={{ width: 40 }}></th>
                   <th>Reel</th>
                   <th>Categoría</th>
-                  <th>Plataforma</th>
                   <th>Likes</th>
                   <th>Vistas</th>
                   <th>Estado</th>
@@ -288,15 +276,6 @@ export default function AdminReelsPage() {
                         style={{ backgroundColor: categoryColors[reel.category] }}
                       >
                         {categoryLabels[reel.category]}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={styles.platformBadge}>
-                        {embedIcons[reel.embedType]}
-                        {reel.embedType === "YOUTUBE_SHORTS"
-                          ? "YouTube"
-                          : reel.embedType.charAt(0) +
-                            reel.embedType.slice(1).toLowerCase()}
                       </span>
                     </td>
                     <td className={styles.viewsCell}>
