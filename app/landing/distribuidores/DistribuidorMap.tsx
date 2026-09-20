@@ -50,6 +50,21 @@ function MapController({
   const initialLoad = useRef(true);
 
   useEffect(() => {
+    // Leaflet necesita recalcular dimensiones en contenedores flex/responsive
+    const t1 = setTimeout(() => map.invalidateSize(), 100);
+    const t2 = setTimeout(() => map.invalidateSize(), 500);
+    const t3 = setTimeout(() => map.invalidateSize(), 1500);
+    const onResize = () => map.invalidateSize();
+    window.addEventListener("resize", onResize);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [map]);
+
+  useEffect(() => {
     if (initialLoad.current) {
       initialLoad.current = false;
       return;

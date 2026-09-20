@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     const reels = await db.reel.findMany({
       where: {
         isActive: true,
-        ...(category && { category: category as "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS" }),
+        ...(category && { category: category as "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS" | "SOPORTE" }),
       },
       orderBy: { sortOrder: "asc" },
       select: {

@@ -1,40 +1,27 @@
-import React from "react";
+import { Fragment } from "react";
 import styles from "./MetricasSection.module.css";
 
-export default function MetricasSection() {
-  const metrics = [
-    {
-      description: "Años de experiencia",
-      value: "+15",
-    },
-    {
-      description: "Modelos compatibles",
-      value: "+200",
-    },
-    {
-      description: "Puntos de venta",
-      value: "+50",
-    },
-  ];
+const METRICS = [
+  { value: "+15", label: "Años de experiencia" },
+  { value: "+1000", label: "Aplicaciones" },
+  { value: "+50", label: "Puntos de Venta" },
+  { value: "+10", label: "Líneas de Producto" },
+];
 
+export default function MetricasSection() {
   return (
-    <div className={styles.wrapper} id="metricas">
+    <section className={styles.wrapper} id="metricas">
       <div className={styles.container}>
-        <h2 className={styles.title}>
-          Seguridad que se mide
-          <span className={styles.highlight}>en cada frenada.</span>
-        </h2>
-        <div className={styles.metricsContainer}>
-          {metrics.map((item, index) => (
-            <div key={index} className={styles.metric}>
-              <div className={styles.metricInfo}>
-                <span className={styles.metricValue}>{item.value}</span>
-                <h4 className={styles.subtitle}>{item.description}</h4>
-              </div>
+        {METRICS.map((m, i) => (
+          <Fragment key={m.label}>
+            {i > 0 && <div className={styles.divider} />}
+            <div className={styles.metric}>
+              <span className={styles.metricValue}>{m.value}</span>
+              <span className={styles.metricLabel}>{m.label}</span>
             </div>
-          ))}
-        </div>
+          </Fragment>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }

@@ -223,29 +223,33 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.changeThumbnailButton {
-  padding: 0.5rem;
-  border: 1px solid #dc2626;
-  border-radius: 6px;
-  background: white;
-  color: #dc2626;
-  font-size: 0.75rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.changeThumbnailButton:hover {
-  background: #dc2626;
-  color: white;
 }
 
 .uploadedPreview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.mediaOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.uploadedPreview:hover .mediaOverlay {
+  opacity: 1;
 }
 
 /* Video Preview - más grande para mejor visualización */

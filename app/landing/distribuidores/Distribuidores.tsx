@@ -21,7 +21,7 @@ interface Distributor {
   phone: string | null;
 }
 
-const PER_PAGE = 10;
+const PER_PAGE = 4;
 const MOCK_IMAGE = "/assets/images/linea-productos/pastilla-freno.webp";
 
 export default function Distribuidores() {
@@ -92,8 +92,16 @@ export default function Distribuidores() {
   return (
     <section className={styles.section} id="distribuidores">
       <div className={styles.container}>
-        <p className={styles.subtitle}>Encuentra tu</p>
-        <h2 className={styles.title}>Red de distribuidores</h2>
+        <div className={styles.ctaBanner}>
+          <div className={styles.ctaBlock}>
+            <h3 className={styles.ctaTitle}>ENCUENTRA KINGBRAKE CERCA DE TI</h3>
+            <p className={styles.ctaText}>Encuentra nuestros productos en nuestra red de distribuidores y puntos de venta a nivel nacional.</p>
+          </div>
+          <div className={styles.ctaBlock}>
+            <h3 className={styles.ctaTitle}>¿QUIERES SER PARTE DE NUESTRA RED?</h3>
+            <p className={styles.ctaText}>Si deseas distribuir KINGBRAKE y formar parte de nuestra red de aliados comerciales. Escríbenos a nuestro canal de atención al cliente.</p>
+          </div>
+        </div>
 
         <div className={styles.filters}>
           <select
@@ -131,8 +139,10 @@ export default function Distribuidores() {
                     />
                   </div>
                   <div className={styles.cardBody}>
-                    <span className={styles.cardRegion}>{d.region}</span>
-                    <h3 className={styles.cardName}>{d.name}</h3>
+                    <div className={styles.cardHeader}>
+                      <h3 className={styles.cardName}>{d.name}</h3>
+                      <span className={styles.cardRegion}>{d.region}</span>
+                    </div>
                     <p className={styles.cardAddress}>
                       <MapPin size={14} />
                       {d.address}

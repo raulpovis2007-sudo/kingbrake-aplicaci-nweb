@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { ChevronLeft, ChevronRight, Crown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Crown, X } from "lucide-react";
 import styles from "./EventosCarrusel.module.css";
 
 interface Evento {
@@ -14,15 +13,11 @@ interface Evento {
   startDate: string | null;
 }
 
-function formatDate(d: string | null) {
-  if (!d) return null;
-  return new Date(d).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
-}
-
 export default function EventosCarrusel() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
@@ -136,36 +131,25 @@ export default function EventosCarrusel() {
                 onMouseLeave={onMouseUp}
                 onClickCapture={onClickCapture}
               >
-                {eventos.map((evento) => {
-                  const inner = (
-                    <>
-                      <Image
-                        src={evento.image}
-                        alt={evento.title}
-                        fill
-                        sizes="(min-width: 768px) 33vw, 80vw"
-                        className={styles.slideImage}
-                        draggable={false}
-                      />
-                      <div className={styles.slideOverlay}>
-                        {evento.startDate && (
-                          <span className={styles.slideDate}>{formatDate(evento.startDate)}</span>
-                        )}
-                        <span className={styles.slideTitle}>{evento.title}</span>
-                      </div>
-                    </>
-                  );
-
-                  return evento.link ? (
-                    <Link key={evento.id} href={evento.link} className={styles.slide} draggable={false}>
-                      {inner}
-                    </Link>
-                  ) : (
-                    <div key={evento.id} className={styles.slide}>
-                      {inner}
+                {eventos.map((evento, i) => (
+                  <div
+                    key={evento.id}
+                    className={styles.slide}
+                    onClick={() => { if (!hasDragged.current) setLightboxIndex(i); }}
+                  >
+                    <Image
+                      src={evento.image}
+                      alt={evento.title}
+                      fill
+                      sizes="(min-width: 768px) 33vw, 80vw"
+                      className={styles.slideImage}
+                      draggable={false}
+                    />
+                    <div className={styles.slideOverlay}>
+                      <span className={styles.slideTitle}>{evento.title}</span>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -180,6 +164,44 @@ export default function EventosCarrusel() {
           </div>
         )}
       </div>
+
+      {lightboxIndex !== null && (
+        <div className={styles.lightbox} onClick={() => setLightboxIndex(null)}>
+          <button className={styles.lbClose} onClick={() => setLightboxIndex(null)} aria-label="Cerrar">
+            <X size={28} />
+          </button>
+
+          {eventos.length > 1 && (
+            <>
+              <button
+                className={`${styles.lbNav} ${styles.lbPrev}`}
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + eventos.length) % eventos.length); }}
+                aria-label="Anterior"
+              >
+                <ChevronLeft size={32} />
+              </button>
+              <button
+                className={`${styles.lbNav} ${styles.lbNext}`}
+                onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % eventos.length); }}
+                aria-label="Siguiente"
+              >
+                <ChevronRight size={32} />
+              </button>
+            </>
+          )}
+
+          <div className={styles.lbContent} onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={eventos[lightboxIndex].image}
+              alt={eventos[lightboxIndex].title}
+              width={560}
+              height={710}
+              className={styles.lbImage}
+            />
+            <p className={styles.lbTitle}>{eventos[lightboxIndex].title}</p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

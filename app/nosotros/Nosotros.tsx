@@ -103,10 +103,10 @@ const POR_QUE = [
 ];
 
 const CIFRAS = [
-  { valor: 15, sufijo: "", label: "Años en el mercado" },
-  { valor: 200, sufijo: "+", label: "Modelos compatibles" },
-  { valor: 50, sufijo: "+", label: "Puntos de venta" },
-  { valor: 5000, sufijo: "+", label: "Clientes satisfechos" },
+  { valor: 15, sufijo: "+", label: "Años de experiencia" },
+  { valor: 1000, sufijo: "+", label: "Aplicaciones" },
+  { valor: 50, sufijo: "+", label: "Puntos de Venta" },
+  { valor: 10, sufijo: "+", label: "Líneas de Producto" },
 ];
 
 const TIMELINE = [
@@ -153,7 +153,7 @@ export default function Nosotros() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            Quiénes <span className={styles.heroTitleAccent}>somos</span>
+            King <span className={styles.heroTitleAccent}>Brake</span>
           </motion.h1>
 
           <motion.div
@@ -169,7 +169,7 @@ export default function Nosotros() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
           >
-            Seguridad en cada frenada
+            Líderes de sistemas de frenos
           </motion.p>
         </motion.div>
 
@@ -193,14 +193,6 @@ export default function Nosotros() {
             viewport={{ once: true, amount: 0.3 }}
             variants={stagger}
           >
-            <motion.div className={styles.historiaImagen} variants={scaleIn}>
-              <div className={styles.historiaImagenInner}>
-                <span className={styles.historiaImagenText}>KB</span>
-              </div>
-              <div className={styles.historiaAccent} />
-              <div className={styles.historiaAccentLine} />
-            </motion.div>
-
             <motion.div className={styles.historiaTexto} variants={fadeUp}>
               <span className={styles.sectionLabel}>¿Quiénes somos?</span>
               <h2 className={styles.sectionTitle}>
@@ -218,6 +210,9 @@ export default function Nosotros() {
                 Atendemos a distribuidores, mayoristas, casas de repuestos y
                 talleres especializados en todo el país.
               </p>
+            </motion.div>
+
+            <motion.div className={styles.historiaTexto} variants={fadeUp}>
               <span className={styles.sectionLabel}>Nuestra historia</span>
               <p className={styles.bodyText}>
                 Desde nuestros inicios, hemos trabajado con un objetivo claro:

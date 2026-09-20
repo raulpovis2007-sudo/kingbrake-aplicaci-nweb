@@ -3,8 +3,8 @@
    ============================================ */
 
 .section {
-  padding: 80px 0;
-  background: linear-gradient(180deg, #f0f1f8 0%, #fff 100%);
+  padding: 28px 0 32px;
+  background: #ffffff;
   overflow: hidden;
 }
 
@@ -104,12 +104,12 @@
 
 .gradientLeft {
   left: 0;
-  background: linear-gradient(to right, #f0f1f8, transparent);
+  background: linear-gradient(to right, #ffffff, transparent);
 }
 
 .gradientRight {
   right: 0;
-  background: linear-gradient(to left, #f0f1f8, transparent);
+  background: linear-gradient(to left, #ffffff, transparent);
 }
 
 /* Reels Grid */

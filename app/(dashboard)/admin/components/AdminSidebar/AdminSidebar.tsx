@@ -14,19 +14,52 @@ import {
   ImageIcon,
   Settings,
   LogOut,
+  ClipboardList,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/productos', label: 'Productos', icon: Package },
-  { href: '/admin/categorias', label: 'Categorías', icon: Layers },
-  { href: '/admin/distribuidores', label: 'Distribuidores', icon: MapPin },
-  { href: '/admin/usuarios', label: 'Usuarios', icon: Users },
-  { href: '/admin/blog', label: 'Blog', icon: FileText },
-  { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
-  { href: '/admin/eventos', label: 'Nuevas Aplicaciones', icon: ImageIcon },
-  { href: '/admin/configuracion', label: 'Configuración', icon: Settings },
+interface NavItem {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+}
+
+interface NavSection {
+  title?: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
+  {
+    items: [
+      { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    ],
+  },
+  {
+    title: 'Ventas',
+    items: [
+      { href: '/admin/productos', label: 'Productos', icon: Package },
+      { href: '/admin/categorias', label: 'Categorías', icon: Layers },
+      { href: '/admin/cotizaciones', label: 'Cotizaciones', icon: ClipboardList },
+    ],
+  },
+  {
+    title: 'Contenido',
+    items: [
+      { href: '/admin/blog', label: 'Blog', icon: FileText },
+      { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
+      { href: '/admin/eventos', label: 'Nuevas Aplicaciones', icon: ImageIcon },
+    ],
+  },
+  {
+    title: 'Sistema',
+    items: [
+      { href: '/admin/distribuidores', label: 'Distribuidores', icon: MapPin },
+      { href: '/admin/usuarios', label: 'Usuarios', icon: Users },
+      { href: '/admin/configuracion', label: 'Configuración', icon: Settings },
+    ],
+  },
 ];
 
 interface AdminSidebarProps {
@@ -64,25 +97,31 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         </Link>
 
         <nav className={styles.nav}>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href, item.exact);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`${styles.navLink} ${active ? styles.navLinkActive : ''}`}
-                onClick={onClose}
-                title={item.label}
-              >
-                <span className={styles.navIcon}>
-                  <Icon size={20} />
-                </span>
-                <span className={styles.navLinkLabel}>{item.label}</span>
-              </Link>
-            );
-          })}
+          {navSections.map((section, si) => (
+            <div key={si} className={styles.navSection}>
+              {section.title && (
+                <span className={styles.sectionTitle}>{section.title}</span>
+              )}
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href, item.exact);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${styles.navLink} ${active ? styles.navLinkActive : ''}`}
+                    onClick={onClose}
+                    title={item.label}
+                  >
+                    <span className={styles.navIcon}>
+                      <Icon size={20} />
+                    </span>
+                    <span className={styles.navLinkLabel}>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         <div className={styles.footer}>

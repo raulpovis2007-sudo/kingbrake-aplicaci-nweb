@@ -338,7 +338,7 @@ export default function NavBar() {
               <span className={styles["navbar-text"]}>Red de distribuidores</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
             </a>
-            <a href="/eventos" className={`${styles["navbar-item"]} ${isActive("/eventos") ? styles["navbar-item-active"] : ""}`} onClick={() => setIsMobileMenuOpen(false)}>
+            <a href="/soporte" className={`${styles["navbar-item"]} ${isActive("/soporte") ? styles["navbar-item-active"] : ""}`} onClick={() => setIsMobileMenuOpen(false)}>
               <span className={styles["navbar-text"]}>Soporte Técnico</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6" /></svg>
             </a>
@@ -389,55 +389,49 @@ export default function NavBar() {
                       {session.user?.email}
                     </p>
                   </div>
-                  <Link
-                    href="/perfil"
-                    className={styles["dropdown-item"]}
-                    role="menuitem"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <circle
-                        cx="8"
-                        cy="5"
-                        r="3"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      />
-                      <path
-                        d="M2 14c0-3 2.5-5 6-5s6 2 6 5"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    Mi Perfil
-                  </Link>
-                  <Link
-                    href="/mis-pedidos"
-                    className={styles["dropdown-item"]}
-                    role="menuitem"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <rect
-                        x="2"
-                        y="2"
-                        width="12"
-                        height="12"
-                        rx="2"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      />
-                      <path
-                        d="M5 8l2 2 4-4"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Mis Pedidos
-                  </Link>
+                  {session.user?.role === "ADMIN" ? (
+                    <Link
+                      href="/admin"
+                      className={styles["dropdown-item"]}
+                      role="menuitem"
+                      onClick={() => setIsDropdownOpen(false)}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                        <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                        <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                        <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.5" />
+                      </svg>
+                      Panel Admin
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/perfil"
+                        className={styles["dropdown-item"]}
+                        role="menuitem"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.5" />
+                          <path d="M2 14c0-3 2.5-5 6-5s6 2 6 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                        Mi Perfil
+                      </Link>
+                      <Link
+                        href="/mis-cotizaciones"
+                        className={styles["dropdown-item"]}
+                        role="menuitem"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+                          <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        Mis Cotizaciones
+                      </Link>
+                    </>
+                  )}
                   <div className={styles["dropdown-divider"]}></div>
                   <button
                     className={styles["dropdown-item-logout"]}
@@ -523,7 +517,7 @@ export default function NavBar() {
 
             {/* Botón CTA */}
             <a
-              href="https://wa.me/TODO_WHATSAPP_NUMBER?text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
+              href="https://wa.me/51908920221?text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
               target="_blank"
               className={styles["sidebar-cta"]}
               onClick={() => setIsMobileMenuOpen(false)}

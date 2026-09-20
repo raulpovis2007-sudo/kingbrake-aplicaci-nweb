@@ -21,6 +21,13 @@ enum UserStatus {
   SUSPENDED
 }
 
+enum QuoteStatus {
+  PENDING
+  CONFIRMED
+  DELIVERED
+  CANCELLED
+}
+
 // ============================================
 // AUTENTICACIÓN (NextAuth)
 // ============================================
@@ -38,8 +45,13 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
+  preferredDistributorId String?
+  preferredDistributor   Distributor? @relation(fields: [preferredDistributorId], references: [id])
+
   accounts Account[]
   sessions Session[]
+  vehicle  UserVehicle?
+  quotes   Quote[]
 }
 
 model Account {
@@ -110,6 +122,7 @@ model Product {
 
   category      Category               @relation(fields: [categoryId], references: [id])
   compatibility ProductCompatibility[]
+  quotes        Quote[]
 
   @@index([categoryId])
   @@index([isActive])
@@ -135,8 +148,37 @@ model VehicleModel {
   brandId       String
   brand         VehicleBrand           @relation(fields: [brandId], references: [id])
   compatibility ProductCompatibility[]
+  userVehicles  UserVehicle[]
 
   @@index([brandId])
+}
+
+model UserVehicle {
+  id             String       @id @default(cuid())
+  userId         String       @unique
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicleModelId String
+  vehicleModel   VehicleModel @relation(fields: [vehicleModelId], references: [id])
+  year           Int
+  createdAt      DateTime     @default(now())
+}
+
+model Quote {
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product     @relation(fields: [productId], references: [id])
+  productName  String
+  productSku   String
+  productPrice Float
+  status       QuoteStatus @default(PENDING)
+  adminNote    String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 
 model ProductCompatibility {
@@ -163,6 +205,8 @@ model Distributor {
   lng      Float
   phone    String?
   isActive Boolean @default(true)
+
+  preferredByUsers User[]
 }
 
 // ============================================
@@ -206,6 +250,7 @@ model BlogPost {
 enum BannerType {
   BANNER
   EVENT
+  SOPORTE
 }
 
 model Banner {
@@ -239,6 +284,7 @@ enum ReelCategory {
   PRODUCTOS
   INSTALACION
   TESTIMONIOS
+  SOPORTE
 }
 
 model Reel {

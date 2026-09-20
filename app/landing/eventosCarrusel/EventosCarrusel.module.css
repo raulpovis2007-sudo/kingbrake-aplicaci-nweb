@@ -1,6 +1,6 @@
 .wrapper {
-  background-color: #f3f3f3;
-  padding: 40px 16px 48px;
+  background-color: #0e1469;
+  padding: 28px 16px 12px;
 }
 
 .container {
@@ -19,12 +19,13 @@
   color: #fe0008;
   fill: #fe0008;
   margin-bottom: 4px;
+  filter: brightness(1.2);
 }
 
 .title {
   font-size: 32px;
   font-weight: 300;
-  color: #0e1469;
+  color: #ffffff;
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -49,16 +50,17 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 2px solid #0e1469;
+  border: 2px solid rgba(255, 255, 255, 0.4);
   background: transparent;
-  color: #0e1469;
+  color: #ffffff;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .navBtn:hover {
-  background: #0e1469;
-  color: #fff;
+  background: #ffffff;
+  color: #0e1469;
+  border-color: #ffffff;
 }
 
 .navDisabled {
@@ -88,12 +90,12 @@
   display: none;
 }
 
-/* Card — vertical reel format */
+/* Card — 560×710 format */
 .slide {
   position: relative;
   flex: 0 0 calc((100% - 32px) / 3);
   min-width: 200px;
-  aspect-ratio: 9/16;
+  aspect-ratio: 560/710;
   border-radius: 14px;
   overflow: hidden;
   text-decoration: none;
@@ -140,10 +142,95 @@
 
 .emptyText {
   text-align: center;
-  color: #999;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.95rem;
   font-style: italic;
   padding: 24px 0;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: lbFadeIn 0.2s ease;
+}
+
+@keyframes lbFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lbClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.lbClose:hover {
+  opacity: 1;
+}
+
+.lbNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
+
+.lbNav:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lbPrev { left: 16px; }
+.lbNext { right: 16px; }
+
+.lbContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.lbImage {
+  max-width: 90vw;
+  max-height: 80vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.lbTitle {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
 }
 
 @media (max-width: 640px) {
@@ -161,5 +248,13 @@
 
   .carouselRow {
     gap: 0;
+  }
+
+  .lbPrev { left: 8px; }
+  .lbNext { right: 8px; }
+
+  .lbNav {
+    width: 40px;
+    height: 40px;
   }
 }

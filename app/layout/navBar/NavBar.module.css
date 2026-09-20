@@ -980,7 +980,7 @@
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: var(--shark--400);
+    color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin: 0 0 8px 20px;
@@ -1007,24 +1007,32 @@
     justify-content: space-between;
   }
 
+  .navbar-item-active::before {
+    display: none;
+  }
+
+  .navbar-item-active {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
   /* Mostrar flechas en móvil */
   .navbar-item svg {
     display: block;
-    color: var(--shark--300);
+    color: rgba(255, 255, 255, 0.4);
     transition: all 0.2s ease;
   }
 
   .navbar-item:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.06);
   }
 
   .navbar-item:hover svg {
-    color: #b00006;
+    color: #fe0008;
     transform: translateX(4px);
   }
 
   .navbar-item:active {
-    background: rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.1);
     transform: scale(0.98);
   }
 
@@ -1033,7 +1041,7 @@
     display: block;
     width: calc(100% - 40px);
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--shark--200), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
     margin: 16px 20px;
   }
 
@@ -1046,7 +1054,7 @@
   .menuMovil .navbar-item:first-of-type {
     margin-top: 24px;
     padding-top: 24px;
-    border-top: 1px solid var(--shark--200);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   /* Texto del sidebar - estilo premium */

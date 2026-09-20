@@ -69,12 +69,36 @@
 /* Navegación */
 .nav {
   flex: 1;
-  padding: 1rem 0.75rem;
+  padding: 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.navSection {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  overflow-y: auto;
-  overflow-x: hidden;
+}
+
+.navSection + .navSection {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sectionTitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6B7280;
+  padding: 0.375rem 0.75rem 0.25rem;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
 }
 
 .navLink {
@@ -296,6 +320,23 @@
   .sidebar.sidebarOpen .navLinkLabel {
     width: auto;
     opacity: 1;
+  }
+
+  .sectionTitle {
+    width: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: 0;
+  }
+
+  .sidebar:hover .sectionTitle,
+  .sidebar.sidebarOpen .sectionTitle {
+    width: auto;
+    opacity: 1;
+    padding-top: 0.375rem;
+    padding-bottom: 0.25rem;
+    height: auto;
   }
 
   /* Badge: Mostrar colapsado cuando sidebar está colapsado */

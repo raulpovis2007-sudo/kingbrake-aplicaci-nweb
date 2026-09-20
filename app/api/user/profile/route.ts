@@ -12,18 +12,22 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { name, phone } = body;
+    const { name, phone, preferredDistributorId } = body;
+
+    const data: Record<string, unknown> = {};
+    if (name !== undefined) data.name = name || null;
+    if (phone !== undefined) data.phone = phone || null;
+    if (preferredDistributorId !== undefined)
+      data.preferredDistributorId = preferredDistributorId || null;
 
     const updatedUser = await db.user.update({
       where: { id: session.user.id },
-      data: {
-        name: name || null,
-        phone: phone || null,
-      },
+      data,
       select: {
         id: true,
         name: true,
         phone: true,
+        preferredDistributorId: true,
       },
     });
 

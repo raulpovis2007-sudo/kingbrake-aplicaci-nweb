@@ -5,7 +5,7 @@ import { z } from "zod";
 const searchSchema = z.object({
   linea: z.string().min(1),
   brandId: z.string().min(1),
-  modelId: z.string().optional(),
+  modelId: z.string().min(1).optional(),
   year: z.number().int().min(1970).max(2030).optional(),
 });
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { brandId, modelId, year } = parsed.data;
+  const { linea, brandId, modelId, year } = parsed.data;
 
   const vehicleFilter: Record<string, unknown> = { brandId };
   if (modelId) vehicleFilter.id = modelId;
@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     const products = await db.product.findMany({
       where: {
         isActive: true,
+        category: { slug: linea },
         compatibility: {
           some: { vehicleModel: vehicleFilter },
         },
@@ -50,9 +51,23 @@ export async function POST(req: NextRequest) {
         price: true,
         sku: true,
         images: true,
+        featured: true,
         category: { select: { name: true, slug: true } },
+        compatibility: {
+          where: { vehicleModel: vehicleFilter },
+          select: {
+            vehicleModel: {
+              select: {
+                name: true,
+                yearFrom: true,
+                yearTo: true,
+                brand: { select: { name: true } },
+              },
+            },
+          },
+        },
       },
-      orderBy: { name: "asc" },
+      orderBy: [{ featured: "desc" }, { name: "asc" }],
     });
 
     return NextResponse.json(products);

@@ -25,6 +25,15 @@ interface Model {
   yearTo: number;
 }
 
+interface Compatibility {
+  vehicleModel: {
+    name: string;
+    yearFrom: number;
+    yearTo: number;
+    brand: { name: string };
+  };
+}
+
 interface Product {
   id: string;
   name: string;
@@ -35,6 +44,7 @@ interface Product {
   images: string[];
   featured?: boolean;
   category: { name: string; slug: string };
+  compatibility?: Compatibility[];
 }
 
 type SearchState = "idle" | "loading" | "results" | "empty" | "error";
@@ -360,6 +370,13 @@ export default function BuscadorRepuestos() {
                       <span className={styles.productCategory}>
                         {p.category.name}
                       </span>
+                      {p.compatibility && p.compatibility.length > 0 && (
+                        <span className={styles.productCompat}>
+                          {p.compatibility[0].vehicleModel.brand.name}{" "}
+                          {p.compatibility[0].vehicleModel.name}{" "}
+                          ({p.compatibility[0].vehicleModel.yearFrom}–{p.compatibility[0].vehicleModel.yearTo})
+                        </span>
+                      )}
                       <p className={styles.productDescription}>
                         {p.description}
                       </p>

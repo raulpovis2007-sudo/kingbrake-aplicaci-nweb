@@ -5,9 +5,9 @@
 .footer {
   background-color: #131211;
   width: 100%;
-  padding: 100px 0 40px;
+  padding: 28px 0 16px;
   border-radius: 25px 25px 0px 0px;
-  margin-top: 40px;
+  margin-top: 24px;
 }
 
 .container {
@@ -42,14 +42,14 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 100px;
-  margin-bottom: 30px;
+  gap: 48px;
+  margin-bottom: 16px;
 }
 
 /* Grupo de columnas: Navegación, Planes, Contacto */
 .columnsGroup {
   display: flex;
-  gap: 80px;
+  gap: 40px;
 }
 
 /* Columna 1: Logo + Redes + CTA */
@@ -124,7 +124,7 @@
   font-family: Barlow, sans-serif;
   font-size: 14px;
   font-weight: 500;
-  margin: 0 0 20px 0;
+  margin: 0 0 12px 0;
   text-transform: none;
 }
 
@@ -151,7 +151,7 @@
   width: 100%;
   height: 1px;
   background-color: rgba(255, 255, 255, 0.15);
-  margin-bottom: 40px;
+  margin-bottom: 16px;
 }
 
 .navLinks {
@@ -311,7 +311,7 @@
   width: 100%;
   height: 1px;
   background-color: rgba(255, 255, 255, 0.15);
-  margin: 40px 0;
+  margin: 16px 0;
 }
 
 /* ============================================
@@ -349,7 +349,7 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 8px 12px;
-  margin: 28px 0;
+  margin: 12px 0;
   text-align: center;
 }
 

@@ -6,15 +6,11 @@ export default function Footer() {
   const keywords = [
     "pastillas de freno Lima",
     "repuestos de freno Perú",
-    "autopartes de freno",
-    "King Brake",
+    "KingBrake",
     "pastillas ceramicadas",
-    "pastillas semimetálicas",
     "zapatas de freno",
-    "discos de freno Lima",
+    "discos de freno",
     "tambores de freno",
-    "frenos para Toyota",
-    "frenos para Hyundai",
     "componentes de frenado",
     "repuestos automotrices Lima",
     "frenos de calidad Perú",
@@ -77,7 +73,7 @@ export default function Footer() {
               </a>
             </div>
             <a
-              href="https://wa.me/TODO_WHATSAPP_NUMBER?text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
+              href="https://wa.me/51908920221?text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.ctaButton}
@@ -103,22 +99,9 @@ export default function Footer() {
               <h4 className={styles.columnTitle}>Navegación</h4>
               <nav className={styles.navLinks}>
                 <a href="/">Inicio</a>
-                <a href="/catalogo">Productos</a>
-                <a href="/#nosotros">Quiénes somos</a>
+                <a href="/catalogo">Catálogo</a>
+                <a href="/soporte">Soporte técnico</a>
                 <a href="/#distribuidores">Distribuidores</a>
-                <a href="#blog">Blog</a>
-              </nav>
-            </div>
-
-            {/* Columna: Categorías */}
-            <div className={styles.plansColumn}>
-              <h4 className={styles.columnTitle}>Productos</h4>
-              <nav className={styles.navLinks}>
-                <a href="/catalogo?linea=pastillas-de-freno">Pastillas de freno</a>
-                <a href="/catalogo?linea=zapatas">Zapatas</a>
-                <a href="/catalogo?linea=discos-y-tambores">Discos y tambores</a>
-                <a href="/catalogo?linea=sistema-hidraulico">Sistema hidráulico</a>
-                <a href="/catalogo?linea=lubricantes-de-freno">Lubricantes de freno</a>
               </nav>
             </div>
 
@@ -140,11 +123,11 @@ export default function Footer() {
                     <img src="/assets/images/image65.svg" alt="" />
                   </div>
                   <a
-                    href="https://api.whatsapp.com/send?phone=TODO_WHATSAPP_NUMBER&text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
+                    href="https://api.whatsapp.com/send?phone=51908920221&text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    +51 TODO TELEFONO
+                    +51 908 920 221
                   </a>
                 </div>
                 <div className={styles.contactItem}>

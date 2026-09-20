@@ -26,10 +26,11 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const type = req.nextUrl.searchParams.get("type") as BannerType | null;
+    const typeParam = req.nextUrl.searchParams.get("type");
+    const types = typeParam ? typeParam.split(",") as BannerType[] : null;
 
     const banners = await db.banner.findMany({
-      where: type ? { type } : undefined,
+      where: types ? { type: { in: types } } : undefined,
       orderBy: { sortOrder: "asc" },
     });
     return NextResponse.json(banners);

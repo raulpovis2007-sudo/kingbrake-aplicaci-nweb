@@ -37,6 +37,20 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     include: {
       category: { select: { id: true, name: true } },
+      compatibility: {
+        select: {
+          vehicleModelId: true,
+          vehicleModel: {
+            select: {
+              id: true,
+              name: true,
+              yearFrom: true,
+              yearTo: true,
+              brand: { select: { id: true, name: true } },
+            },
+          },
+        },
+      },
     },
   });
 
@@ -50,7 +64,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, description, detalle, price, sku, images, stock, featured, isActive, categoryId } = body;
+  const { name, description, detalle, price, sku, images, stock, featured, isActive, categoryId, compatibility } = body;
 
   if (!name?.trim()) {
     return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
@@ -92,8 +106,30 @@ export async function POST(req: NextRequest) {
       featured: featured ?? false,
       isActive: isActive ?? true,
       categoryId,
+      ...(Array.isArray(compatibility) && compatibility.length > 0
+        ? {
+            compatibility: {
+              create: compatibility.map((vehicleModelId: string) => ({
+                vehicleModelId,
+              })),
+            },
+          }
+        : {}),
     },
-    include: { category: { select: { id: true, name: true } } },
+    include: {
+      category: { select: { id: true, name: true } },
+      compatibility: {
+        select: {
+          vehicleModelId: true,
+          vehicleModel: {
+            select: {
+              id: true, name: true, yearFrom: true, yearTo: true,
+              brand: { select: { id: true, name: true } },
+            },
+          },
+        },
+      },
+    },
   });
 
   return NextResponse.json(product, { status: 201 });

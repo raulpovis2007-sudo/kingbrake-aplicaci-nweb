@@ -3,7 +3,7 @@
    ============================================ */
 
 .section {
-  padding-bottom: 90px;
+  padding-bottom: 40px;
   background-color: #f5f5f5;
   overflow: hidden; /* Importante: oculta el contenido que se sale */
   scroll-margin-top: 390px; /* Compensa la altura del navbar fijo */

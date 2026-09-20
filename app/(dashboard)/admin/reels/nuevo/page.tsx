@@ -9,7 +9,6 @@ import {
   Save,
   Play,
   Upload,
-  X,
   Loader2,
   ImageIcon,
   Video,
@@ -22,7 +21,7 @@ import styles from "./ReelForm.module.css";
 // TIPOS
 // ============================================
 
-type ReelCategory = "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS";
+type ReelCategory = "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS" | "SOPORTE";
 
 interface FormData {
   title: string;
@@ -37,10 +36,11 @@ interface FormData {
 // ============================================
 
 const categories: { value: ReelCategory; label: string }[] = [
-  { value: "TIPS", label: "Tips de frenado" },
-  { value: "PRODUCTOS", label: "Productos" },
-  { value: "INSTALACION", label: "Instalación" },
-  { value: "TESTIMONIOS", label: "Testimonios" },
+  { value: "TIPS", label: "Tips de frenado (Landing)" },
+  { value: "PRODUCTOS", label: "Productos (Landing)" },
+  { value: "INSTALACION", label: "Instalación (Landing)" },
+  { value: "TESTIMONIOS", label: "Testimonios (Landing)" },
+  { value: "SOPORTE", label: "Soporte (Pág. Soporte Técnico)" },
 ];
 
 
@@ -192,13 +192,6 @@ export default function NuevoReelPage() {
     }
   };
 
-  const removeThumbnail = () => {
-    setFormData((prev) => ({ ...prev, thumbnailUrl: "" }));
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
   // ============================================
   // UPLOAD DE VIDEO NATIVO
   // ============================================
@@ -288,13 +281,6 @@ export default function NuevoReelPage() {
   const handleVideoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleVideoSelect(e.target.files[0]);
-    }
-  };
-
-  const removeVideo = () => {
-    setFormData((prev) => ({ ...prev, videoUrl: "" }));
-    if (videoInputRef.current) {
-      videoInputRef.current.value = "";
     }
   };
 
@@ -402,17 +388,24 @@ export default function NuevoReelPage() {
               </label>
 
               {formData.thumbnailUrl ? (
-                // Preview de imagen subida
-                <div className={styles.uploadedPreview}>
+                <div
+                  className={styles.uploadedPreview}
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Clic para cambiar imagen"
+                >
                   <img src={formData.thumbnailUrl} alt="Thumbnail" />
-                  <button
-                    type="button"
-                    onClick={removeThumbnail}
-                    className={styles.removeButton}
-                    title="Eliminar imagen"
-                  >
-                    <X size={16} />
-                  </button>
+                  <div className={styles.mediaOverlay}>
+                    <Upload size={18} />
+                    Cambiar
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileInput}
+                    className={styles.fileInput}
+                    disabled={uploading}
+                  />
                 </div>
               ) : (
                 // Zona de upload
@@ -466,20 +459,24 @@ export default function NuevoReelPage() {
               </label>
 
               {formData.videoUrl ? (
-                // Preview de video subido
                 <div className={styles.videoPreview}>
-                  <video
-                    src={formData.videoUrl}
-                    controls
-                  />
-                  <button
-                    type="button"
-                    onClick={removeVideo}
-                    className={styles.removeButton}
-                    title="Eliminar video"
+                  <video src={formData.videoUrl} controls />
+                  <div
+                    className={styles.mediaOverlay}
+                    onClick={() => videoInputRef.current?.click()}
+                    style={{ cursor: "pointer", borderRadius: 12 }}
                   >
-                    <X size={18} />
-                  </button>
+                    <Upload size={18} />
+                    Cambiar video
+                  </div>
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    accept="video/mp4,video/webm,video/quicktime"
+                    onChange={handleVideoInput}
+                    className={styles.fileInput}
+                    disabled={uploadingVideo}
+                  />
                 </div>
               ) : (
                 // Zona de upload de video

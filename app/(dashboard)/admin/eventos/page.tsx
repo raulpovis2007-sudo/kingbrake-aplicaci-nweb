@@ -19,6 +19,7 @@ interface Banner {
   title: string;
   image: string;
   link: string | null;
+  type: string;
   sortOrder: number;
   isActive: boolean;
   startDate: string | null;
@@ -40,7 +41,7 @@ export default function AdminEventosPage() {
 
   async function fetchEventos() {
     try {
-      const res = await fetch("/api/admin/banners?type=EVENT");
+      const res = await fetch("/api/admin/banners?type=EVENT,SOPORTE");
       if (res.ok) setEventos(await res.json());
     } catch (error) {
       console.error("Error fetching eventos:", error);

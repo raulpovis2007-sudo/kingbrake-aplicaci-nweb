@@ -18,6 +18,29 @@ interface Category {
   name: string;
 }
 
+interface VehicleBrand {
+  id: string;
+  name: string;
+}
+
+interface VehicleModelItem {
+  id: string;
+  name: string;
+  yearFrom: number;
+  yearTo: number;
+}
+
+interface CompatEntry {
+  vehicleModelId: string;
+  vehicleModel: {
+    id: string;
+    name: string;
+    yearFrom: number;
+    yearTo: number;
+    brand: { id: string; name: string };
+  };
+}
+
 interface Product {
   id: string;
   name: string;
@@ -32,6 +55,7 @@ interface Product {
   isActive: boolean;
   categoryId: string;
   category: Category;
+  compatibility?: CompatEntry[];
   createdAt: string;
 }
 
@@ -46,11 +70,13 @@ interface FormData {
   featured: boolean;
   isActive: boolean;
   categoryId: string;
+  compatibility: CompatEntry[];
 }
 
 const EMPTY_FORM: FormData = {
   name: "", description: "", detalle: "", price: "", sku: "",
   images: [], stock: "0", featured: false, isActive: true, categoryId: "",
+  compatibility: [],
 };
 
 export default function AdminProductosPage() {
@@ -67,6 +93,13 @@ export default function AdminProductosPage() {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+  const replaceIndexRef = useRef<number>(-1);
+
+  const [brands, setBrands] = useState<VehicleBrand[]>([]);
+  const [vehicleModels, setVehicleModels] = useState<VehicleModelItem[]>([]);
+  const [selBrandId, setSelBrandId] = useState("");
+  const [selModelId, setSelModelId] = useState("");
 
   async function fetchData() {
     const [prodRes, catRes] = await Promise.all([
@@ -79,6 +112,20 @@ export default function AdminProductosPage() {
   }
 
   useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => {
+    fetch("/api/vehicles/brands").then((r) => r.json()).then(setBrands).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    setSelModelId("");
+    setVehicleModels([]);
+    if (!selBrandId) return;
+    fetch(`/api/vehicles/models?brandId=${selBrandId}`)
+      .then((r) => r.json())
+      .then(setVehicleModels)
+      .catch(() => {});
+  }, [selBrandId]);
 
   const filtered = useMemo(() => {
     let list = products;
@@ -97,6 +144,8 @@ export default function AdminProductosPage() {
   function openNew() {
     setEditingId(null);
     setForm({ ...EMPTY_FORM, categoryId: categories[0]?.id || "" });
+    setSelBrandId("");
+    setSelModelId("");
     setError("");
     setShowModal(true);
   }
@@ -114,12 +163,15 @@ export default function AdminProductosPage() {
       featured: p.featured,
       isActive: p.isActive,
       categoryId: p.categoryId,
+      compatibility: p.compatibility || [],
     });
+    setSelBrandId("");
+    setSelModelId("");
     setError("");
     setShowModal(true);
   }
 
-  async function handleImageUpload(file: File) {
+  async function handleImageUpload(file: File, replaceIndex = -1) {
     if (!file.type.startsWith("image/")) { setError("El archivo debe ser una imagen"); return; }
     if (file.size > 5 * 1024 * 1024) { setError("La imagen no debe superar 5MB"); return; }
 
@@ -147,17 +199,58 @@ export default function AdminProductosPage() {
       const cloudData = await cloudRes.json();
       if (!cloudRes.ok) throw new Error(cloudData.error?.message || "Error al subir imagen");
 
-      setForm((prev) => ({ ...prev, images: [...prev.images, cloudData.secure_url] }));
+      if (replaceIndex >= 0) {
+        setForm((prev) => ({
+          ...prev,
+          images: prev.images.map((img, i) => i === replaceIndex ? cloudData.secure_url : img),
+        }));
+      } else {
+        setForm((prev) => ({ ...prev, images: [...prev.images, cloudData.secure_url] }));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir imagen");
     } finally {
       setUploading(false);
+      replaceIndexRef.current = -1;
       if (fileInputRef.current) fileInputRef.current.value = "";
+      if (replaceInputRef.current) replaceInputRef.current.value = "";
     }
   }
 
   function removeImage(index: number) {
     setForm((prev) => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }));
+  }
+
+  function addCompatibility() {
+    if (!selModelId) return;
+    const model = vehicleModels.find((m) => m.id === selModelId);
+    const brand = brands.find((b) => b.id === selBrandId);
+    if (!model || !brand) return;
+    if (form.compatibility.some((c) => c.vehicleModelId === selModelId)) return;
+    setForm((prev) => ({
+      ...prev,
+      compatibility: [
+        ...prev.compatibility,
+        {
+          vehicleModelId: model.id,
+          vehicleModel: {
+            id: model.id,
+            name: model.name,
+            yearFrom: model.yearFrom,
+            yearTo: model.yearTo,
+            brand: { id: brand.id, name: brand.name },
+          },
+        },
+      ],
+    }));
+    setSelModelId("");
+  }
+
+  function removeCompatibility(vehicleModelId: string) {
+    setForm((prev) => ({
+      ...prev,
+      compatibility: prev.compatibility.filter((c) => c.vehicleModelId !== vehicleModelId),
+    }));
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -181,6 +274,7 @@ export default function AdminProductosPage() {
         price: parseFloat(form.price),
         stock: parseInt(form.stock) || 0,
         detalle: form.detalle || null,
+        compatibility: form.compatibility.map((c) => c.vehicleModelId),
       }),
     });
 
@@ -419,28 +513,92 @@ export default function AdminProductosPage() {
                     {form.images.map((url, i) => (
                       <div key={i} className={styles.imagePreview}>
                         <img src={url} alt={`Imagen ${i + 1}`} />
-                        <button type="button" className={styles.removeImg} onClick={() => removeImage(i)}><X size={14} /></button>
+                        <div className={styles.imageActions}>
+                          <button type="button" className={styles.replaceImg} onClick={() => { replaceIndexRef.current = i; replaceInputRef.current?.click(); }} title="Cambiar imagen"><Pencil size={12} /></button>
+                          <button type="button" className={styles.removeImg} onClick={() => removeImage(i)} title="Eliminar imagen"><X size={14} /></button>
+                        </div>
                       </div>
                     ))}
                     <div
                       className={`${styles.uploadZone} ${uploading ? styles.uploading : ""}`}
                       onClick={() => !uploading && fileInputRef.current?.click()}
                     >
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
-                        hidden
-                        disabled={uploading}
-                      />
                       {uploading ? (
                         <Loader2 size={20} className={styles.spinner} />
                       ) : (
                         <><Upload size={20} /><span>Subir</span></>
                       )}
                     </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
+                      hidden
+                      disabled={uploading}
+                    />
+                    <input
+                      ref={replaceInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0], replaceIndexRef.current)}
+                      hidden
+                      disabled={uploading}
+                    />
                   </div>
+                </div>
+
+                <div className={styles.fieldFull}>
+                  <label>Compatibilidad vehicular</label>
+                  <div className={styles.compatRow}>
+                    <select
+                      value={selBrandId}
+                      onChange={(e) => setSelBrandId(e.target.value)}
+                      className={styles.select}
+                    >
+                      <option value="">Marca</option>
+                      {brands.map((b) => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={selModelId}
+                      onChange={(e) => setSelModelId(e.target.value)}
+                      className={styles.select}
+                      disabled={!selBrandId}
+                    >
+                      <option value="">{selBrandId ? "Modelo" : "Selecciona marca"}</option>
+                      {vehicleModels.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name} ({m.yearFrom}–{m.yearTo})
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className={styles.addBtn}
+                      onClick={addCompatibility}
+                      disabled={!selModelId || form.compatibility.some((c) => c.vehicleModelId === selModelId)}
+                      style={{ padding: "8px 16px", flexShrink: 0 }}
+                    >
+                      <Plus size={16} /> Agregar
+                    </button>
+                  </div>
+                  {form.compatibility.length > 0 && (
+                    <div className={styles.compatList}>
+                      {form.compatibility.map((c) => (
+                        <div key={c.vehicleModelId} className={styles.compatTag}>
+                          <span>
+                            {c.vehicleModel.brand.name} {c.vehicleModel.name}{" "}
+                            ({c.vehicleModel.yearFrom}–{c.vehicleModel.yearTo})
+                          </span>
+                          <button type="button" onClick={() => removeCompatibility(c.vehicleModelId)}>
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.fieldFull}>
@@ -461,6 +619,10 @@ export default function AdminProductosPage() {
                       />
                       Activo (visible en catálogo)
                     </label>
+                  </div>
+                  <div className={styles.callout}>
+                    <Star size={14} className={styles.calloutIcon} />
+                    <span><strong>Destacado:</strong> Los productos destacados aparecen primero en los resultados cuando un cliente busca repuestos en el catálogo. Úsalo para mostrar tus productos más importantes o los que más quieres vender.</span>
                   </div>
                 </div>
               </div>

@@ -174,7 +174,7 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
           },
-          {
+          ...(process.env.NODE_ENV === 'production' ? [{
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
@@ -189,7 +189,7 @@ const nextConfig = {
               "base-uri 'self'",
               "form-action 'self'",
             ].join('; '),
-          },
+          }] : []),
         ],
       },
     ];

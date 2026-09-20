@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Upload, X, Loader2, ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Upload, Loader2, ImageIcon } from "lucide-react";
 import formStyles from "../../../banners/nuevo/BannerForm.module.css";
 
 export default function EditarEventoPage() {
@@ -23,6 +23,7 @@ export default function EditarEventoPage() {
     link: "",
     startDate: "",
     endDate: "",
+    type: "EVENT" as "EVENT" | "SOPORTE",
   });
 
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function EditarEventoPage() {
           link: data.link || "",
           startDate: data.startDate ? data.startDate.split("T")[0] : "",
           endDate: data.endDate ? data.endDate.split("T")[0] : "",
+          type: data.type || "EVENT",
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al cargar evento");
@@ -47,7 +49,7 @@ export default function EditarEventoPage() {
     fetchEvento();
   }, [params.id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setError(null);
   };
@@ -141,9 +143,24 @@ export default function EditarEventoPage() {
             <div className={formStyles.formGroup}>
               <label className={formStyles.label}>Imagen <span className={formStyles.required}>*</span></label>
               {formData.image ? (
-                <div className={formStyles.uploadedPreview}>
+                <div
+                  className={formStyles.uploadedPreview}
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Clic para cambiar imagen"
+                >
                   <img src={formData.image} alt="Evento" />
-                  <button type="button" onClick={() => { setFormData((prev) => ({ ...prev, image: "" })); if (fileInputRef.current) fileInputRef.current.value = ""; }} className={formStyles.removeButton}><X size={16} /></button>
+                  <div className={formStyles.mediaOverlay}>
+                    <Upload size={18} />
+                    Cambiar
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+                    className={formStyles.fileInput}
+                    disabled={uploading}
+                  />
                 </div>
               ) : (
                 <div className={`${formStyles.uploadZone} ${dragActive ? formStyles.uploadZoneActive : ""} ${uploading ? formStyles.uploadZoneUploading : ""}`} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop} onClick={() => !uploading && fileInputRef.current?.click()}>
@@ -151,6 +168,14 @@ export default function EditarEventoPage() {
                   {uploading ? (<><Loader2 size={32} className={formStyles.spinner} /><span>Subiendo...</span></>) : (<><div className={formStyles.uploadIcon}><ImageIcon size={28} /><Upload size={16} className={formStyles.uploadArrow} /></div><span className={formStyles.uploadText}>Arrastra una imagen o haz clic</span></>)}
                 </div>
               )}
+            </div>
+
+            <div className={formStyles.formGroup}>
+              <label className={formStyles.label}>Destino <span className={formStyles.required}>*</span></label>
+              <select name="type" value={formData.type} onChange={handleChange} className={formStyles.input}>
+                <option value="EVENT">Landing — Nuevas Aplicaciones</option>
+                <option value="SOPORTE">Página Soporte Técnico</option>
+              </select>
             </div>
 
             <div className={formStyles.formGroup}>
