@@ -16,6 +16,32 @@
   gap: 1rem;
 }
 
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1.25rem;
+}
+
+.tab {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+}
+
+.tab:hover { color: #1f2937; }
+
+.tabActive {
+  color: #0e1469;
+  border-bottom-color: #fe0008;
+  font-weight: 600;
+}
+
 .title {
   font-size: 1.5rem;
   font-weight: 700;

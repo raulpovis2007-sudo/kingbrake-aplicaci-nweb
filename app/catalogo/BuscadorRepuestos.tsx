@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LINEAS_PRODUCTO } from "@/lib/lineas-producto";
 import styles from "./BuscadorRepuestos.module.css";
 
 const PER_PAGE = 10;
@@ -13,28 +12,21 @@ const PER_PAGE = 10;
 const NO_GEN_SLUGS = ["sistema-hidraulico"];
 const NO_FILTER_SLUGS = ["lubricantes-de-freno"];
 
-interface Brand {
+interface ParentCategory {
   id: string;
   name: string;
+  slug: string;
+  icon: string | null;
 }
 
-interface Model {
-  id: string;
-  name: string;
-}
-
-interface Generation {
-  id: string;
-  name: string;
-}
+interface Brand { id: string; name: string }
+interface Model { id: string; name: string }
+interface Generation { id: string; name: string }
 
 interface Compatibility {
   vehicleGeneration: {
     name: string;
-    model: {
-      name: string;
-      brand: { name: string };
-    };
+    model: { name: string; brand: { name: string } };
   };
 }
 
@@ -42,8 +34,6 @@ interface Product {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  price: number;
   sku: string;
   images: string[];
   featured?: boolean;
@@ -55,8 +45,10 @@ type SearchState = "idle" | "loading" | "results" | "empty" | "error";
 
 export default function BuscadorRepuestos() {
   const searchParams = useSearchParams();
-  const lineaSlug = searchParams.get("linea") || "pastillas-de-freno";
-  const linea = LINEAS_PRODUCTO.find((l) => l.slug === lineaSlug);
+  const lineaSlug = searchParams.get("linea") || "";
+
+  const [categories, setCategories] = useState<ParentCategory[]>([]);
+  const linea = categories.find((c) => c.slug === lineaSlug);
 
   const isNoGen = NO_GEN_SLUGS.includes(lineaSlug);
   const isNoFilter = NO_FILTER_SLUGS.includes(lineaSlug);
@@ -71,6 +63,37 @@ export default function BuscadorRepuestos() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
 
+  const skipCascadeRef = useRef(false);
+  const cacheKey = `kb-catalog-${lineaSlug}`;
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((data: ParentCategory[]) => {
+        if (Array.isArray(data)) setCategories(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!lineaSlug) return;
+    try {
+      const raw = sessionStorage.getItem(cacheKey);
+      if (!raw) return;
+      const c = JSON.parse(raw);
+      skipCascadeRef.current = true;
+      setBrandId(c.brandId || "");
+      setModelId(c.modelId || "");
+      setGenerationId(c.generationId || "");
+      setBrands(c.brands || []);
+      setModels(c.models || []);
+      setGenerations(c.generations || []);
+      setProducts(c.products || []);
+      setSearchState(c.searchState || "idle");
+    } catch { /* ignore corrupt cache */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (isNoFilter) return;
     fetch("/api/vehicles/brands")
@@ -80,6 +103,7 @@ export default function BuscadorRepuestos() {
   }, [isNoFilter]);
 
   useEffect(() => {
+    if (skipCascadeRef.current) return;
     setModelId("");
     setGenerationId("");
     setModels([]);
@@ -92,6 +116,10 @@ export default function BuscadorRepuestos() {
   }, [brandId]);
 
   useEffect(() => {
+    if (skipCascadeRef.current) {
+      skipCascadeRef.current = false;
+      return;
+    }
     setGenerationId("");
     setGenerations([]);
     if (!modelId) return;
@@ -102,22 +130,31 @@ export default function BuscadorRepuestos() {
   }, [modelId]);
 
   useEffect(() => {
-    if (!isNoFilter || !linea) return;
+    if (!isNoFilter || !lineaSlug) return;
     setSearchState("loading");
     fetch(`/api/products?linea=${lineaSlug}`)
       .then((r) => r.json())
       .then((data: Product[]) => {
         if (Array.isArray(data)) {
           setProducts(data);
-          setSearchState(data.length > 0 ? "results" : "empty");
+          const state = data.length > 0 ? "results" : "empty";
+          setSearchState(state);
+          try {
+            sessionStorage.setItem(cacheKey, JSON.stringify({
+              products: data, searchState: state,
+            }));
+          } catch { /* quota exceeded */ }
         } else {
           setSearchState("empty");
         }
       })
       .catch(() => setSearchState("error"));
-  }, [isNoFilter, lineaSlug, linea]);
+  }, [isNoFilter, lineaSlug, cacheKey]);
 
+  const prevLineaRef = useRef(lineaSlug);
   useEffect(() => {
+    if (prevLineaRef.current === lineaSlug) return;
+    prevLineaRef.current = lineaSlug;
     setBrandId("");
     setModelId("");
     setGenerationId("");
@@ -150,11 +187,19 @@ export default function BuscadorRepuestos() {
       if (!res.ok) throw new Error();
       const data = await res.json();
       setProducts(data);
-      setSearchState(data.length > 0 ? "results" : "empty");
+      const state = data.length > 0 ? "results" : "empty";
+      setSearchState(state);
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          brandId, modelId, generationId,
+          brands, models, generations,
+          products: data, searchState: state,
+        }));
+      } catch { /* quota exceeded */ }
     } catch {
       setSearchState("error");
     }
-  }, [canSearch, lineaSlug, brandId, modelId, generationId]);
+  }, [canSearch, lineaSlug, brandId, modelId, generationId, brands, models, generations, cacheKey]);
 
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(products.length / PER_PAGE));
@@ -167,7 +212,7 @@ export default function BuscadorRepuestos() {
     setPage(1);
   }, [products]);
 
-  if (!linea) {
+  if (!lineaSlug || !linea) {
     return (
       <div className={styles.wrapper}>
         <div className={styles.lineaPicker}>
@@ -176,22 +221,13 @@ export default function BuscadorRepuestos() {
             Selecciona una línea de producto para comenzar
           </p>
           <div className={styles.lineaGrid}>
-            {LINEAS_PRODUCTO.map((l) => (
+            {categories.map((c) => (
               <Link
-                key={l.slug}
-                href={`/catalogo?linea=${l.slug}`}
+                key={c.slug}
+                href={`/catalogo?linea=${c.slug}`}
                 className={styles.lineaCard}
               >
-                <div className={styles.lineaCardImg}>
-                  <Image
-                    src={l.imagen}
-                    alt={l.nombre}
-                    fill
-                    sizes="160px"
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-                <span>{l.nombre}</span>
+                <span>{c.name}</span>
               </Link>
             ))}
           </div>
@@ -203,13 +239,13 @@ export default function BuscadorRepuestos() {
   return (
     <div className={styles.wrapper}>
       <nav className={styles.lineaTabs} aria-label="Líneas de producto">
-        {LINEAS_PRODUCTO.map((l) => (
+        {categories.map((c) => (
           <Link
-            key={l.slug}
-            href={`/catalogo?linea=${l.slug}`}
-            className={`${styles.lineaTab} ${l.slug === lineaSlug ? styles.lineaTabActive : ""}`}
+            key={c.slug}
+            href={`/catalogo?linea=${c.slug}`}
+            className={`${styles.lineaTab} ${c.slug === lineaSlug ? styles.lineaTabActive : ""}`}
           >
-            {l.nombre}
+            {c.name}
           </Link>
         ))}
       </nav>
@@ -339,52 +375,46 @@ export default function BuscadorRepuestos() {
               </p>
               <div className={styles.productList}>
                 {paginated.map((p) => (
-                  <article key={p.id} className={styles.productCard}>
-                    <div className={styles.productImage}>
-                      {p.images[0] ? (
-                        <Image
-                          src={p.images[0]}
-                          alt={p.name}
-                          fill
-                          sizes="100px"
-                          style={{ objectFit: "cover" }}
-                        />
-                      ) : (
-                        <svg
-                          className={styles.productImagePlaceholder}
-                          viewBox="0 0 40 40"
-                          fill="none"
-                          stroke="#d1d5db"
-                          strokeWidth="1.5"
-                        >
-                          <circle cx="20" cy="20" r="12" />
-                          <circle cx="20" cy="20" r="4" />
-                        </svg>
-                      )}
-                    </div>
-                    <div className={styles.productInfo}>
-                      <span className={styles.productSku}>{p.sku}</span>
-                      <h3 className={styles.productName}>{p.name}</h3>
-                      <span className={styles.productCategory}>
-                        {p.category.name}
-                      </span>
-                      {p.compatibility && p.compatibility.length > 0 && (
-                        <span className={styles.productCompat}>
-                          {p.compatibility[0].vehicleGeneration.model.brand.name}{" "}
-                          {p.compatibility[0].vehicleGeneration.model.name}{" "}
-                          — {p.compatibility[0].vehicleGeneration.name}
+                  <Link key={p.id} href={`/productos/${p.slug}`} className={styles.productCardLink}>
+                    <article className={styles.productCard}>
+                      <div className={styles.productImage}>
+                        {p.images[0] ? (
+                          <Image
+                            src={p.images[0]}
+                            alt={p.name}
+                            fill
+                            sizes="100px"
+                            style={{ objectFit: "cover" }}
+                          />
+                        ) : (
+                          <svg
+                            className={styles.productImagePlaceholder}
+                            viewBox="0 0 40 40"
+                            fill="none"
+                            stroke="#d1d5db"
+                            strokeWidth="1.5"
+                          >
+                            <circle cx="20" cy="20" r="12" />
+                            <circle cx="20" cy="20" r="4" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className={styles.productInfo}>
+                        <span className={styles.productSku}>{p.sku}</span>
+                        <h3 className={styles.productName}>{p.name}</h3>
+                        <span className={styles.productCategory}>
+                          {p.category.name}
                         </span>
-                      )}
-                      <p className={styles.productDescription}>
-                        {p.description}
-                      </p>
-                    </div>
-                    <div className={styles.productPriceCol}>
-                      <span className={styles.productPrice}>
-                        S/{p.price.toFixed(2)}
-                      </span>
-                    </div>
-                  </article>
+                        {p.compatibility && p.compatibility.length > 0 && (
+                          <span className={styles.productCompat}>
+                            {p.compatibility[0].vehicleGeneration.model.brand.name}{" "}
+                            {p.compatibility[0].vehicleGeneration.model.name}{" "}
+                            — {p.compatibility[0].vehicleGeneration.name}
+                          </span>
+                        )}
+                      </div>
+                    </article>
+                  </Link>
                 ))}
               </div>
               {totalPages > 1 && (

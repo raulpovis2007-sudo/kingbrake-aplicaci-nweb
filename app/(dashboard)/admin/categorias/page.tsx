@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Pencil, Trash2, Plus, X, Package } from "lucide-react";
 import styles from "./AdminCategorias.module.css";
 
@@ -11,7 +11,9 @@ interface Category {
   description: string | null;
   icon: string | null;
   order: number;
+  parentId: string | null;
   _count: { products: number };
+  children?: Category[];
 }
 
 interface FormData {
@@ -40,16 +42,26 @@ export default function AdminCategoriasPage() {
 
   useEffect(() => { fetchCategories(); }, []);
 
+  // Solo categorías padre (sin parentId) — las hijas vienen en .children
+  const parentCategories = useMemo(
+    () => categories.filter((c) => !c.parentId),
+    [categories]
+  );
+
   function openNew() {
     setEditingId(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM });
     setError("");
     setShowModal(true);
   }
 
   function openEdit(cat: Category) {
     setEditingId(cat.id);
-    setForm({ name: cat.name, description: cat.description || "", icon: cat.icon || "" });
+    setForm({
+      name: cat.name,
+      description: cat.description || "",
+      icon: cat.icon || "",
+    });
     setError("");
     setShowModal(true);
   }
@@ -93,21 +105,24 @@ export default function AdminCategoriasPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Categorías</h1>
-        <button className={styles.addBtn} onClick={openNew}><Plus size={18} /> Nueva categoría</button>
+        <button className={styles.addBtn} onClick={() => openNew()}>
+          <Plus size={18} /> Nueva categoría
+        </button>
       </div>
 
-      {categories.length === 0 ? (
+      {parentCategories.length === 0 ? (
         <div className={styles.empty}>
           <Package size={48} />
           <p>No hay categorías registradas</p>
-          <button className={styles.addBtn} onClick={openNew}><Plus size={18} /> Crear primera categoría</button>
+          <button className={styles.addBtn} onClick={() => openNew()}>
+            <Plus size={18} /> Crear primera categoría
+          </button>
         </div>
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Orden</th>
                 <th>Nombre</th>
                 <th>Slug</th>
                 <th>Descripción</th>
@@ -116,10 +131,10 @@ export default function AdminCategoriasPage() {
               </tr>
             </thead>
             <tbody>
-              {categories.map((cat) => (
+              {parentCategories.map((cat) => (
                 <tr key={cat.id}>
-                  <td>{cat.order}</td>
                   <td className={styles.nameCell}>
+                    {cat.icon && <span className={styles.icon}>{cat.icon}</span>}
                     {cat.name}
                   </td>
                   <td className={styles.slug}>{cat.slug}</td>
@@ -127,7 +142,9 @@ export default function AdminCategoriasPage() {
                   <td>{cat._count.products}</td>
                   <td>
                     <div className={styles.actions}>
-                      <button className={styles.editBtn} onClick={() => openEdit(cat)} title="Editar"><Pencil size={16} /></button>
+                      <button className={styles.editBtn} onClick={() => openEdit(cat)} title="Editar">
+                        <Pencil size={16} />
+                      </button>
                       <button
                         className={styles.deleteBtn}
                         onClick={() => handleDelete(cat.id)}
@@ -150,7 +167,9 @@ export default function AdminCategoriasPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editingId ? "Editar categoría" : "Nueva categoría"}</h2>
-              <button className={styles.closeBtn} onClick={() => setShowModal(false)}><X size={20} /></button>
+              <button className={styles.closeBtn} onClick={() => setShowModal(false)}>
+                <X size={20} />
+              </button>
             </div>
             <form onSubmit={handleSave} className={styles.form}>
               {error && <div className={styles.error}>{error}</div>}
@@ -161,7 +180,7 @@ export default function AdminCategoriasPage() {
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                  placeholder="Ej: Pastillas ceramicadas"
+                  placeholder="Ej: Pastillas de freno"
                   maxLength={80}
                 />
               </div>
@@ -191,7 +210,7 @@ export default function AdminCategoriasPage() {
               <div className={styles.modalActions}>
                 <button type="button" className={styles.cancelBtn} onClick={() => setShowModal(false)}>Cancelar</button>
                 <button type="submit" className={styles.saveBtn} disabled={saving}>
-                  {saving ? "Guardando..." : editingId ? "Guardar cambios" : "Crear categoría"}
+                  {saving ? "Guardando..." : editingId ? "Guardar cambios" : "Crear"}
                 </button>
               </div>
             </form>

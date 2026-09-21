@@ -1,13 +1,23 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Upload, X, Loader2, ImageIcon } from "lucide-react";
 import formStyles from "./BannerForm.module.css";
 
+const TYPE_LABELS: Record<string, string> = {
+  HERO: "Imagen del Hero",
+  BANNER: "Banner / Campaña",
+  NOSOTROS_VIDEO: "Video Quiénes Somos",
+};
+
 export default function NuevoBannerPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const bannerType = searchParams.get("type") || "BANNER";
+  const isVideo = bannerType === "NOSOTROS_VIDEO";
+  const typeLabel = TYPE_LABELS[bannerType] || "Banner";
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [saving, setSaving] = useState(false);
@@ -29,12 +39,17 @@ export default function NuevoBannerPage() {
   };
 
   const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      setError("El archivo debe ser una imagen");
+    const acceptVideo = isVideo;
+    const isValid = acceptVideo
+      ? file.type.startsWith("video/") || file.type.startsWith("image/")
+      : file.type.startsWith("image/");
+    if (!isValid) {
+      setError(acceptVideo ? "El archivo debe ser un video o imagen" : "El archivo debe ser una imagen");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("La imagen no debe superar 5MB");
+    const maxSize = acceptVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError(`El archivo no debe superar ${acceptVideo ? "50MB" : "5MB"}`);
       return;
     }
 
@@ -54,8 +69,9 @@ export default function NuevoBannerPage() {
       fd.append("api_key", apiKey);
       fd.append("folder", folder);
 
+      const resourceType = file.type.startsWith("video/") ? "video" : "image";
       const cloudRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
         { method: "POST", body: fd }
       );
       const cloudData = await cloudRes.json();
@@ -95,11 +111,11 @@ export default function NuevoBannerPage() {
       const res = await fetch("/api/admin/banners", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, type: "BANNER" }),
+        body: JSON.stringify({ ...formData, type: bannerType }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al crear el banner");
-      router.push("/admin/banners");
+      if (!res.ok) throw new Error(data.error || "Error al crear");
+      router.push(`/admin/banners?type=${bannerType}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
@@ -110,10 +126,10 @@ export default function NuevoBannerPage() {
   return (
     <div className={formStyles.container}>
       <div className={formStyles.header}>
-        <Link href="/admin/banners" className={formStyles.backButton}>
+        <Link href={`/admin/banners?type=${bannerType}`} className={formStyles.backButton}>
           <ArrowLeft size={20} /> Volver
         </Link>
-        <h1 className={formStyles.title}>Nuevo Banner</h1>
+        <h1 className={formStyles.title}>Nuevo: {typeLabel}</h1>
       </div>
 
       <form onSubmit={handleSubmit} className={formStyles.form}>
@@ -168,7 +184,7 @@ export default function NuevoBannerPage() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept={isVideo ? "video/*,image/*" : "image/*"}
                     onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
                     className={formStyles.fileInput}
                     disabled={uploading}
@@ -188,7 +204,9 @@ export default function NuevoBannerPage() {
                         Arrastra una imagen o haz clic para seleccionar
                       </span>
                       <span className={formStyles.uploadHint}>
-                        Recomendado: 1200×400px (PNG, JPG, WebP, máx. 5MB)
+                        {isVideo
+                          ? "MP4, WebM — máx. 50MB"
+                          : "Recomendado: 1200×400px (PNG, JPG, WebP, máx. 5MB)"}
                       </span>
                     </>
                   )}
@@ -236,7 +254,7 @@ export default function NuevoBannerPage() {
             </span>
 
             <div className={formStyles.formActions}>
-              <Link href="/admin/banners" className={formStyles.cancelButton}>
+              <Link href={`/admin/banners?type=${bannerType}`} className={formStyles.cancelButton}>
                 Cancelar
               </Link>
               <button
@@ -244,7 +262,7 @@ export default function NuevoBannerPage() {
                 disabled={saving || uploading}
                 className={formStyles.submitButton}
               >
-                {saving ? "Guardando..." : <><Save size={18} /> Crear Banner</>}
+                {saving ? "Guardando..." : <><Save size={18} /> Guardar</>}
               </button>
             </div>
           </div>

@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const { id } = params;
   const body = await req.json();
-  const { name, description, icon, order } = body;
+  const { name, description, icon, order, parentId } = body;
 
   const existing = await db.category.findUnique({ where: { id } });
   if (!existing) {
@@ -56,6 +56,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (description !== undefined) data.description = description?.trim() || null;
   if (icon !== undefined) data.icon = icon?.trim() || null;
   if (order !== undefined) data.order = order;
+  if (parentId !== undefined) data.parentId = parentId || null;
 
   const updated = await db.category.update({ where: { id }, data });
   return NextResponse.json(updated);
@@ -70,11 +71,18 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   const { id } = params;
   const existing = await db.category.findUnique({
     where: { id },
-    include: { _count: { select: { products: true } } },
+    include: { _count: { select: { products: true, children: true } } },
   });
 
   if (!existing) {
     return NextResponse.json({ error: "Categoría no encontrada" }, { status: 404 });
+  }
+
+  if (existing._count.children > 0) {
+    return NextResponse.json(
+      { error: `No se puede eliminar: tiene ${existing._count.children} subcategoría(s)` },
+      { status: 400 }
+    );
   }
 
   if (existing._count.products > 0) {

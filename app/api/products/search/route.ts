@@ -38,7 +38,10 @@ export async function POST(req: NextRequest) {
     const products = await db.product.findMany({
       where: {
         isActive: true,
-        category: { slug: linea },
+        OR: [
+          { category: { slug: linea } },
+          { category: { parent: { slug: linea } } },
+        ],
         compatibility: {
           some: { vehicleGeneration: genFilter },
         },
@@ -47,8 +50,6 @@ export async function POST(req: NextRequest) {
         id: true,
         name: true,
         slug: true,
-        description: true,
-        price: true,
         sku: true,
         images: true,
         featured: true,

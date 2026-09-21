@@ -35,7 +35,13 @@ export async function GET() {
 
   const categories = await db.category.findMany({
     orderBy: { order: "asc" },
-    include: { _count: { select: { products: true } } },
+    include: {
+      _count: { select: { products: true } },
+      children: {
+        orderBy: { order: "asc" },
+        include: { _count: { select: { products: true } } },
+      },
+    },
   });
 
   return NextResponse.json(categories);
@@ -48,7 +54,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, description, icon } = body;
+  const { name, description, icon, parentId } = body;
 
   if (!name?.trim()) {
     return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
@@ -68,6 +74,7 @@ export async function POST(req: NextRequest) {
       description: description?.trim() || null,
       icon: icon?.trim() || null,
       order: (maxOrder._max.order ?? -1) + 1,
+      parentId: parentId || null,
     },
   });
 

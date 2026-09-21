@@ -1,25 +1,37 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Splide from "@splidejs/splide";
 import "@splidejs/splide/css";
 import Image from "next/image";
 import styles from "./Hero.module.css";
 
-const HERO_IMAGES = [
-  "/assets/images/PORTADA-1.png",
-  "/assets/images/PORTADA-2.png",
-  "/assets/images/PORTADA-3.png",
-];
+interface HeroBanner {
+  id: string;
+  title: string;
+  image: string;
+  link: string | null;
+}
 
 export default function Hero() {
   const splideRef = useRef<HTMLDivElement>(null);
+  const splideInstance = useRef<Splide | null>(null);
+  const [images, setImages] = useState<HeroBanner[]>([]);
+
+  useEffect(() => {
+    fetch("/api/banners?type=HERO")
+      .then((r) => r.json())
+      .then((data: HeroBanner[]) => {
+        if (Array.isArray(data) && data.length > 0) setImages(data);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const el = splideRef.current;
-    if (!el) return;
+    if (!el || images.length === 0) return;
 
-    const splide = new Splide(el, {
+    splideInstance.current = new Splide(el, {
       type: "loop",
       drag: true,
       arrows: false,
@@ -30,10 +42,12 @@ export default function Hero() {
       pauseOnHover: false,
       pauseOnFocus: false,
     });
-    splide.mount();
+    splideInstance.current.mount();
 
-    return () => { splide.destroy(); };
-  }, []);
+    return () => { splideInstance.current?.destroy(); };
+  }, [images]);
+
+  if (images.length === 0) return null;
 
   return (
     <header className={styles.heroSection} id="hero">
@@ -41,11 +55,11 @@ export default function Hero() {
         <div ref={splideRef} className="splide">
           <div className="splide__track">
             <ul className="splide__list">
-              {HERO_IMAGES.map((src, i) => (
-                <li className="splide__slide" key={src}>
+              {images.map((b, i) => (
+                <li className="splide__slide" key={b.id}>
                   <Image
-                    src={src}
-                    alt={`King Brake portada ${i + 1}`}
+                    src={b.image}
+                    alt={b.title}
                     fill
                     sizes="100vw"
                     priority={i === 0}

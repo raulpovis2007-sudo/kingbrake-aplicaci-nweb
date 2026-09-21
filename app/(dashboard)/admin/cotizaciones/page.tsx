@@ -17,7 +17,6 @@ interface Quote {
   id: string;
   productName: string;
   productSku: string;
-  productPrice: number;
   status: "PENDING" | "CONFIRMED" | "DELIVERED" | "CANCELLED";
   adminNote: string | null;
   createdAt: string;
@@ -144,7 +143,6 @@ export default function AdminCotizacionesPage() {
                       <div className={styles.productCell}>{q.productName}</div>
                       <div className={styles.skuCell}>{q.productSku}</div>
                     </td>
-                    <td className={styles.priceCell}>S/ {q.productPrice.toFixed(2)}</td>
                     <td>
                       <span className={`${styles.badge} ${styles[cfg.className]}`}>{cfg.label}</span>
                     </td>
@@ -176,7 +174,6 @@ export default function AdminCotizacionesPage() {
                 <h3>Producto</h3>
                 <p>{selected.productName}</p>
                 <p className={styles.secondary}>SKU: {selected.productSku}</p>
-                <p className={styles.priceLabel}>S/ {selected.productPrice.toFixed(2)}</p>
               </div>
               <div className={styles.infoGroup}>
                 <h3>Estado</h3>

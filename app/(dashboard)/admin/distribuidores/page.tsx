@@ -21,6 +21,7 @@ interface Distributor {
   lat: number;
   lng: number;
   phone: string | null;
+  image: string | null;
   isActive: boolean;
 }
 
@@ -30,6 +31,7 @@ interface FormData {
   region: string;
   phone: string;
   mapsUrl: string;
+  image: string;
 }
 
 const REGIONES: Record<string, string[]> = {
@@ -39,7 +41,7 @@ const REGIONES: Record<string, string[]> = {
   Oriente: ["Loreto", "Ucayali"],
 };
 
-const EMPTY_FORM: FormData = { name: "", address: "", region: "Lima", phone: "", mapsUrl: "" };
+const EMPTY_FORM: FormData = { name: "", address: "", region: "Lima", phone: "", mapsUrl: "", image: "" };
 
 function parseCoordsFromUrl(url: string): { lat: number; lng: number } | null {
   if (!url.trim()) return null;
@@ -67,6 +69,7 @@ export default function AdminDistribuidoresPage() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [coordsPreview, setCoordsPreview] = useState<{ lat: number; lng: number } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [filterRegion, setFilterRegion] = useState("");
@@ -114,10 +117,36 @@ export default function AdminDistribuidoresPage() {
       region: d.region,
       phone: d.phone || "",
       mapsUrl: "",
+      image: d.image || "",
     });
     setCoordsPreview({ lat: d.lat, lng: d.lng });
     setError("");
     setShowModal(true);
+  }
+
+  async function handleImageUpload(file: File) {
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 5 * 1024 * 1024) { setError("La imagen no debe superar 5MB"); return; }
+    setUploading(true);
+    try {
+      const sigRes = await fetch("/api/admin/distributors/upload-signature", { method: "POST" });
+      if (!sigRes.ok) throw new Error();
+      const { signature, timestamp, cloudName, apiKey, folder } = await sigRes.json();
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("signature", signature);
+      fd.append("timestamp", timestamp.toString());
+      fd.append("api_key", apiKey);
+      fd.append("folder", folder);
+      const cloudRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: fd });
+      const cloudData = await cloudRes.json();
+      if (!cloudRes.ok) throw new Error(cloudData.error?.message || "Error al subir");
+      setForm((f) => ({ ...f, image: cloudData.secure_url }));
+    } catch {
+      setError("Error al subir la imagen");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function handleMapsUrlChange(url: string) {
@@ -143,6 +172,7 @@ export default function AdminDistribuidoresPage() {
         address: form.address,
         region: form.region,
         phone: form.phone || null,
+        image: form.image || null,
         lat: coords.lat,
         lng: coords.lng,
       };
@@ -362,6 +392,29 @@ export default function AdminDistribuidoresPage() {
                     onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                     placeholder="Ej: 01 702 4590"
                   />
+                </div>
+                <div className={styles.field}>
+                  <label>Imagen del local</label>
+                  {form.image ? (
+                    <div style={{ position: "relative", display: "inline-block" }}>
+                      <img src={form.image} alt="Local" style={{ width: 120, height: 80, objectFit: "cover", borderRadius: 6 }} />
+                      <button
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, image: "" }))}
+                        style={{ position: "absolute", top: -6, right: -6, background: "#ef4444", color: "#fff", border: "none", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", fontSize: 12, lineHeight: "20px", textAlign: "center", padding: 0 }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="file"
+                      accept="image/*"
+                      disabled={uploading}
+                      onChange={(e) => e.target.files?.[0] && handleImageUpload(e.target.files[0])}
+                    />
+                  )}
+                  {uploading && <span style={{ fontSize: "0.8rem", color: "#6b7280" }}>Subiendo...</span>}
                 </div>
                 <div className={styles.field}>
                   <label>Link de Google Maps *</label>

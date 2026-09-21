@@ -36,7 +36,7 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { name, address, region, lat, lng, phone, isActive } = body;
+    const { name, address, region, lat, lng, phone, image, isActive } = body;
 
     const updated = await db.distributor.update({
       where: { id },
@@ -47,6 +47,7 @@ export async function PUT(
         ...(lat !== undefined && { lat }),
         ...(lng !== undefined && { lng }),
         ...(phone !== undefined && { phone: phone || null }),
+        ...(image !== undefined && { image: image || null }),
         ...(isActive !== undefined && { isActive }),
       },
     });

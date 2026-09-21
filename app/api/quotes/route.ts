@@ -10,9 +10,9 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { productId, productName, productSku, productPrice } = body;
+  const { productId, productName, productSku } = body;
 
-  if (!productId || !productName || !productSku || productPrice == null) {
+  if (!productId || !productName || !productSku) {
     return NextResponse.json({ error: "Datos incompletos" }, { status: 400 });
   }
 
@@ -22,7 +22,6 @@ export async function POST(request: Request) {
       productId,
       productName,
       productSku,
-      productPrice,
     },
   });
 

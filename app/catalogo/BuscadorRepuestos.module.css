@@ -224,6 +224,12 @@
   gap: 8px;
 }
 
+.productCardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
 .productCard {
   display: flex;
   gap: 16px;

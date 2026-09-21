@@ -7,7 +7,6 @@ interface Quote {
   id: string;
   productName: string;
   productSku: string;
-  productPrice: number;
   status: "PENDING" | "CONFIRMED" | "DELIVERED" | "CANCELLED";
   adminNote: string | null;
   createdAt: string;
@@ -60,7 +59,6 @@ export default function CotizacionesClient({ quotes }: { quotes: Quote[] }) {
                     </span>
                   </div>
                   <div className={styles.cardBottom}>
-                    <span className={styles.price}>S/ {q.productPrice.toFixed(2)}</span>
                     <span className={styles.date}>{formatDate(q.createdAt)}</span>
                   </div>
                   {q.adminNote && (

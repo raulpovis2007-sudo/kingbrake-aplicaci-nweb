@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, address, region, lat, lng, phone } = body;
+    const { name, address, region, lat, lng, phone, image } = body;
 
     if (!name?.trim() || !address?.trim()) {
       return NextResponse.json({ error: "Nombre y dirección son obligatorios" }, { status: 400 });
@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
         lat,
         lng,
         phone: phone || null,
+        image: image || null,
       },
     });
 

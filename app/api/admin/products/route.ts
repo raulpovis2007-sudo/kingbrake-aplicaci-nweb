@@ -43,6 +43,14 @@ const compatibilityInclude = {
         },
       },
     },
+    vehicleModelId: true,
+    vehicleModel: {
+      select: {
+        id: true,
+        name: true,
+        brand: { select: { id: true, name: true } },
+      },
+    },
   },
 } as const;
 
@@ -70,16 +78,13 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, description, detalle, price, sku, images, stock, featured, isActive, categoryId, compatibility } = body;
+  const { name, description, sku, images, stock, featured, isActive, categoryId, compatibility } = body;
 
   if (!name?.trim()) {
     return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
   }
   if (!sku?.trim()) {
     return NextResponse.json({ error: "El SKU es obligatorio" }, { status: 400 });
-  }
-  if (price === undefined || price < 0) {
-    return NextResponse.json({ error: "El precio debe ser mayor o igual a 0" }, { status: 400 });
   }
   if (!categoryId) {
     return NextResponse.json({ error: "Debe seleccionar una categoría" }, { status: 400 });
@@ -99,27 +104,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ya existe un producto con ese SKU" }, { status: 409 });
   }
 
+  // compatibility: array de { type: "generation", id } o { type: "model", id }
+  const compatData = Array.isArray(compatibility)
+    ? compatibility.map((c: { type: string; id: string }) =>
+        c.type === "model"
+          ? { vehicleModelId: c.id }
+          : { vehicleGenerationId: c.id }
+      )
+    : [];
+
   const product = await db.product.create({
     data: {
       name: name.trim(),
       slug,
       description: description?.trim() || "",
-      detalle: detalle?.trim() || null,
-      price: parseFloat(price),
       sku: sku.trim(),
       images: images || [],
       stock: parseInt(stock) || 0,
       featured: featured ?? false,
       isActive: isActive ?? true,
       categoryId,
-      ...(Array.isArray(compatibility) && compatibility.length > 0
-        ? {
-            compatibility: {
-              create: compatibility.map((vehicleGenerationId: string) => ({
-                vehicleGenerationId,
-              })),
-            },
-          }
+      ...(compatData.length > 0
+        ? { compatibility: { create: compatData } }
         : {}),
     },
     include: {

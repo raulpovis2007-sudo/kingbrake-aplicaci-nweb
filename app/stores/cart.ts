@@ -7,7 +7,6 @@ export interface CartItem {
   id: string;
   name: string;
   sku: string;
-  price: number;
   quantity: number;
   image?: string;
 }
@@ -18,7 +17,6 @@ interface CartState {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  total: () => number;
   itemCount: () => number;
 }
 
@@ -48,7 +46,6 @@ export const useCartStore = create<CartState>()(
               : state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
         })),
       clearCart: () => set({ items: [] }),
-      total: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
       itemCount: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
     }),
     { name: "kingbrake-cart" }

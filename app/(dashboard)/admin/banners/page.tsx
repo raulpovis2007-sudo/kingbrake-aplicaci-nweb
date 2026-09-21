@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Pencil,
   Trash2,
@@ -13,6 +13,14 @@ import {
   ImageIcon,
 } from "lucide-react";
 import styles from "./AdminBanners.module.css";
+
+const TABS = [
+  { type: "HERO", label: "Hero (portada)" },
+  { type: "BANNER", label: "Banners / Campañas" },
+  { type: "NOSOTROS_VIDEO", label: "Video Quiénes Somos" },
+] as const;
+
+type TabType = (typeof TABS)[number]["type"];
 
 interface Banner {
   id: string;
@@ -28,6 +36,9 @@ interface Banner {
 
 export default function AdminBannersPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = (searchParams.get("type") as TabType) || "HERO";
+
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -35,12 +46,14 @@ export default function AdminBannersPage() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     fetchBanners();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   async function fetchBanners() {
     try {
-      const res = await fetch("/api/admin/banners?type=BANNER");
+      const res = await fetch(`/api/admin/banners?type=${activeTab}`);
       if (res.ok) setBanners(await res.json());
     } catch (error) {
       console.error("Error fetching banners:", error);
@@ -126,48 +139,63 @@ export default function AdminBannersPage() {
     return new Date(d).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
   };
 
-  if (loading) {
-    return <div className={styles.container}><div className={styles.loading}>Cargando banners...</div></div>;
-  }
+  const tabLabel = TABS.find((t) => t.type === activeTab)?.label ?? activeTab;
+  const isVideo = activeTab === "NOSOTROS_VIDEO";
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Banners y Campañas</h1>
+          <h1 className={styles.title}>Imágenes y Medios</h1>
           <p className={styles.subtitle}>
-            Gestiona los banners del carrusel de la landing page
+            Gestiona las imágenes del hero, banners y video
             {saving && <span className={styles.savingBadge}>Guardando...</span>}
           </p>
         </div>
-        <Link href="/admin/banners/nuevo" className={styles.addButton}>
+        <Link href={`/admin/banners/nuevo?type=${activeTab}`} className={styles.addButton}>
           <Plus size={20} />
-          Nuevo Banner
+          {isVideo ? "Agregar video" : "Nueva imagen"}
         </Link>
       </div>
 
-      {banners.length === 0 ? (
+      <nav className={styles.tabs}>
+        {TABS.map((tab) => (
+          <Link
+            key={tab.type}
+            href={`/admin/banners?type=${tab.type}`}
+            className={`${styles.tab} ${activeTab === tab.type ? styles.tabActive : ""}`}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </nav>
+
+      {loading ? (
+        <div className={styles.loading}>Cargando...</div>
+      ) : banners.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><ImageIcon size={48} /></div>
-          <p>No hay banners todavía</p>
-          <Link href="/admin/banners/nuevo" className={styles.addButton}>
+          <p>No hay elementos en {tabLabel}</p>
+          <Link href={`/admin/banners/nuevo?type=${activeTab}`} className={styles.addButton}>
             <Plus size={20} />
-            Crear primer banner
+            {isVideo ? "Agregar video" : "Agregar imagen"}
           </Link>
         </div>
       ) : (
         <>
-          <p className={styles.dragHint}>
-            <GripVertical size={16} />
-            Arrastra las filas para reordenar los banners
-          </p>
+          {banners.length > 1 && (
+            <p className={styles.dragHint}>
+              <GripVertical size={16} />
+              Arrastra las filas para reordenar
+            </p>
+          )}
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th style={{ width: 40 }}></th>
-                  <th>Banner</th>
-                  <th>Link</th>
+                  <th>{isVideo ? "Video" : "Imagen"}</th>
+                  {!isVideo && <th>Link</th>}
                   <th>Inicio</th>
                   <th>Fin</th>
                   <th>Estado</th>
@@ -189,18 +217,24 @@ export default function AdminBannersPage() {
                     <td>
                       <div className={styles.reelInfo}>
                         <div className={styles.thumbnail}>
-                          <img src={banner.image} alt={banner.title} />
+                          {isVideo ? (
+                            <video src={banner.image} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            <img src={banner.image} alt={banner.title} />
+                          )}
                         </div>
                         <div className={styles.reelText}>
                           <span className={styles.reelTitle}>{banner.title}</span>
                         </div>
                       </div>
                     </td>
-                    <td>
-                      <span className={styles.viewsCell} style={{ fontSize: "0.8rem" }}>
-                        {banner.link ? banner.link.slice(0, 40) + (banner.link.length > 40 ? "..." : "") : "Sin link"}
-                      </span>
-                    </td>
+                    {!isVideo && (
+                      <td>
+                        <span className={styles.viewsCell} style={{ fontSize: "0.8rem" }}>
+                          {banner.link ? banner.link.slice(0, 40) + (banner.link.length > 40 ? "..." : "") : "Sin link"}
+                        </span>
+                      </td>
+                    )}
                     <td className={styles.viewsCell}>{formatDate(banner.startDate)}</td>
                     <td className={styles.viewsCell}>{formatDate(banner.endDate)}</td>
                     <td>

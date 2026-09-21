@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validTypes: BannerType[] = ["BANNER", "EVENT"];
+    const validTypes: BannerType[] = ["BANNER", "EVENT", "HERO", "NOSOTROS_VIDEO"];
     const bannerType = validTypes.includes(type) ? type : "BANNER";
 
     const maxOrder = await db.banner.aggregate({

@@ -11,14 +11,15 @@ export async function GET(req: NextRequest) {
     const products = await db.product.findMany({
       where: {
         isActive: true,
-        category: { slug: lineaSlug },
+        OR: [
+          { category: { slug: lineaSlug } },
+          { category: { parent: { slug: lineaSlug } } },
+        ],
       },
       select: {
         id: true,
         name: true,
         slug: true,
-        description: true,
-        price: true,
         sku: true,
         images: true,
         featured: true,

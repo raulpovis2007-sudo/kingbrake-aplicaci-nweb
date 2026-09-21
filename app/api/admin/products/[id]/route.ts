@@ -43,6 +43,14 @@ const compatibilityInclude = {
         },
       },
     },
+    vehicleModelId: true,
+    vehicleModel: {
+      select: {
+        id: true,
+        name: true,
+        brand: { select: { id: true, name: true } },
+      },
+    },
   },
 } as const;
 
@@ -54,7 +62,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const { id } = params;
   const body = await req.json();
-  const { name, description, detalle, price, sku, images, stock, featured, isActive, categoryId, compatibility } = body;
+  const { name, description, sku, images, stock, featured, isActive, categoryId, compatibility } = body;
 
   const existing = await db.product.findUnique({ where: { id } });
   if (!existing) {
@@ -83,21 +91,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     data.sku = sku.trim();
   }
   if (description !== undefined) data.description = description?.trim() || "";
-  if (detalle !== undefined) data.detalle = detalle?.trim() || null;
-  if (price !== undefined) data.price = parseFloat(price);
   if (images !== undefined) data.images = images;
   if (stock !== undefined) data.stock = parseInt(String(stock)) || 0;
   if (featured !== undefined) data.featured = featured;
   if (isActive !== undefined) data.isActive = isActive;
   if (categoryId !== undefined) data.categoryId = categoryId;
 
+  // compatibility: array de { type: "generation"|"model", id }
   if (Array.isArray(compatibility)) {
     await db.productCompatibility.deleteMany({ where: { productId: id } });
     if (compatibility.length > 0) {
       await db.productCompatibility.createMany({
-        data: compatibility.map((vehicleGenerationId: string) => ({
+        data: compatibility.map((c: { type: string; id: string }) => ({
           productId: id,
-          vehicleGenerationId,
+          ...(c.type === "model"
+            ? { vehicleModelId: c.id }
+            : { vehicleGenerationId: c.id }),
         })),
         skipDuplicates: true,
       });

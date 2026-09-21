@@ -95,13 +95,18 @@ model VerificationToken {
 // ============================================
 
 model Category {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String     @unique
   description String?
   icon        String?
-  order       Int       @default(0)
+  order       Int        @default(0)
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
   products    Product[]
+
+  @@index([parentId])
 }
 
 model Product {
@@ -109,8 +114,6 @@ model Product {
   name        String
   slug        String   @unique
   description String   @db.Text
-  detalle     String?  @db.Text
-  price       Float
   sku         String   @unique
   images      String[]
   stock       Int      @default(0)
@@ -141,12 +144,13 @@ model VehicleBrand {
 }
 
 model VehicleModel {
-  id          String              @id @default(cuid())
-  name        String
-  brandId     String
-  brand       VehicleBrand        @relation(fields: [brandId], references: [id])
-  generations VehicleGeneration[]
-  userVehicles UserVehicle[]
+  id            String                 @id @default(cuid())
+  name          String
+  brandId       String
+  brand         VehicleBrand           @relation(fields: [brandId], references: [id])
+  generations   VehicleGeneration[]
+  userVehicles  UserVehicle[]
+  compatibility ProductCompatibility[]
 
   @@unique([brandId, name])
   @@index([brandId])
@@ -181,7 +185,6 @@ model Quote {
   product      Product     @relation(fields: [productId], references: [id])
   productName  String
   productSku   String
-  productPrice Float
   status       QuoteStatus @default(PENDING)
   adminNote    String?
   createdAt    DateTime    @default(now())
@@ -192,13 +195,19 @@ model Quote {
 }
 
 model ProductCompatibility {
-  id                  String            @id @default(cuid())
+  id                  String             @id @default(cuid())
   productId           String
-  product             Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
-  vehicleGenerationId String
-  vehicleGeneration   VehicleGeneration @relation(fields: [vehicleGenerationId], references: [id], onDelete: Cascade)
+  product             Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // Pastillas/Zapatas/Discos: compatibilidad a nivel de generación
+  vehicleGenerationId String?
+  vehicleGeneration   VehicleGeneration? @relation(fields: [vehicleGenerationId], references: [id], onDelete: Cascade)
+  // Sistema hidráulico: compatibilidad a nivel de modelo (sin generación)
+  vehicleModelId      String?
+  vehicleModel        VehicleModel?      @relation(fields: [vehicleModelId], references: [id], onDelete: Cascade)
 
   @@unique([productId, vehicleGenerationId])
+  @@unique([productId, vehicleModelId])
+  @@index([productId])
 }
 
 
@@ -214,6 +223,7 @@ model Distributor {
   lat      Float
   lng      Float
   phone    String?
+  image    String?
   isActive Boolean @default(true)
 
   preferredByUsers User[]
@@ -261,6 +271,8 @@ enum BannerType {
   BANNER
   EVENT
   SOPORTE
+  HERO
+  NOSOTROS_VIDEO
 }
 
 model Banner {

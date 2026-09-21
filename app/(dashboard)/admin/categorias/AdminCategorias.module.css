@@ -93,6 +93,34 @@
 
 .icon { font-size: 1.1rem; }
 
+/* Subcategoría indentada en la tabla */
+.childRow td:first-child { padding-left: 2.5rem; }
+.childName { color: #666; font-weight: 400; }
+.parentBadge {
+  font-size: 0.7rem;
+  background: #f0f0f0;
+  color: #666;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+.field select {
+  padding: 0.625rem 0.75rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: #1f2937;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+.field select:focus {
+  outline: none;
+  border-color: #0e1469;
+}
+
 .slug {
   font-size: 0.8rem;
   color: #999;

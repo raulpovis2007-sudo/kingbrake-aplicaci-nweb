@@ -16,6 +16,8 @@ const RichTextEditor = dynamic(
 interface Category {
   id: string;
   name: string;
+  parentId: string | null;
+  children?: Category[];
 }
 
 interface VehicleBrand {
@@ -33,59 +35,91 @@ interface VehicleGenerationItem {
   name: string;
 }
 
+// Compatibilidad puede ser a nivel generación o modelo
 interface CompatEntry {
-  vehicleGenerationId: string;
-  vehicleGeneration: {
-    id: string;
-    name: string;
-    model: {
-      id: string;
-      name: string;
-      brand: { id: string; name: string };
-    };
-  };
+  type: "generation" | "model";
+  id: string;
+  label: string; // Para mostrar en el tag
 }
 
-interface Product {
+interface ProductFromAPI {
   id: string;
   name: string;
   slug: string;
   description: string;
-  detalle: string | null;
-  price: number;
   sku: string;
   images: string[];
   stock: number;
   featured: boolean;
   isActive: boolean;
   categoryId: string;
-  category: Category;
-  compatibility?: CompatEntry[];
+  category: { id: string; name: string };
+  compatibility?: {
+    vehicleGenerationId: string | null;
+    vehicleGeneration: {
+      id: string;
+      name: string;
+      model: { id: string; name: string; brand: { id: string; name: string } };
+    } | null;
+    vehicleModelId: string | null;
+    vehicleModel: {
+      id: string;
+      name: string;
+      brand: { id: string; name: string };
+    } | null;
+  }[];
   createdAt: string;
 }
 
 interface FormData {
   name: string;
   description: string;
-  detalle: string;
-  price: string;
   sku: string;
   images: string[];
   stock: string;
   featured: boolean;
   isActive: boolean;
+  parentCategoryId: string;
   categoryId: string;
   compatibility: CompatEntry[];
 }
 
 const EMPTY_FORM: FormData = {
-  name: "", description: "", detalle: "", price: "", sku: "",
-  images: [], stock: "0", featured: false, isActive: true, categoryId: "",
+  name: "", description: "", sku: "",
+  images: [], stock: "0", featured: false, isActive: true,
+  parentCategoryId: "", categoryId: "",
   compatibility: [],
 };
 
+// Reglas de compatibilidad por categoría padre
+// - Pastillas, Zapatas, Discos y tambores: marca + modelo + generación
+// - Sistema hidráulico: solo marca + modelo (sin generación)
+// - Lubricantes de freno: ninguna compatibilidad
+const COMPAT_RULES: Record<string, "full" | "model-only" | "none"> = {
+  "pastillas-de-freno": "full",
+  "zapatas": "full",
+  "discos-y-tambores": "full",
+  "sistema-hidraulico": "model-only",
+  "lubricantes-de-freno": "none",
+};
+
+function getCompatLevel(categories: Category[], parentCategoryId: string): "full" | "model-only" | "none" {
+  const parent = categories.find((c) => c.id === parentCategoryId);
+  if (!parent) return "full";
+  // Buscar por slug que se infiere del nombre
+  const slug = parent.name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return COMPAT_RULES[slug] ?? "full";
+}
+
+const MAX_IMAGES = 3;
+
 export default function AdminProductosPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductFromAPI[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -107,6 +141,25 @@ export default function AdminProductosPage() {
   const [selBrandId, setSelBrandId] = useState("");
   const [selModelId, setSelModelId] = useState("");
   const [selGenId, setSelGenId] = useState("");
+
+  // Categorías padre (sin parentId)
+  const parentCategories = useMemo(
+    () => categories.filter((c) => !c.parentId),
+    [categories]
+  );
+
+  // Subcategorías de la categoría padre seleccionada
+  const subcategories = useMemo(() => {
+    if (!form.parentCategoryId) return [];
+    const parent = categories.find((c) => c.id === form.parentCategoryId);
+    return parent?.children ?? [];
+  }, [categories, form.parentCategoryId]);
+
+  // Nivel de compatibilidad según categoría seleccionada
+  const compatLevel = useMemo(
+    () => getCompatLevel(categories, form.parentCategoryId),
+    [categories, form.parentCategoryId]
+  );
 
   async function fetchData() {
     const [prodRes, catRes] = await Promise.all([
@@ -146,9 +199,19 @@ export default function AdminProductosPage() {
       .catch(() => {});
   }, [selModelId]);
 
+  // Auto-seleccionar subcategoría cuando solo hay una
+  useEffect(() => {
+    if (subcategories.length === 1) {
+      setForm((p) => ({ ...p, categoryId: subcategories[0].id }));
+    } else if (subcategories.length === 0 && form.parentCategoryId) {
+      // Sin subcategorías → el producto va directo a la categoría padre
+      setForm((p) => ({ ...p, categoryId: form.parentCategoryId }));
+    }
+  }, [subcategories, form.parentCategoryId]);
+
   const filtered = useMemo(() => {
     let list = products;
-    if (filterCategory) list = list.filter((p) => p.categoryId === filterCategory);
+    if (filterCategory) list = list.filter((p) => p.categoryId === filterCategory || p.category?.id === filterCategory);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((p) =>
@@ -160,9 +223,18 @@ export default function AdminProductosPage() {
     return list;
   }, [products, search, filterCategory]);
 
+  // Determinar parentCategoryId a partir de categoryId (al editar)
+  function resolveParentCategory(categoryId: string): string {
+    const cat = categories.find((c) => c.id === categoryId);
+    if (!cat) return "";
+    // Si es subcategoría, el padre es parentId; si es padre, es él mismo
+    if (cat.parentId) return cat.parentId;
+    return categoryId;
+  }
+
   function openNew() {
     setEditingId(null);
-    setForm({ ...EMPTY_FORM, categoryId: categories[0]?.id || "" });
+    setForm({ ...EMPTY_FORM });
     setSelBrandId("");
     setSelModelId("");
     setSelGenId("");
@@ -170,20 +242,38 @@ export default function AdminProductosPage() {
     setShowModal(true);
   }
 
-  function openEdit(p: Product) {
+  function openEdit(p: ProductFromAPI) {
+    const parentCatId = resolveParentCategory(p.categoryId);
+    // Si categoryId es un padre sin hijos, categoryId = parentCategoryId
+    const cat = categories.find((c) => c.id === p.categoryId);
+    const isSubcat = cat?.parentId != null;
+
     setEditingId(p.id);
     setForm({
       name: p.name,
       description: p.description,
-      detalle: p.detalle || "",
-      price: p.price.toString(),
       sku: p.sku,
       images: [...p.images],
       stock: p.stock.toString(),
       featured: p.featured,
       isActive: p.isActive,
+      parentCategoryId: parentCatId,
       categoryId: p.categoryId,
-      compatibility: p.compatibility || [],
+      compatibility: (p.compatibility || []).map((c) => {
+        if (c.vehicleModelId && c.vehicleModel) {
+          return {
+            type: "model" as const,
+            id: c.vehicleModelId,
+            label: `${c.vehicleModel.brand.name} ${c.vehicleModel.name}`,
+          };
+        }
+        const gen = c.vehicleGeneration!;
+        return {
+          type: "generation" as const,
+          id: c.vehicleGenerationId!,
+          label: `${gen.model.brand.name} ${gen.model.name} — ${gen.name}`,
+        };
+      }),
     });
     setSelBrandId("");
     setSelModelId("");
@@ -195,6 +285,10 @@ export default function AdminProductosPage() {
   async function handleImageUpload(file: File, replaceIndex = -1) {
     if (!file.type.startsWith("image/")) { setError("El archivo debe ser una imagen"); return; }
     if (file.size > 5 * 1024 * 1024) { setError("La imagen no debe superar 5MB"); return; }
+    if (replaceIndex < 0 && form.images.length >= MAX_IMAGES) {
+      setError(`Máximo ${MAX_IMAGES} imágenes por producto`);
+      return;
+    }
 
     setUploading(true);
     setError("");
@@ -243,33 +337,47 @@ export default function AdminProductosPage() {
   }
 
   function addCompatibility() {
+    if (compatLevel === "none") return;
+
+    if (compatLevel === "model-only") {
+      // Sistema hidráulico: agregar a nivel de modelo (sin generación)
+      if (!selModelId) return;
+      const model = vehicleModels.find((m) => m.id === selModelId);
+      const brand = brands.find((b) => b.id === selBrandId);
+      if (!model || !brand) return;
+      if (form.compatibility.some((c) => c.type === "model" && c.id === selModelId)) return;
+      setForm((prev) => ({
+        ...prev,
+        compatibility: [
+          ...prev.compatibility,
+          { type: "model", id: selModelId, label: `${brand.name} ${model.name}` },
+        ],
+      }));
+      setSelModelId("");
+      return;
+    }
+
+    // full: agregar a nivel de generación
     if (!selGenId) return;
     const gen = vehicleGenerations.find((g) => g.id === selGenId);
     const model = vehicleModels.find((m) => m.id === selModelId);
     const brand = brands.find((b) => b.id === selBrandId);
     if (!gen || !model || !brand) return;
-    if (form.compatibility.some((c) => c.vehicleGenerationId === selGenId)) return;
+    if (form.compatibility.some((c) => c.type === "generation" && c.id === selGenId)) return;
     setForm((prev) => ({
       ...prev,
       compatibility: [
         ...prev.compatibility,
-        {
-          vehicleGenerationId: gen.id,
-          vehicleGeneration: {
-            id: gen.id,
-            name: gen.name,
-            model: { id: model.id, name: model.name, brand: { id: brand.id, name: brand.name } },
-          },
-        },
+        { type: "generation", id: selGenId, label: `${brand.name} ${model.name} — ${gen.name}` },
       ],
     }));
     setSelGenId("");
   }
 
-  function removeCompatibility(vehicleGenerationId: string) {
+  function removeCompatibility(entry: CompatEntry) {
     setForm((prev) => ({
       ...prev,
-      compatibility: prev.compatibility.filter((c) => c.vehicleGenerationId !== vehicleGenerationId),
+      compatibility: prev.compatibility.filter((c) => !(c.type === entry.type && c.id === entry.id)),
     }));
   }
 
@@ -277,7 +385,6 @@ export default function AdminProductosPage() {
     e.preventDefault();
     if (!form.name.trim()) { setError("El nombre es obligatorio"); return; }
     if (!form.sku.trim()) { setError("El SKU es obligatorio"); return; }
-    if (!form.price || parseFloat(form.price) < 0) { setError("El precio debe ser mayor o igual a 0"); return; }
     if (!form.categoryId) { setError("Debe seleccionar una categoría"); return; }
 
     setSaving(true);
@@ -290,11 +397,15 @@ export default function AdminProductosPage() {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ...form,
-        price: parseFloat(form.price),
+        name: form.name,
+        description: form.description,
+        sku: form.sku,
+        images: form.images,
         stock: parseInt(form.stock) || 0,
-        detalle: form.detalle || null,
-        compatibility: form.compatibility.map((c) => c.vehicleGenerationId),
+        featured: form.featured,
+        isActive: form.isActive,
+        categoryId: form.categoryId,
+        compatibility: form.compatibility.map((c) => ({ type: c.type, id: c.id })),
       }),
     });
 
@@ -319,7 +430,7 @@ export default function AdminProductosPage() {
     fetchData();
   }
 
-  async function toggleActive(p: Product) {
+  async function toggleActive(p: ProductFromAPI) {
     await fetch(`/api/admin/products/${p.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -328,7 +439,7 @@ export default function AdminProductosPage() {
     fetchData();
   }
 
-  async function toggleFeatured(p: Product) {
+  async function toggleFeatured(p: ProductFromAPI) {
     await fetch(`/api/admin/products/${p.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -364,8 +475,14 @@ export default function AdminProductosPage() {
             className={styles.filterSelect}
           >
             <option value="">Todas las categorías</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            {parentCategories.map((cat) => (
+              <optgroup key={cat.id} label={cat.name}>
+                {/* Opción del padre */}
+                <option value={cat.id}>{cat.name} (todos)</option>
+                {cat.children?.map((sub) => (
+                  <option key={sub.id} value={sub.id}>{sub.name}</option>
+                ))}
+              </optgroup>
             ))}
           </select>
           <span className={styles.resultCount}>{filtered.length} resultado(s)</span>
@@ -387,7 +504,6 @@ export default function AdminProductosPage() {
                 <th>Nombre</th>
                 <th>SKU</th>
                 <th>Categoría</th>
-                <th>Precio</th>
                 <th>Stock</th>
                 <th>Estado</th>
                 <th>Acciones</th>
@@ -395,7 +511,7 @@ export default function AdminProductosPage() {
             </thead>
             <tbody>
               {filtered.map((p) => (
-                <tr key={p.id} className={!p.isActive ? styles.rowInactive : ""}>
+                <tr key={p.id} className={`${!p.isActive ? styles.rowInactive : ""} ${p.featured ? styles.rowFeatured : ""}`}>
                   <td>
                     {p.images[0] ? (
                       <img src={p.images[0]} alt="" className={styles.thumb} />
@@ -411,7 +527,6 @@ export default function AdminProductosPage() {
                   </td>
                   <td className={styles.sku}>{p.sku}</td>
                   <td className={styles.catCell}>{p.category.name}</td>
-                  <td className={styles.price}>S/{p.price.toFixed(2)}</td>
                   <td className={styles.stock}>{p.stock}</td>
                   <td>
                     <button
@@ -449,13 +564,14 @@ export default function AdminProductosPage() {
               {error && <div className={styles.error}>{error}</div>}
 
               <div className={styles.formGrid}>
+                {/* ─── Nombre y SKU ─── */}
                 <div className={styles.fieldFull}>
                   <label>Nombre *</label>
                   <input
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                    placeholder="Ej: Pastilla ceramicada KB-PC-001"
+                    placeholder="Ej: Pastilla Ceramic Ultra KB-CU-001"
                     maxLength={120}
                   />
                 </div>
@@ -466,34 +582,8 @@ export default function AdminProductosPage() {
                     type="text"
                     value={form.sku}
                     onChange={(e) => setForm((p) => ({ ...p, sku: e.target.value }))}
-                    placeholder="KB-PC-001"
+                    placeholder="KB-CU-001"
                     maxLength={30}
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label>Categoría *</label>
-                  <select
-                    value={form.categoryId}
-                    onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
-                    className={styles.select}
-                  >
-                    <option value="">Seleccionar...</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className={styles.field}>
-                  <label>Precio (S/) *</label>
-                  <input
-                    type="number"
-                    value={form.price}
-                    onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
                   />
                 </div>
 
@@ -507,28 +597,144 @@ export default function AdminProductosPage() {
                   />
                 </div>
 
-                <div className={styles.fieldFull}>
-                  <label>Descripción</label>
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-                    placeholder="Descripción del producto..."
-                    rows={3}
-                    className={styles.textarea}
-                  />
+                {/* ─── Línea de producto → Subcategoría (cascada) ─── */}
+                <div className={styles.field}>
+                  <label>Línea de producto *</label>
+                  <select
+                    value={form.parentCategoryId}
+                    onChange={(e) => {
+                      const newParent = e.target.value;
+                      setForm((p) => ({ ...p, parentCategoryId: newParent, categoryId: "", compatibility: [] }));
+                    }}
+                    className={styles.select}
+                  >
+                    <option value="">Seleccionar línea...</option>
+                    {parentCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                  <span style={{ fontSize: "0.75rem", color: "#999" }}>
+                    Categoría principal del producto (ej: Pastillas de freno)
+                  </span>
                 </div>
 
+                {subcategories.length > 0 && (
+                  <div className={styles.field}>
+                    <label>Subcategoría *</label>
+                    <select
+                      value={form.categoryId}
+                      onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
+                      className={styles.select}
+                      disabled={subcategories.length === 1}
+                    >
+                      {subcategories.length > 1 && <option value="">Seleccionar subcategoría...</option>}
+                      {subcategories.map((sub) => (
+                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                      ))}
+                    </select>
+                    <span style={{ fontSize: "0.75rem", color: "#999" }}>
+                      Tipo específico dentro de {parentCategories.find((c) => c.id === form.parentCategoryId)?.name || "la línea"}
+                    </span>
+                  </div>
+                )}
+
+                {/* ─── Compatibilidad vehicular (condicionada por categoría) ─── */}
+                {compatLevel !== "none" && (
+                  <div className={styles.fieldFull}>
+                    <label>
+                      Compatibilidad vehicular
+                      {compatLevel === "model-only" && (
+                        <span style={{ fontWeight: 400, color: "#999", marginLeft: 8 }}>
+                          (solo marca y modelo para esta categoría)
+                        </span>
+                      )}
+                    </label>
+                    <div className={styles.compatRow}>
+                      <select
+                        value={selBrandId}
+                        onChange={(e) => setSelBrandId(e.target.value)}
+                        className={styles.select}
+                      >
+                        <option value="">Marca</option>
+                        {brands.map((b) => (
+                          <option key={b.id} value={b.id}>{b.name}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={selModelId}
+                        onChange={(e) => setSelModelId(e.target.value)}
+                        className={styles.select}
+                        disabled={!selBrandId}
+                      >
+                        <option value="">{selBrandId ? "Modelo" : "Selecciona marca"}</option>
+                        {vehicleModels.map((m) => (
+                          <option key={m.id} value={m.id}>{m.name}</option>
+                        ))}
+                      </select>
+                      {/* Generación: solo visible para compat "full" */}
+                      {compatLevel === "full" && (
+                        <select
+                          value={selGenId}
+                          onChange={(e) => setSelGenId(e.target.value)}
+                          className={styles.select}
+                          disabled={!selModelId}
+                        >
+                          <option value="">{selModelId ? "Generación" : "Selecciona modelo"}</option>
+                          {vehicleGenerations.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                          ))}
+                        </select>
+                      )}
+                      <button
+                        type="button"
+                        className={styles.addBtn}
+                        onClick={addCompatibility}
+                        disabled={
+                          compatLevel === "full"
+                            ? !selGenId || form.compatibility.some((c) => c.type === "generation" && c.id === selGenId)
+                            : !selModelId || form.compatibility.some((c) => c.type === "model" && c.id === selModelId)
+                        }
+                        style={{ padding: "8px 16px", flexShrink: 0 }}
+                      >
+                        <Plus size={16} /> Agregar
+                      </button>
+                    </div>
+                    {form.compatibility.length > 0 && (
+                      <div className={styles.compatList}>
+                        {form.compatibility.map((c) => (
+                          <div key={`${c.type}-${c.id}`} className={styles.compatTag}>
+                            <span>{c.label}</span>
+                            <button type="button" onClick={() => removeCompatibility(c)}>
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {compatLevel === "none" && form.parentCategoryId && (
+                  <div className={styles.fieldFull}>
+                    <label style={{ color: "#999" }}>
+                      Compatibilidad vehicular — no aplica para esta categoría
+                    </label>
+                  </div>
+                )}
+
+                {/* ─── Descripción (rich text único) ─── */}
                 <div className={styles.fieldFull}>
-                  <label>Detalle del producto (visible para el cliente)</label>
+                  <label>Descripción del producto</label>
                   <RichTextEditor
-                    value={form.detalle}
-                    onChange={(val) => setForm((p) => ({ ...p, detalle: val }))}
-                    placeholder="Escribe el contenido detallado del producto..."
+                    value={form.description}
+                    onChange={(val) => setForm((p) => ({ ...p, description: val }))}
+                    placeholder="Escribe la descripción del producto..."
                   />
                 </div>
 
+                {/* ─── Imágenes (máx 3) ─── */}
                 <div className={styles.fieldFull}>
-                  <label>Imágenes</label>
+                  <label>Imágenes (máximo {MAX_IMAGES})</label>
                   <div className={styles.imageGrid}>
                     {form.images.map((url, i) => (
                       <div key={i} className={styles.imagePreview}>
@@ -539,16 +745,18 @@ export default function AdminProductosPage() {
                         </div>
                       </div>
                     ))}
-                    <div
-                      className={`${styles.uploadZone} ${uploading ? styles.uploading : ""}`}
-                      onClick={() => !uploading && fileInputRef.current?.click()}
-                    >
-                      {uploading ? (
-                        <Loader2 size={20} className={styles.spinner} />
-                      ) : (
-                        <><Upload size={20} /><span>Subir</span></>
-                      )}
-                    </div>
+                    {form.images.length < MAX_IMAGES && (
+                      <div
+                        className={`${styles.uploadZone} ${uploading ? styles.uploading : ""}`}
+                        onClick={() => !uploading && fileInputRef.current?.click()}
+                      >
+                        {uploading ? (
+                          <Loader2 size={20} className={styles.spinner} />
+                        ) : (
+                          <><Upload size={20} /><span>Subir</span></>
+                        )}
+                      </div>
+                    )}
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -568,70 +776,7 @@ export default function AdminProductosPage() {
                   </div>
                 </div>
 
-                <div className={styles.fieldFull}>
-                  <label>Compatibilidad vehicular</label>
-                  <div className={styles.compatRow}>
-                    <select
-                      value={selBrandId}
-                      onChange={(e) => setSelBrandId(e.target.value)}
-                      className={styles.select}
-                    >
-                      <option value="">Marca</option>
-                      {brands.map((b) => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
-                      ))}
-                    </select>
-                    <select
-                      value={selModelId}
-                      onChange={(e) => setSelModelId(e.target.value)}
-                      className={styles.select}
-                      disabled={!selBrandId}
-                    >
-                      <option value="">{selBrandId ? "Modelo" : "Selecciona marca"}</option>
-                      {vehicleModels.map((m) => (
-                        <option key={m.id} value={m.id}>{m.name}</option>
-                      ))}
-                    </select>
-                    <select
-                      value={selGenId}
-                      onChange={(e) => setSelGenId(e.target.value)}
-                      className={styles.select}
-                      disabled={!selModelId}
-                    >
-                      <option value="">{selModelId ? "Generación" : "Selecciona modelo"}</option>
-                      {vehicleGenerations.map((g) => (
-                        <option key={g.id} value={g.id}>
-                          {g.name}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      className={styles.addBtn}
-                      onClick={addCompatibility}
-                      disabled={!selGenId || form.compatibility.some((c) => c.vehicleGenerationId === selGenId)}
-                      style={{ padding: "8px 16px", flexShrink: 0 }}
-                    >
-                      <Plus size={16} /> Agregar
-                    </button>
-                  </div>
-                  {form.compatibility.length > 0 && (
-                    <div className={styles.compatList}>
-                      {form.compatibility.map((c) => (
-                        <div key={c.vehicleGenerationId} className={styles.compatTag}>
-                          <span>
-                            {c.vehicleGeneration.model.brand.name} {c.vehicleGeneration.model.name}{" "}
-                            — {c.vehicleGeneration.name}
-                          </span>
-                          <button type="button" onClick={() => removeCompatibility(c.vehicleGenerationId)}>
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
+                {/* ─── Opciones ─── */}
                 <div className={styles.fieldFull}>
                   <div className={styles.checkboxRow}>
                     <label className={styles.checkbox}>
@@ -653,7 +798,7 @@ export default function AdminProductosPage() {
                   </div>
                   <div className={styles.callout}>
                     <Star size={14} className={styles.calloutIcon} />
-                    <span><strong>Destacado:</strong> Los productos destacados aparecen primero en los resultados cuando un cliente busca repuestos en el catálogo. Úsalo para mostrar tus productos más importantes o los que más quieres vender.</span>
+                    <span><strong>Destacado:</strong> Los productos destacados aparecen primero en el catálogo y se muestran con un color diferente para llamar la atención.</span>
                   </div>
                 </div>
               </div>

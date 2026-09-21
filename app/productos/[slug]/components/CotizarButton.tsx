@@ -8,7 +8,6 @@ interface Props {
   productId: string;
   productName: string;
   productSku: string;
-  productPrice: number;
   className?: string;
 }
 
@@ -16,7 +15,6 @@ export default function CotizarButton({
   productId,
   productName,
   productSku,
-  productPrice,
   className,
 }: Props) {
   const { data: session } = useSession();
@@ -26,12 +24,12 @@ export default function CotizarButton({
       fetch("/api/quotes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, productName, productSku, productPrice }),
+        body: JSON.stringify({ productId, productName, productSku }),
       }).catch(() => {});
     }
 
     const mensaje = encodeURIComponent(
-      `Hola King Brake! Quiero cotizar:\n• ${productName} (${productSku}) — S/${productPrice.toFixed(2)}\n\nPor favor envíenme más información.`
+      `Hola King Brake! Quiero cotizar:\n• ${productName} (${productSku})\n\nPor favor envíenme más información.`
     );
     window.open(
       `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${mensaje}`,

@@ -16,6 +16,8 @@ import {
   LogOut,
   ClipboardList,
   Car,
+  Image,
+  FolderTree,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -42,6 +44,7 @@ const navSections: NavSection[] = [
     items: [
       { href: '/admin/productos', label: 'Productos', icon: Package },
       { href: '/admin/categorias', label: 'Categorías', icon: Layers },
+      { href: '/admin/subcategorias', label: 'Subcategorías', icon: FolderTree },
       { href: '/admin/cotizaciones', label: 'Cotizaciones', icon: ClipboardList },
       { href: '/admin/compatibilidad', label: 'Vehículos', icon: Car },
     ],
@@ -51,6 +54,7 @@ const navSections: NavSection[] = [
     items: [
       { href: '/admin/blog', label: 'Blog', icon: FileText },
       { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
+      { href: '/admin/banners', label: 'Imágenes y Medios', icon: Image },
       { href: '/admin/eventos', label: 'Nuevas Aplicaciones', icon: ImageIcon },
     ],
   },

@@ -140,6 +140,11 @@
 
 .rowInactive td { opacity: 0.5; }
 
+/* Productos destacados: borde izquierdo dorado */
+.rowFeatured td:first-child {
+  box-shadow: inset 3px 0 0 #f59e0b;
+}
+
 .thumb {
   width: 44px;
   height: 44px;
@@ -176,12 +181,6 @@
 }
 
 .catCell { color: #555; }
-
-.price {
-  font-weight: 600;
-  color: #1a1a1a;
-  white-space: nowrap;
-}
 
 .stock { color: #666; }
 

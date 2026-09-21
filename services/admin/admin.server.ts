@@ -11,7 +11,6 @@ export interface RecentQuote {
   id: string;
   productName: string;
   productSku: string;
-  productPrice: number;
   status: string;
   createdAt: Date;
   user: { name: string; email: string };
@@ -51,7 +50,6 @@ export async function getRecentQuotes(): Promise<RecentQuote[]> {
       id: true,
       productName: true,
       productSku: true,
-      productPrice: true,
       status: true,
       createdAt: true,
       user: { select: { name: true, email: true } },
