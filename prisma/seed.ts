@@ -7,6 +7,7 @@ async function main() {
   await prisma.productCompatibility.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
+  await prisma.vehicleGeneration.deleteMany();
   await prisma.vehicleModel.deleteMany();
   await prisma.vehicleBrand.deleteMany();
 
@@ -103,7 +104,7 @@ async function main() {
     "CX-5", "T-Cross", "Tiguan",
   ]);
 
-  const allModelRecords: { id: string; name: string }[] = [];
+  const allGenRecords: { id: string; modelName: string }[] = [];
 
   for (const brandData of brandsData) {
     const brand = await prisma.vehicleBrand.create({
@@ -111,43 +112,47 @@ async function main() {
     });
     for (const modelData of brandData.models) {
       const model = await prisma.vehicleModel.create({
-        data: { ...modelData, brandId: brand.id },
+        data: { name: modelData.name, brandId: brand.id },
       });
-      allModelRecords.push({ id: model.id, name: modelData.name });
+      const gen = await prisma.vehicleGeneration.create({
+        data: {
+          name: "Primera generación",
+          modelId: model.id,
+        },
+      });
+      allGenRecords.push({ id: gen.id, modelName: modelData.name });
     }
   }
 
-  const sedanModels = allModelRecords.filter((m) => !suvModelNames.has(m.name));
-  const suvModels = allModelRecords.filter((m) => suvModelNames.has(m.name));
+  const sedanGens = allGenRecords.filter((g) => !suvModelNames.has(g.modelName));
+  const suvGens = allGenRecords.filter((g) => suvModelNames.has(g.modelName));
 
-  // Products by index: 0-2 ceramicadas, 3-5 semimetalicas, 6-7 zapatas,
-  // 8-10 discos, 11-12 tambores, 13-14 hidraulicos, 15 liquidos
-  const compatMap: Record<number, typeof allModelRecords> = {
-    0: allModelRecords,       // Universal → todos
-    1: sedanModels,           // Sedán
-    2: suvModels,             // SUV
-    3: suvModels,             // Camioneta
-    4: sedanModels,           // Sedán
-    5: suvModels,             // Pick-up
-    6: allModelRecords,       // Estándar → todos
-    7: sedanModels,           // Compacto
-    8: allModelRecords,       // Ventilado → todos
-    9: suvModels,             // SUV
-    10: sedanModels,          // Trasero sedán
-    11: allModelRecords,      // Estándar → todos
-    12: sedanModels,          // Compacto
-    13: allModelRecords,      // Cilindro maestro → todos
-    14: sedanModels,          // Kit bombín → sedán
-    15: allModelRecords,      // Lubricante → todos
+  const compatMap: Record<number, typeof allGenRecords> = {
+    0: allGenRecords,
+    1: sedanGens,
+    2: suvGens,
+    3: suvGens,
+    4: sedanGens,
+    5: suvGens,
+    6: allGenRecords,
+    7: sedanGens,
+    8: allGenRecords,
+    9: suvGens,
+    10: sedanGens,
+    11: allGenRecords,
+    12: sedanGens,
+    13: allGenRecords,
+    14: sedanGens,
+    15: allGenRecords,
   };
 
   for (let i = 0; i < products.length; i++) {
-    const compatibleModels = compatMap[i] ?? [];
-    if (compatibleModels.length > 0) {
+    const compatibleGens = compatMap[i] ?? [];
+    if (compatibleGens.length > 0) {
       await prisma.productCompatibility.createMany({
-        data: compatibleModels.map((m) => ({
+        data: compatibleGens.map((g) => ({
           productId: products[i].id,
-          vehicleModelId: m.id,
+          vehicleGenerationId: g.id,
         })),
       });
     }

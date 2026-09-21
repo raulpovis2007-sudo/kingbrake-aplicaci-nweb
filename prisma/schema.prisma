@@ -141,16 +141,25 @@ model VehicleBrand {
 }
 
 model VehicleModel {
+  id          String              @id @default(cuid())
+  name        String
+  brandId     String
+  brand       VehicleBrand        @relation(fields: [brandId], references: [id])
+  generations VehicleGeneration[]
+  userVehicles UserVehicle[]
+
+  @@unique([brandId, name])
+  @@index([brandId])
+}
+
+model VehicleGeneration {
   id            String                 @id @default(cuid())
   name          String
-  yearFrom      Int
-  yearTo        Int
-  brandId       String
-  brand         VehicleBrand           @relation(fields: [brandId], references: [id])
+  modelId       String
+  model         VehicleModel           @relation(fields: [modelId], references: [id], onDelete: Cascade)
   compatibility ProductCompatibility[]
-  userVehicles  UserVehicle[]
 
-  @@index([brandId])
+  @@index([modelId])
 }
 
 model UserVehicle {
@@ -159,6 +168,7 @@ model UserVehicle {
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   vehicleModelId String
   vehicleModel   VehicleModel @relation(fields: [vehicleModelId], references: [id])
+  generationId   String?
   year           Int
   createdAt      DateTime     @default(now())
 }
@@ -182,13 +192,13 @@ model Quote {
 }
 
 model ProductCompatibility {
-  id             String       @id @default(cuid())
-  productId      String
-  product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
-  vehicleModelId String
-  vehicleModel   VehicleModel @relation(fields: [vehicleModelId], references: [id], onDelete: Cascade)
+  id                  String            @id @default(cuid())
+  productId           String
+  product             Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  vehicleGenerationId String
+  vehicleGeneration   VehicleGeneration @relation(fields: [vehicleGenerationId], references: [id], onDelete: Cascade)
 
-  @@unique([productId, vehicleModelId])
+  @@unique([productId, vehicleGenerationId])
 }
 
 

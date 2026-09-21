@@ -10,7 +10,7 @@ export function LocalBusinessSchema() {
     url: BASE_URL,
     logo: `${BASE_URL}/assets/images/logo-principal.webp`,
     telephone: "+51999888777",
-    email: "contacto@kingbrake.com",
+    email: "atencionalcliente@kingbrake.com",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Lima",

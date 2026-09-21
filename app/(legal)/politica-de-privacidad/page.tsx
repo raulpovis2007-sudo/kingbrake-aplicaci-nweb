@@ -40,7 +40,7 @@ export default function PoliticaPrivacidadPage() {
             <strong>Domicilio:</strong> Av. Wiesse Mza. A Lote. 4a A.H. Enrique Montenegro, San Juan De Lurigancho - Lima, Perú
           </li>
           <li>
-            <strong>Correo electrónico:</strong> contabilidad@kingbrake.com
+            <strong>Correo electrónico:</strong> atencionalcliente@kingbrake.com
           </li>
           <li>
             <strong>Teléfono:</strong> +51 993 214 144
@@ -178,7 +178,7 @@ export default function PoliticaPrivacidadPage() {
         </ul>
         <p>
           Para ejercer estos derechos, envíe un correo a{" "}
-          <strong>contabilidad@kingbrake.com</strong> con el asunto {'"'}Solicitud ARCO{'"'}.
+          <strong>atencionalcliente@kingbrake.com</strong> con el asunto {'"'}Solicitud ARCO{'"'}.
           Responderemos en un plazo de <strong>20 días hábiles</strong>.
         </p>
       </section>
@@ -272,7 +272,7 @@ export default function PoliticaPrivacidadPage() {
       <section>
         <h2>14. Contacto</h2>
         <ul>
-          <li><strong>Email:</strong> contabilidad@kingbrake.com</li>
+          <li><strong>Email:</strong> atencionalcliente@kingbrake.com</li>
           <li><strong>Teléfono/WhatsApp:</strong> +51 993 214 144</li>
           <li><strong>Dirección:</strong> Av. República de Polonia 753, San Juan de Lurigancho 15419, Lima, Perú</li>
         </ul>

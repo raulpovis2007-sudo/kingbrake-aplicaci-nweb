@@ -17,8 +17,6 @@ interface UserData {
     vehicleModel: {
       id: string;
       name: string;
-      yearFrom: number;
-      yearTo: number;
       brand: { id: string; name: string };
     };
   } | null;
@@ -32,8 +30,6 @@ interface Brand {
 interface VehicleModel {
   id: string;
   name: string;
-  yearFrom: number;
-  yearTo: number;
 }
 
 interface Distributor {
@@ -72,13 +68,8 @@ export default function PerfilClient({ user, brands, distributors }: Props) {
       .catch(() => setModels([]));
   }, [brandId]);
 
-  const selectedModel = models.find((m) => m.id === modelId);
-  const years = selectedModel
-    ? Array.from(
-        { length: selectedModel.yearTo - selectedModel.yearFrom + 1 },
-        (_, i) => selectedModel.yearFrom + i
-      )
-    : [];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 1970 + 1 }, (_, i) => currentYear - i);
 
   const handleSaveProfile = async () => {
     setSaving(true);

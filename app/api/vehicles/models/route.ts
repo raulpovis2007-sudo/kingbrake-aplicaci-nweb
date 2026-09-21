@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     const models = await db.vehicleModel.findMany({
       where: { brandId },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, yearFrom: true, yearTo: true },
+      select: { id: true, name: true },
     });
     return NextResponse.json(models);
   } catch {

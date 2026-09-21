@@ -134,7 +134,7 @@ export default function Footer() {
                   <div className={styles.contactIcon}>
                     <img src="/assets/images/image66.svg" alt="" />
                   </div>
-                  <a href="mailto:contacto@kingbrake.com">contacto@kingbrake.com</a>
+                  <a href="mailto:atencionalcliente@kingbrake.com">atencionalcliente@kingbrake.com</a>
                 </div>
               </div>
               <div className={styles.dividerAfterContact}></div>

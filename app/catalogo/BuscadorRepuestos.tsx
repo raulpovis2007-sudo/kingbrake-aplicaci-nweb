@@ -10,7 +10,7 @@ import styles from "./BuscadorRepuestos.module.css";
 
 const PER_PAGE = 10;
 
-const BRAND_ONLY_SLUGS = ["sistema-hidraulico"];
+const NO_GEN_SLUGS = ["sistema-hidraulico"];
 const NO_FILTER_SLUGS = ["lubricantes-de-freno"];
 
 interface Brand {
@@ -21,16 +21,20 @@ interface Brand {
 interface Model {
   id: string;
   name: string;
-  yearFrom: number;
-  yearTo: number;
+}
+
+interface Generation {
+  id: string;
+  name: string;
 }
 
 interface Compatibility {
-  vehicleModel: {
+  vehicleGeneration: {
     name: string;
-    yearFrom: number;
-    yearTo: number;
-    brand: { name: string };
+    model: {
+      name: string;
+      brand: { name: string };
+    };
   };
 }
 
@@ -54,15 +58,16 @@ export default function BuscadorRepuestos() {
   const lineaSlug = searchParams.get("linea") || "pastillas-de-freno";
   const linea = LINEAS_PRODUCTO.find((l) => l.slug === lineaSlug);
 
-  const isBrandOnly = BRAND_ONLY_SLUGS.includes(lineaSlug);
+  const isNoGen = NO_GEN_SLUGS.includes(lineaSlug);
   const isNoFilter = NO_FILTER_SLUGS.includes(lineaSlug);
 
   const [brandId, setBrandId] = useState("");
   const [modelId, setModelId] = useState("");
-  const [generation, setGeneration] = useState("");
+  const [generationId, setGenerationId] = useState("");
 
   const [brands, setBrands] = useState<Brand[]>([]);
   const [models, setModels] = useState<Model[]>([]);
+  const [generations, setGenerations] = useState<Generation[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchState, setSearchState] = useState<SearchState>("idle");
 
@@ -76,22 +81,26 @@ export default function BuscadorRepuestos() {
 
   useEffect(() => {
     setModelId("");
-    setGeneration("");
-    if (!brandId || isBrandOnly) {
-      setModels([]);
-      return;
-    }
+    setGenerationId("");
+    setModels([]);
+    setGenerations([]);
+    if (!brandId) return;
     fetch(`/api/vehicles/models?brandId=${brandId}`)
       .then((r) => r.json())
       .then(setModels)
       .catch(() => setModels([]));
-  }, [brandId, isBrandOnly]);
+  }, [brandId]);
 
   useEffect(() => {
-    setGeneration("");
+    setGenerationId("");
+    setGenerations([]);
+    if (!modelId) return;
+    fetch(`/api/vehicles/generations?modelId=${modelId}`)
+      .then((r) => r.json())
+      .then(setGenerations)
+      .catch(() => setGenerations([]));
   }, [modelId]);
 
-  // Auto-load products for no-filter lines
   useEffect(() => {
     if (!isNoFilter || !linea) return;
     setSearchState("loading");
@@ -108,30 +117,21 @@ export default function BuscadorRepuestos() {
       .catch(() => setSearchState("error"));
   }, [isNoFilter, lineaSlug, linea]);
 
-  // Reset state on linea change
   useEffect(() => {
     setBrandId("");
     setModelId("");
-    setGeneration("");
+    setGenerationId("");
     if (!isNoFilter) {
       setSearchState("idle");
       setProducts([]);
     }
   }, [lineaSlug, isNoFilter]);
 
-  const selectedModel = models.find((m) => m.id === modelId);
-  const generations = selectedModel
-    ? Array.from(
-        { length: selectedModel.yearTo - selectedModel.yearFrom + 1 },
-        (_, i) => selectedModel.yearTo - i,
-      ).map((y) => String(y))
-    : [];
-
   const canSearch = isNoFilter
     ? false
-    : isBrandOnly
-      ? !!(lineaSlug && brandId)
-      : !!(lineaSlug && brandId && modelId && generation);
+    : isNoGen
+      ? !!(lineaSlug && brandId && modelId)
+      : !!(lineaSlug && brandId && modelId && generationId);
 
   const handleSearch = useCallback(async () => {
     if (!canSearch) return;
@@ -144,7 +144,7 @@ export default function BuscadorRepuestos() {
           linea: lineaSlug,
           brandId,
           modelId: modelId || undefined,
-          year: generation ? parseInt(generation) : undefined,
+          generationId: generationId || undefined,
         }),
       });
       if (!res.ok) throw new Error();
@@ -154,7 +154,7 @@ export default function BuscadorRepuestos() {
     } catch {
       setSearchState("error");
     }
-  }, [canSearch, lineaSlug, brandId, modelId, generation]);
+  }, [canSearch, lineaSlug, brandId, modelId, generationId]);
 
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(products.length / PER_PAGE));
@@ -238,52 +238,50 @@ export default function BuscadorRepuestos() {
               </select>
             </div>
 
-            {!isBrandOnly && (
-              <>
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor="model">
-                    Modelo
-                  </label>
-                  <select
-                    id="model"
-                    className={styles.select}
-                    value={modelId}
-                    onChange={(e) => setModelId(e.target.value)}
-                    disabled={!brandId}
-                  >
-                    <option value="">
-                      {brandId ? "Seleccionar modelo" : "Primero selecciona marca"}
-                    </option>
-                    {models.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="model">
+                Modelo
+              </label>
+              <select
+                id="model"
+                className={styles.select}
+                value={modelId}
+                onChange={(e) => setModelId(e.target.value)}
+                disabled={!brandId}
+              >
+                <option value="">
+                  {brandId ? "Seleccionar modelo" : "Primero selecciona marca"}
+                </option>
+                {models.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                <div className={styles.field}>
-                  <label className={styles.label} htmlFor="generation">
-                    Generación
-                  </label>
-                  <select
-                    id="generation"
-                    className={styles.select}
-                    value={generation}
-                    onChange={(e) => setGeneration(e.target.value)}
-                    disabled={!modelId}
-                  >
-                    <option value="">
-                      {modelId ? "Seleccionar generación" : "Primero selecciona modelo"}
+            {!isNoGen && (
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="generation">
+                  Generación
+                </label>
+                <select
+                  id="generation"
+                  className={styles.select}
+                  value={generationId}
+                  onChange={(e) => setGenerationId(e.target.value)}
+                  disabled={!modelId}
+                >
+                  <option value="">
+                    {modelId ? "Seleccionar generación" : "Primero selecciona modelo"}
+                  </option>
+                  {generations.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
                     </option>
-                    {generations.map((y) => (
-                      <option key={y} value={y}>
-                        {y}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </>
+                  ))}
+                </select>
+              </div>
             )}
 
             <button
@@ -319,8 +317,8 @@ export default function BuscadorRepuestos() {
                 Encuentra el repuesto exacto para tu vehículo
               </p>
               <p className={styles.stateText}>
-                {isBrandOnly
-                  ? "Selecciona una marca para ver repuestos compatibles."
+                {isNoGen
+                  ? "Selecciona marca y modelo para ver repuestos compatibles."
                   : "Completa los filtros de marca, modelo y generación para ver repuestos compatibles."}
               </p>
             </div>
@@ -372,9 +370,9 @@ export default function BuscadorRepuestos() {
                       </span>
                       {p.compatibility && p.compatibility.length > 0 && (
                         <span className={styles.productCompat}>
-                          {p.compatibility[0].vehicleModel.brand.name}{" "}
-                          {p.compatibility[0].vehicleModel.name}{" "}
-                          ({p.compatibility[0].vehicleModel.yearFrom}–{p.compatibility[0].vehicleModel.yearTo})
+                          {p.compatibility[0].vehicleGeneration.model.brand.name}{" "}
+                          {p.compatibility[0].vehicleGeneration.model.name}{" "}
+                          — {p.compatibility[0].vehicleGeneration.name}
                         </span>
                       )}
                       <p className={styles.productDescription}>

@@ -42,7 +42,7 @@ export default function TerminosCondicionesPage() {
             <strong>Domicilio fiscal:</strong> Av. Wiesse Mza. A Lote. 4a A.H. Enrique Montenegro, San Juan De Lurigancho - Lima, Perú
           </li>
           <li>
-            <strong>Correo electrónico:</strong> contabilidad@kingbrake.com
+            <strong>Correo electrónico:</strong> atencionalcliente@kingbrake.com
           </li>
           <li>
             <strong>Teléfono:</strong> +51 993 214 144
@@ -259,7 +259,7 @@ export default function TerminosCondicionesPage() {
         <h2>15. Contacto</h2>
         <ul>
           <li>
-            <strong>Email:</strong> contabilidad@kingbrake.com
+            <strong>Email:</strong> atencionalcliente@kingbrake.com
           </li>
           <li>
             <strong>Teléfono/WhatsApp:</strong> +51 993 214 144

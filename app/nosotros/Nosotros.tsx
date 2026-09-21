@@ -195,9 +195,6 @@ export default function Nosotros() {
           >
             <motion.div className={styles.historiaTexto} variants={fadeUp}>
               <span className={styles.sectionLabel}>¿Quiénes somos?</span>
-              <h2 className={styles.sectionTitle}>
-                King Brake Perú
-              </h2>
               <p className={styles.bodyText}>
                 KING BRAKE PERÚ es una empresa especializada en la importación
                 y comercialización de repuestos para sistemas de frenos
@@ -229,8 +226,8 @@ export default function Nosotros() {
         </div>
       </section>
 
-      {/* ══════════ TIMELINE ══════════ */}
-      <section className={styles.timelineSection}>
+      {/* ══════════ TIMELINE (desactivado) ══════════ */}
+      {/* <section className={styles.timelineSection}>
         <div className={styles.container}>
           <motion.div
             initial="hidden"
@@ -265,7 +262,7 @@ export default function Nosotros() {
             </div>
           </motion.div>
         </div>
-      </section>
+      </section> */}
 
       {/* ══════════ MISIÓN Y VISIÓN ══════════ */}
       <section className={styles.section}>

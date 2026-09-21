@@ -15,6 +15,7 @@ import {
   Settings,
   LogOut,
   ClipboardList,
+  Car,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -42,6 +43,7 @@ const navSections: NavSection[] = [
       { href: '/admin/productos', label: 'Productos', icon: Package },
       { href: '/admin/categorias', label: 'Categorías', icon: Layers },
       { href: '/admin/cotizaciones', label: 'Cotizaciones', icon: ClipboardList },
+      { href: '/admin/compatibilidad', label: 'Vehículos', icon: Car },
     ],
   },
   {

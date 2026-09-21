@@ -27,6 +27,25 @@ function slugify(text: string) {
     .replace(/^-|-$/g, "");
 }
 
+const compatibilityInclude = {
+  select: {
+    vehicleGenerationId: true,
+    vehicleGeneration: {
+      select: {
+        id: true,
+        name: true,
+        model: {
+          select: {
+            id: true,
+            name: true,
+            brand: { select: { id: true, name: true } },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const authCheck = await verifyAdmin();
   if ("error" in authCheck) {
@@ -76,9 +95,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     await db.productCompatibility.deleteMany({ where: { productId: id } });
     if (compatibility.length > 0) {
       await db.productCompatibility.createMany({
-        data: compatibility.map((vehicleModelId: string) => ({
+        data: compatibility.map((vehicleGenerationId: string) => ({
           productId: id,
-          vehicleModelId,
+          vehicleGenerationId,
         })),
         skipDuplicates: true,
       });
@@ -90,17 +109,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     data,
     include: {
       category: { select: { id: true, name: true } },
-      compatibility: {
-        select: {
-          vehicleModelId: true,
-          vehicleModel: {
-            select: {
-              id: true, name: true, yearFrom: true, yearTo: true,
-              brand: { select: { id: true, name: true } },
-            },
-          },
-        },
-      },
+      compatibility: compatibilityInclude,
     },
   });
 

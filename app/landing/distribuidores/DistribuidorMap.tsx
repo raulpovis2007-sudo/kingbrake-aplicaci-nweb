@@ -25,7 +25,8 @@ interface Distributor {
 interface Props {
   distributors: Distributor[];
   selectedId: string | null;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, source?: "card" | "map") => void;
+  skipFlyTo: React.MutableRefObject<boolean>;
 }
 
 const PERU_CENTER: L.LatLngTuple = [-9.19, -75.015];
@@ -42,15 +43,16 @@ const deptStyle: L.PathOptions = {
 function MapController({
   distributors,
   selectedId,
+  skipFlyTo,
 }: {
   distributors: Distributor[];
   selectedId: string | null;
+  skipFlyTo: React.MutableRefObject<boolean>;
 }) {
   const map = useMap();
   const initialLoad = useRef(true);
 
   useEffect(() => {
-    // Leaflet necesita recalcular dimensiones en contenedores flex/responsive
     const t1 = setTimeout(() => map.invalidateSize(), 100);
     const t2 = setTimeout(() => map.invalidateSize(), 500);
     const t3 = setTimeout(() => map.invalidateSize(), 1500);
@@ -70,6 +72,11 @@ function MapController({
       return;
     }
 
+    if (skipFlyTo.current) {
+      skipFlyTo.current = false;
+      return;
+    }
+
     if (!selectedId) {
       map.flyTo(PERU_CENTER, PERU_ZOOM, { duration: 1 });
       return;
@@ -79,7 +86,7 @@ function MapController({
     if (d) {
       map.flyTo([d.lat, d.lng], 15, { duration: 1.2 });
     }
-  }, [selectedId, distributors, map]);
+  }, [selectedId, distributors, map, skipFlyTo]);
 
   return null;
 }
@@ -88,6 +95,7 @@ export default function DistribuidorMap({
   distributors,
   selectedId,
   onSelect,
+  skipFlyTo,
 }: Props) {
   const [geoData, setGeoData] = useState<GeoJSON.FeatureCollection | null>(
     null,
@@ -127,7 +135,7 @@ export default function DistribuidorMap({
             fillColor: "#fe0008",
             fillOpacity: selectedId === d.id ? 1 : 0.75,
           }}
-          eventHandlers={{ click: () => onSelect(d.id) }}
+          eventHandlers={{ click: () => onSelect(d.id, "map") }}
         >
           <Popup>
             <strong>{d.name}</strong>
@@ -137,7 +145,7 @@ export default function DistribuidorMap({
         </CircleMarker>
       ))}
 
-      <MapController distributors={distributors} selectedId={selectedId} />
+      <MapController distributors={distributors} selectedId={selectedId} skipFlyTo={skipFlyTo} />
     </MapContainer>
   );
 }

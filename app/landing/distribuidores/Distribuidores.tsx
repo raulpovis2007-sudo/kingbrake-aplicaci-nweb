@@ -56,32 +56,60 @@ export default function Distribuidores() {
   }, [region]);
 
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const scrollToId = useRef<string | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const skipFlyTo = useRef(false);
+  const pendingScrollId = useRef<string | null>(null);
+  const pendingScrollTarget = useRef<"card" | "map" | null>(null);
 
-  const handleSelect = useCallback((id: string) => {
+  const handleSelect = useCallback((id: string, source: "card" | "map" = "card") => {
     const next = id === selectedId ? null : id;
-    setSelectedId(next);
+    const mobile = window.innerWidth < 1024;
 
+    if (mobile && source === "map") skipFlyTo.current = true;
+
+    setSelectedId(next);
     if (!next) return;
 
     const idx = filtered.findIndex((d) => d.id === next);
     if (idx === -1) return;
 
     const targetPage = Math.floor(idx / PER_PAGE) + 1;
-    if (targetPage !== page) {
+    const needsPageChange = targetPage !== page;
+
+    if (needsPageChange) {
       setPage(targetPage);
-      scrollToId.current = next;
+    }
+
+    if (!mobile) return;
+
+    const target = source === "card" ? "map" : "card";
+
+    if (needsPageChange && target === "card") {
+      pendingScrollId.current = next;
+      pendingScrollTarget.current = "card";
     } else {
-      cardRefs.current.get(next)?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => {
+        if (target === "map") {
+          mapRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else {
+          cardRefs.current.get(next)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 100);
     }
   }, [selectedId, filtered, page]);
 
   useEffect(() => {
-    if (scrollToId.current) {
-      const id = scrollToId.current;
-      scrollToId.current = null;
+    if (pendingScrollId.current) {
+      const id = pendingScrollId.current;
+      const target = pendingScrollTarget.current;
+      pendingScrollId.current = null;
+      pendingScrollTarget.current = null;
       requestAnimationFrame(() => {
-        cardRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (target === "card") {
+          cardRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          mapRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
       });
     }
   }, [page]);
@@ -195,11 +223,12 @@ export default function Distribuidores() {
             )}
           </div>
 
-          <div className={styles.mapContainer}>
+          <div className={styles.mapContainer} ref={mapRef}>
             <DistribuidorMap
               distributors={filtered}
               selectedId={selectedId}
               onSelect={handleSelect}
+              skipFlyTo={skipFlyTo}
             />
           </div>
         </div>

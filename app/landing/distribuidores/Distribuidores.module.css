@@ -24,19 +24,19 @@
 }
 
 .ctaTitle {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 800;
   color: #fff;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
 
 .ctaText {
-  font-size: 14px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.8);
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .subtitle {
@@ -115,7 +115,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -140,7 +140,7 @@
 .cardImageBox {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 7;
   background: #f3f3f3;
 }
 
@@ -149,10 +149,10 @@
 }
 
 .cardBody {
-  padding: 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .cardHeader {
@@ -163,7 +163,7 @@
 }
 
 .cardName {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   color: #1f2937;
   margin: 0;
@@ -185,10 +185,10 @@
 .cardAddress {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  font-size: 13px;
+  gap: 5px;
+  font-size: 12px;
   color: #6b7280;
-  line-height: 1.4;
+  line-height: 1.35;
   margin: 0;
 }
 
@@ -201,8 +201,8 @@
 .cardPhone {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 5px;
+  font-size: 12px;
   color: #0e1469;
   font-weight: 500;
   text-decoration: none;
@@ -215,12 +215,12 @@
 .cardMapsLink {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 5px;
+  font-size: 12px;
   font-weight: 600;
   color: #fe0008;
   text-decoration: none;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .cardMapsLink:hover {
@@ -320,6 +320,25 @@
 
   .grid {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .cardImageBox {
+    aspect-ratio: 16 / 9;
+  }
+
+  .cardBody {
+    padding: 12px 14px;
+  }
+
+  .cardName {
+    font-size: 14px;
+  }
+
+  .cardAddress,
+  .cardPhone,
+  .cardMapsLink {
+    font-size: 13px;
   }
 
   .filters {

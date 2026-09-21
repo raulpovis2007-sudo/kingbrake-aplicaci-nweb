@@ -26,18 +26,23 @@ interface VehicleBrand {
 interface VehicleModelItem {
   id: string;
   name: string;
-  yearFrom: number;
-  yearTo: number;
+}
+
+interface VehicleGenerationItem {
+  id: string;
+  name: string;
 }
 
 interface CompatEntry {
-  vehicleModelId: string;
-  vehicleModel: {
+  vehicleGenerationId: string;
+  vehicleGeneration: {
     id: string;
     name: string;
-    yearFrom: number;
-    yearTo: number;
-    brand: { id: string; name: string };
+    model: {
+      id: string;
+      name: string;
+      brand: { id: string; name: string };
+    };
   };
 }
 
@@ -98,8 +103,10 @@ export default function AdminProductosPage() {
 
   const [brands, setBrands] = useState<VehicleBrand[]>([]);
   const [vehicleModels, setVehicleModels] = useState<VehicleModelItem[]>([]);
+  const [vehicleGenerations, setVehicleGenerations] = useState<VehicleGenerationItem[]>([]);
   const [selBrandId, setSelBrandId] = useState("");
   const [selModelId, setSelModelId] = useState("");
+  const [selGenId, setSelGenId] = useState("");
 
   async function fetchData() {
     const [prodRes, catRes] = await Promise.all([
@@ -119,13 +126,25 @@ export default function AdminProductosPage() {
 
   useEffect(() => {
     setSelModelId("");
+    setSelGenId("");
     setVehicleModels([]);
+    setVehicleGenerations([]);
     if (!selBrandId) return;
     fetch(`/api/vehicles/models?brandId=${selBrandId}`)
       .then((r) => r.json())
       .then(setVehicleModels)
       .catch(() => {});
   }, [selBrandId]);
+
+  useEffect(() => {
+    setSelGenId("");
+    setVehicleGenerations([]);
+    if (!selModelId) return;
+    fetch(`/api/vehicles/generations?modelId=${selModelId}`)
+      .then((r) => r.json())
+      .then(setVehicleGenerations)
+      .catch(() => {});
+  }, [selModelId]);
 
   const filtered = useMemo(() => {
     let list = products;
@@ -146,6 +165,7 @@ export default function AdminProductosPage() {
     setForm({ ...EMPTY_FORM, categoryId: categories[0]?.id || "" });
     setSelBrandId("");
     setSelModelId("");
+    setSelGenId("");
     setError("");
     setShowModal(true);
   }
@@ -167,6 +187,7 @@ export default function AdminProductosPage() {
     });
     setSelBrandId("");
     setSelModelId("");
+    setSelGenId("");
     setError("");
     setShowModal(true);
   }
@@ -222,34 +243,33 @@ export default function AdminProductosPage() {
   }
 
   function addCompatibility() {
-    if (!selModelId) return;
+    if (!selGenId) return;
+    const gen = vehicleGenerations.find((g) => g.id === selGenId);
     const model = vehicleModels.find((m) => m.id === selModelId);
     const brand = brands.find((b) => b.id === selBrandId);
-    if (!model || !brand) return;
-    if (form.compatibility.some((c) => c.vehicleModelId === selModelId)) return;
+    if (!gen || !model || !brand) return;
+    if (form.compatibility.some((c) => c.vehicleGenerationId === selGenId)) return;
     setForm((prev) => ({
       ...prev,
       compatibility: [
         ...prev.compatibility,
         {
-          vehicleModelId: model.id,
-          vehicleModel: {
-            id: model.id,
-            name: model.name,
-            yearFrom: model.yearFrom,
-            yearTo: model.yearTo,
-            brand: { id: brand.id, name: brand.name },
+          vehicleGenerationId: gen.id,
+          vehicleGeneration: {
+            id: gen.id,
+            name: gen.name,
+            model: { id: model.id, name: model.name, brand: { id: brand.id, name: brand.name } },
           },
         },
       ],
     }));
-    setSelModelId("");
+    setSelGenId("");
   }
 
-  function removeCompatibility(vehicleModelId: string) {
+  function removeCompatibility(vehicleGenerationId: string) {
     setForm((prev) => ({
       ...prev,
-      compatibility: prev.compatibility.filter((c) => c.vehicleModelId !== vehicleModelId),
+      compatibility: prev.compatibility.filter((c) => c.vehicleGenerationId !== vehicleGenerationId),
     }));
   }
 
@@ -274,7 +294,7 @@ export default function AdminProductosPage() {
         price: parseFloat(form.price),
         stock: parseInt(form.stock) || 0,
         detalle: form.detalle || null,
-        compatibility: form.compatibility.map((c) => c.vehicleModelId),
+        compatibility: form.compatibility.map((c) => c.vehicleGenerationId),
       }),
     });
 
@@ -569,8 +589,19 @@ export default function AdminProductosPage() {
                     >
                       <option value="">{selBrandId ? "Modelo" : "Selecciona marca"}</option>
                       {vehicleModels.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.name} ({m.yearFrom}–{m.yearTo})
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                      ))}
+                    </select>
+                    <select
+                      value={selGenId}
+                      onChange={(e) => setSelGenId(e.target.value)}
+                      className={styles.select}
+                      disabled={!selModelId}
+                    >
+                      <option value="">{selModelId ? "Generación" : "Selecciona modelo"}</option>
+                      {vehicleGenerations.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          {g.name}
                         </option>
                       ))}
                     </select>
@@ -578,7 +609,7 @@ export default function AdminProductosPage() {
                       type="button"
                       className={styles.addBtn}
                       onClick={addCompatibility}
-                      disabled={!selModelId || form.compatibility.some((c) => c.vehicleModelId === selModelId)}
+                      disabled={!selGenId || form.compatibility.some((c) => c.vehicleGenerationId === selGenId)}
                       style={{ padding: "8px 16px", flexShrink: 0 }}
                     >
                       <Plus size={16} /> Agregar
@@ -587,12 +618,12 @@ export default function AdminProductosPage() {
                   {form.compatibility.length > 0 && (
                     <div className={styles.compatList}>
                       {form.compatibility.map((c) => (
-                        <div key={c.vehicleModelId} className={styles.compatTag}>
+                        <div key={c.vehicleGenerationId} className={styles.compatTag}>
                           <span>
-                            {c.vehicleModel.brand.name} {c.vehicleModel.name}{" "}
-                            ({c.vehicleModel.yearFrom}–{c.vehicleModel.yearTo})
+                            {c.vehicleGeneration.model.brand.name} {c.vehicleGeneration.model.name}{" "}
+                            — {c.vehicleGeneration.name}
                           </span>
-                          <button type="button" onClick={() => removeCompatibility(c.vehicleModelId)}>
+                          <button type="button" onClick={() => removeCompatibility(c.vehicleGenerationId)}>
                             <X size={14} />
                           </button>
                         </div>

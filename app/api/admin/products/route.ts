@@ -27,6 +27,25 @@ function slugify(text: string) {
     .replace(/^-|-$/g, "");
 }
 
+const compatibilityInclude = {
+  select: {
+    vehicleGenerationId: true,
+    vehicleGeneration: {
+      select: {
+        id: true,
+        name: true,
+        model: {
+          select: {
+            id: true,
+            name: true,
+            brand: { select: { id: true, name: true } },
+          },
+        },
+      },
+    },
+  },
+} as const;
+
 export async function GET() {
   const authCheck = await verifyAdmin();
   if ("error" in authCheck) {
@@ -37,20 +56,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     include: {
       category: { select: { id: true, name: true } },
-      compatibility: {
-        select: {
-          vehicleModelId: true,
-          vehicleModel: {
-            select: {
-              id: true,
-              name: true,
-              yearFrom: true,
-              yearTo: true,
-              brand: { select: { id: true, name: true } },
-            },
-          },
-        },
-      },
+      compatibility: compatibilityInclude,
     },
   });
 
@@ -109,8 +115,8 @@ export async function POST(req: NextRequest) {
       ...(Array.isArray(compatibility) && compatibility.length > 0
         ? {
             compatibility: {
-              create: compatibility.map((vehicleModelId: string) => ({
-                vehicleModelId,
+              create: compatibility.map((vehicleGenerationId: string) => ({
+                vehicleGenerationId,
               })),
             },
           }
@@ -118,17 +124,7 @@ export async function POST(req: NextRequest) {
     },
     include: {
       category: { select: { id: true, name: true } },
-      compatibility: {
-        select: {
-          vehicleModelId: true,
-          vehicleModel: {
-            select: {
-              id: true, name: true, yearFrom: true, yearTo: true,
-              brand: { select: { id: true, name: true } },
-            },
-          },
-        },
-      },
+      compatibility: compatibilityInclude,
     },
   });
 

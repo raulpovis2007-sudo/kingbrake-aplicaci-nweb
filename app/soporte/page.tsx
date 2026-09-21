@@ -82,11 +82,11 @@ export default function SoportePage() {
       </section>
 
       {/* Banners de soporte */}
-      {banners.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>Recursos de <span className={styles.bold}>Soporte</span></h2>
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Nuevas <span className={styles.bold}>Aplicaciones</span></h2>
 
+          {banners.length > 0 ? (
             <div className={styles.carouselRow}>
               <button
                 className={`${styles.navBtn} ${!canScrollLeft ? styles.navDisabled : ""}`}
@@ -119,16 +119,18 @@ export default function SoportePage() {
                 <ChevronRight size={22} />
               </button>
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <p className={styles.emptyText}>Próximamente publicaremos nuevas aplicaciones de soporte.</p>
+          )}
+        </div>
+      </section>
 
       {/* Reels de soporte */}
-      {reels.length > 0 && (
-        <section className={styles.section} style={{ background: "#f5f5f5" }}>
-          <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>Videos de <span className={styles.bold}>Soporte</span></h2>
+      <section className={styles.section} style={{ background: "#f5f5f5" }}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Videos de <span className={styles.bold}>Soporte</span></h2>
 
+          {reels.length > 0 ? (
             <div className={styles.carouselRow}>
               <button
                 className={`${styles.navBtn} ${styles.navBtnDark} ${!canScrollReelLeft ? styles.navDisabled : ""}`}
@@ -156,9 +158,11 @@ export default function SoportePage() {
                 <ChevronRight size={22} />
               </button>
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <p className={styles.emptyText}>Próximamente publicaremos videos de soporte técnico.</p>
+          )}
+        </div>
+      </section>
 
       {/* CTA WhatsApp */}
       <section className={styles.ctaSection}>

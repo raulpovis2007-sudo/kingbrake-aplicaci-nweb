@@ -6,7 +6,7 @@ const searchSchema = z.object({
   linea: z.string().min(1),
   brandId: z.string().min(1),
   modelId: z.string().min(1).optional(),
-  year: z.number().int().min(1970).max(2030).optional(),
+  generationId: z.string().min(1).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -25,14 +25,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { linea, brandId, modelId, year } = parsed.data;
+  const { linea, brandId, modelId, generationId } = parsed.data;
 
-  const vehicleFilter: Record<string, unknown> = { brandId };
-  if (modelId) vehicleFilter.id = modelId;
-  if (year) {
-    vehicleFilter.yearFrom = { lte: year };
-    vehicleFilter.yearTo = { gte: year };
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const genFilter: Record<string, any> = {
+    model: { brand: { id: brandId } },
+  };
+  if (modelId) genFilter.model.id = modelId;
+  if (generationId) genFilter.id = generationId;
 
   try {
     const products = await db.product.findMany({
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         isActive: true,
         category: { slug: linea },
         compatibility: {
-          some: { vehicleModel: vehicleFilter },
+          some: { vehicleGeneration: genFilter },
         },
       },
       select: {
@@ -54,14 +54,17 @@ export async function POST(req: NextRequest) {
         featured: true,
         category: { select: { name: true, slug: true } },
         compatibility: {
-          where: { vehicleModel: vehicleFilter },
+          where: { vehicleGeneration: genFilter },
           select: {
-            vehicleModel: {
+            vehicleGeneration: {
               select: {
                 name: true,
-                yearFrom: true,
-                yearTo: true,
-                brand: { select: { name: true } },
+                model: {
+                  select: {
+                    name: true,
+                    brand: { select: { name: true } },
+                  },
+                },
               },
             },
           },
