@@ -27,9 +27,6 @@ export default function NuevoEventoPage() {
   const [formData, setFormData] = useState({
     title: "",
     image: "",
-    link: "",
-    startDate: "",
-    endDate: "",
     type: "EVENT" as "EVENT" | "SOPORTE",
   });
 
@@ -163,22 +160,6 @@ export default function NuevoEventoPage() {
                 <option value="EVENT">Landing — Nuevas Aplicaciones</option>
                 <option value="SOPORTE">Página Soporte Técnico</option>
               </select>
-            </div>
-
-            <div className={formStyles.formGroup}>
-              <label className={formStyles.label}>Link de destino</label>
-              <input type="url" name="link" value={formData.link} onChange={handleChange} placeholder="URL opcional al hacer clic" className={formStyles.input} />
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              <div className={formStyles.formGroup}>
-                <label className={formStyles.label}>Fecha inicio</label>
-                <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className={formStyles.input} />
-              </div>
-              <div className={formStyles.formGroup}>
-                <label className={formStyles.label}>Fecha fin</label>
-                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={formStyles.input} />
-              </div>
             </div>
 
             <div className={formStyles.formActions}>

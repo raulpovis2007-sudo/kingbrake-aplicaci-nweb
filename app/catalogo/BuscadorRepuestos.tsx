@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -45,6 +45,7 @@ type SearchState = "idle" | "loading" | "results" | "empty" | "error";
 
 export default function BuscadorRepuestos() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const categoriaSlug = searchParams.get("categoria") || "";
 
   const [categories, setCategories] = useState<ParentCategory[]>([]);
@@ -77,20 +78,48 @@ export default function BuscadorRepuestos() {
 
   useEffect(() => {
     if (!categoriaSlug) return;
+
+    // 1. Try sessionStorage cache
     try {
       const raw = sessionStorage.getItem(cacheKey);
-      if (!raw) return;
-      const c = JSON.parse(raw);
-      skipCascadeRef.current = true;
-      setBrandId(c.brandId || "");
-      setModelId(c.modelId || "");
-      setGenerationId(c.generationId || "");
-      setBrands(c.brands || []);
-      setModels(c.models || []);
-      setGenerations(c.generations || []);
-      setProducts(c.products || []);
-      setSearchState(c.searchState || "idle");
+      if (raw) {
+        const c = JSON.parse(raw);
+        skipCascadeRef.current = true;
+        setBrandId(c.brandId || "");
+        setModelId(c.modelId || "");
+        setGenerationId(c.generationId || "");
+        setBrands(c.brands || []);
+        setModels(c.models || []);
+        setGenerations(c.generations || []);
+        setProducts(c.products || []);
+        setSearchState(c.searchState || "idle");
+        return;
+      }
     } catch { /* ignore corrupt cache */ }
+
+    // 2. Fallback: restore vehicle filters from URL params
+    const urlBrand = searchParams.get("brandId");
+    const urlModel = searchParams.get("modelId");
+    const urlGen = searchParams.get("generationId");
+    if (!urlBrand) return;
+
+    skipCascadeRef.current = true;
+    setBrandId(urlBrand);
+    if (urlModel) setModelId(urlModel);
+    if (urlGen) setGenerationId(urlGen);
+
+    fetch(`/api/vehicles/models?brandId=${urlBrand}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setModels(data);
+        if (urlModel) {
+          fetch(`/api/vehicles/generations?modelId=${urlModel}`)
+            .then((r) => r.json())
+            .then(setGenerations)
+            .catch(() => {});
+        }
+      })
+      .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -150,6 +179,15 @@ export default function BuscadorRepuestos() {
       })
       .catch(() => setSearchState("error"));
   }, [isNoFilter, categoriaSlug, cacheKey]);
+
+  const buildProductUrl = (slug: string) => {
+    const p = new URLSearchParams();
+    p.set("categoria", categoriaSlug);
+    if (brandId) p.set("brandId", brandId);
+    if (modelId) p.set("modelId", modelId);
+    if (generationId) p.set("generationId", generationId);
+    return `/productos/${slug}?${p.toString()}`;
+  };
 
   const prevCategoriaRef = useRef(categoriaSlug);
   useEffect(() => {
@@ -212,28 +250,14 @@ export default function BuscadorRepuestos() {
     setPage(1);
   }, [products]);
 
+  useEffect(() => {
+    if (!categoriaSlug && categories.length > 0) {
+      router.replace(`/catalogo?categoria=${categories[0].slug}`);
+    }
+  }, [categoriaSlug, categories, router]);
+
   if (!categoriaSlug || !categoria) {
-    return (
-      <div className={styles.wrapper}>
-        <div className={styles.categoriaPicker}>
-          <h1 className={styles.categoriaPickerTitle}>Buscar repuestos</h1>
-          <p className={styles.categoriaPickerText}>
-            Selecciona una categoría para comenzar
-          </p>
-          <div className={styles.categoriaGrid}>
-            {categories.map((c) => (
-              <Link
-                key={c.slug}
-                href={`/catalogo?categoria=${c.slug}`}
-                className={styles.categoriaCard}
-              >
-                <span>{c.name}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <div className={styles.wrapper} />;
   }
 
   return (
@@ -375,7 +399,7 @@ export default function BuscadorRepuestos() {
               </p>
               <div className={styles.productList}>
                 {paginated.map((p) => (
-                  <Link key={p.id} href={`/productos/${p.slug}`} className={styles.productCardLink}>
+                  <Link key={p.id} href={buildProductUrl(p.slug)} className={styles.productCardLink}>
                     <article className={styles.productCard}>
                       <div className={styles.productImage}>
                         {p.images[0] ? (

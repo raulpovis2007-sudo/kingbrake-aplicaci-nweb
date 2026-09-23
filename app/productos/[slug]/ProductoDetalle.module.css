@@ -1,5 +1,4 @@
 .page {
-  min-height: 100vh;
   background: #fafafa;
 }
 
@@ -177,8 +176,6 @@
 }
 
 .acciones {
-  display: flex;
-  gap: 1rem;
   margin-top: 1.5rem;
 }
 

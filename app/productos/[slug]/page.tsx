@@ -9,6 +9,7 @@ import styles from "./ProductoDetalle.module.css";
 
 interface Props {
   params: { slug: string };
+  searchParams: { categoria?: string; brandId?: string; modelId?: string; generationId?: string };
 }
 
 async function getProduct(slug: string) {
@@ -32,9 +33,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProductoPage({ params }: Props) {
+export default async function ProductoPage({ params, searchParams }: Props) {
   const product = await getProduct(params.slug);
   if (!product) notFound();
+
+  const backParams = new URLSearchParams();
+  backParams.set("categoria", searchParams.categoria || product.category.parent?.slug || product.category.slug);
+  if (searchParams.brandId) backParams.set("brandId", searchParams.brandId);
+  if (searchParams.modelId) backParams.set("modelId", searchParams.modelId);
+  if (searchParams.generationId) backParams.set("generationId", searchParams.generationId);
 
   const relacionados = await db.product.findMany({
     where: { isActive: true, categoryId: product.categoryId, id: { not: product.id } },
@@ -47,7 +54,7 @@ export default async function ProductoPage({ params }: Props) {
     <main className={styles.page}>
       <section className={styles.detalle}>
         <div className={styles.container}>
-          <Link href={`/catalogo?categoria=${product.category.parent?.slug ?? product.category.slug}`} className={styles.backLink}>
+          <Link href={`/catalogo?${backParams.toString()}`} className={styles.backLink}>
             <ArrowLeft size={18} />
             Regresar al catálogo
           </Link>
@@ -77,7 +84,6 @@ export default async function ProductoPage({ params }: Props) {
                   productId={product.id}
                   productName={product.name}
                   productSku={product.sku}
-                  className={styles.cotizarBtn}
                 />
               </div>
             </div>

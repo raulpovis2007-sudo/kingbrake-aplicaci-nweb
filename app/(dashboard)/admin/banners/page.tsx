@@ -16,7 +16,6 @@ import styles from "./AdminBanners.module.css";
 
 const TABS = [
   { type: "HERO", label: "Hero (portada)" },
-  { type: "BANNER", label: "Banners / Campañas" },
   { type: "NOSOTROS_VIDEO", label: "Video Quiénes Somos" },
 ] as const;
 
@@ -134,11 +133,6 @@ export default function AdminBannersPage() {
     }
   }
 
-  const formatDate = (d: string | null) => {
-    if (!d) return "—";
-    return new Date(d).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
-  };
-
   const tabLabel = TABS.find((t) => t.type === activeTab)?.label ?? activeTab;
   const isVideo = activeTab === "NOSOTROS_VIDEO";
 
@@ -148,14 +142,16 @@ export default function AdminBannersPage() {
         <div>
           <h1 className={styles.title}>Imágenes y Medios</h1>
           <p className={styles.subtitle}>
-            Gestiona las imágenes del hero, banners y video
+            Gestiona las imágenes del hero y video
             {saving && <span className={styles.savingBadge}>Guardando...</span>}
           </p>
         </div>
-        <Link href={`/admin/banners/nuevo?type=${activeTab}`} className={styles.addButton}>
-          <Plus size={20} />
-          {isVideo ? "Agregar video" : "Nueva imagen"}
-        </Link>
+        {!(isVideo && banners.length > 0) && (
+          <Link href={`/admin/banners/nuevo?type=${activeTab}`} className={styles.addButton}>
+            <Plus size={20} />
+            {isVideo ? "Agregar video" : "Nueva imagen"}
+          </Link>
+        )}
       </div>
 
       <nav className={styles.tabs}>
@@ -195,9 +191,6 @@ export default function AdminBannersPage() {
                 <tr>
                   <th style={{ width: 40 }}></th>
                   <th>{isVideo ? "Video" : "Imagen"}</th>
-                  {!isVideo && <th>Link</th>}
-                  <th>Inicio</th>
-                  <th>Fin</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -206,14 +199,14 @@ export default function AdminBannersPage() {
                 {banners.map((banner) => (
                   <tr
                     key={banner.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, banner.id)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, banner.id)}
-                    onDragEnd={() => setDraggingId(null)}
+                    draggable={!isVideo}
+                    onDragStart={!isVideo ? (e) => handleDragStart(e, banner.id) : undefined}
+                    onDragOver={!isVideo ? handleDragOver : undefined}
+                    onDrop={!isVideo ? (e) => handleDrop(e, banner.id) : undefined}
+                    onDragEnd={!isVideo ? () => setDraggingId(null) : undefined}
                     className={draggingId === banner.id ? styles.dragging : ""}
                   >
-                    <td className={styles.dragHandle}><GripVertical size={16} /></td>
+                    <td className={styles.dragHandle}>{!isVideo && <GripVertical size={16} />}</td>
                     <td>
                       <div className={styles.reelInfo}>
                         <div className={styles.thumbnail}>
@@ -223,20 +216,13 @@ export default function AdminBannersPage() {
                             <img src={banner.image} alt={banner.title} />
                           )}
                         </div>
-                        <div className={styles.reelText}>
-                          <span className={styles.reelTitle}>{banner.title}</span>
-                        </div>
+                        {!isVideo && (
+                          <div className={styles.reelText}>
+                            <span className={styles.reelTitle}>{banner.title}</span>
+                          </div>
+                        )}
                       </div>
                     </td>
-                    {!isVideo && (
-                      <td>
-                        <span className={styles.viewsCell} style={{ fontSize: "0.8rem" }}>
-                          {banner.link ? banner.link.slice(0, 40) + (banner.link.length > 40 ? "..." : "") : "Sin link"}
-                        </span>
-                      </td>
-                    )}
-                    <td className={styles.viewsCell}>{formatDate(banner.startDate)}</td>
-                    <td className={styles.viewsCell}>{formatDate(banner.endDate)}</td>
                     <td>
                       <button
                         onClick={() => toggleActive(banner)}

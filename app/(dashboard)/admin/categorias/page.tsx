@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Pencil, Trash2, Plus, X, Package } from "lucide-react";
+import { Pencil, Trash2, Plus, X, Package, AlertTriangle } from "lucide-react";
 import styles from "./AdminCategorias.module.css";
 
 interface Category {
@@ -237,19 +237,14 @@ export default function AdminCategoriasPage() {
       )}
 
       {showConfirmClose && (
-        <div className={styles.overlay} style={{ zIndex: 1100 }} onClick={() => setShowConfirmClose(false)}>
-          <div className={styles.modal} style={{ maxWidth: 400, padding: 24 }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ margin: "0 0 8px", fontSize: "1.1rem", color: "#1f2937" }}>¿Salir del formulario?</h3>
-            <p style={{ margin: "0 0 20px", fontSize: "0.9rem", color: "#6b7280" }}>
-              Los datos ingresados se perderán si sales sin guardar.
-            </p>
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button type="button" className={styles.cancelBtn} onClick={() => setShowConfirmClose(false)}>
-                Seguir editando
-              </button>
-              <button type="button" className={styles.deleteBtn} style={{ padding: "8px 20px" }} onClick={confirmCloseModal}>
-                Salir sin guardar
-              </button>
+        <div className={styles.confirmOverlay} onClick={() => setShowConfirmClose(false)}>
+          <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.confirmIcon}><AlertTriangle size={24} /></div>
+            <h3 className={styles.confirmTitle}>¿Salir del formulario?</h3>
+            <p className={styles.confirmText}>Los datos ingresados se perderán si sales sin guardar.</p>
+            <div className={styles.confirmActions}>
+              <button type="button" className={styles.confirmKeep} onClick={() => setShowConfirmClose(false)}>Seguir editando</button>
+              <button type="button" className={styles.confirmLeave} onClick={confirmCloseModal}>Salir sin guardar</button>
             </div>
           </div>
         </div>

@@ -40,22 +40,27 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    title: 'Ventas',
+    title: 'Catálogo',
     items: [
       { href: '/admin/productos', label: 'Productos', icon: Package },
       { href: '/admin/categorias', label: 'Categorías', icon: Layers },
       { href: '/admin/subcategorias', label: 'Subcategorías', icon: FolderTree },
-      { href: '/admin/cotizaciones', label: 'Cotizaciones', icon: ClipboardList },
       { href: '/admin/compatibilidad', label: 'Vehículos', icon: Car },
+    ],
+  },
+  {
+    title: 'Pedidos',
+    items: [
+      { href: '/admin/cotizaciones', label: 'Cotizaciones', icon: ClipboardList },
     ],
   },
   {
     title: 'Contenido',
     items: [
-      { href: '/admin/blog', label: 'Blog', icon: FileText },
-      { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
       { href: '/admin/banners', label: 'Imágenes y Medios', icon: Image },
       { href: '/admin/eventos', label: 'Nuevas Aplicaciones', icon: ImageIcon },
+      { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
+      { href: '/admin/blog', label: 'Blog', icon: FileText },
     ],
   },
   {

@@ -26,12 +26,10 @@ export default function EditarBannerPage() {
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
 
+  const [bannerType, setBannerType] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     image: "",
-    link: "",
-    startDate: "",
-    endDate: "",
   });
 
   useEffect(() => {
@@ -40,12 +38,10 @@ export default function EditarBannerPage() {
         const res = await fetch(`/api/admin/banners/${params.id}`);
         if (!res.ok) throw new Error("Banner no encontrado");
         const banner = await res.json();
+        setBannerType(banner.type || "");
         setFormData({
           title: banner.title || "",
           image: banner.image || "",
-          link: banner.link || "",
-          startDate: banner.startDate ? banner.startDate.split("T")[0] : "",
-          endDate: banner.endDate ? banner.endDate.split("T")[0] : "",
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al cargar banner");
@@ -122,8 +118,9 @@ export default function EditarBannerPage() {
     e.preventDefault();
     setError(null);
 
-    if (!formData.title.trim()) { setError("El título es obligatorio"); return; }
-    if (!formData.image.trim()) { setError("Debes subir una imagen"); return; }
+    const isVideo = bannerType === "NOSOTROS_VIDEO";
+    if (!isVideo && !formData.title.trim()) { setError("El título es obligatorio"); return; }
+    if (!formData.image.trim()) { setError(`Debes subir ${isVideo ? "un video" : "una imagen"}`); return; }
 
     setSaving(true);
     try {
@@ -161,21 +158,23 @@ export default function EditarBannerPage() {
           <div className={formStyles.formFields}>
             {error && <div className={formStyles.error}>{error}</div>}
 
-            <div className={formStyles.formGroup}>
-              <label className={formStyles.label}>
-                Título <span className={formStyles.required}>*</span>
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Ej: Campaña de verano 2026"
-                className={formStyles.input}
-                maxLength={100}
-              />
-              <span className={formStyles.hint}>Solo para identificar el banner en el panel</span>
-            </div>
+            {bannerType !== "NOSOTROS_VIDEO" && (
+              <div className={formStyles.formGroup}>
+                <label className={formStyles.label}>
+                  Título <span className={formStyles.required}>*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="Ej: Hero principal"
+                  className={formStyles.input}
+                  maxLength={100}
+                />
+                <span className={formStyles.hint}>Solo para identificar la imagen en el panel</span>
+              </div>
+            )}
 
             <div className={formStyles.formGroup}>
               <label className={formStyles.label}>
@@ -228,52 +227,15 @@ export default function EditarBannerPage() {
                         Arrastra una imagen o haz clic para seleccionar
                       </span>
                       <span className={formStyles.uploadHint}>
-                        Recomendado: 1200×400px (PNG, JPG, WebP, máx. 5MB)
+                        {bannerType === "NOSOTROS_VIDEO"
+                          ? "MP4, WebM — máx. 50MB"
+                          : "Formato horizontal. Recomendado: 1920×600px (PNG, JPG, WebP, máx. 5MB)"}
                       </span>
                     </>
                   )}
                 </div>
               )}
             </div>
-
-            <div className={formStyles.formGroup}>
-              <label className={formStyles.label}>Link de destino</label>
-              <input
-                type="url"
-                name="link"
-                value={formData.link}
-                onChange={handleChange}
-                placeholder="https://kingbrake.com/productos?categoria=..."
-                className={formStyles.input}
-              />
-              <span className={formStyles.hint}>URL a donde redirige al hacer clic (opcional)</span>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              <div className={formStyles.formGroup}>
-                <label className={formStyles.label}>Fecha inicio</label>
-                <input
-                  type="date"
-                  name="startDate"
-                  value={formData.startDate}
-                  onChange={handleChange}
-                  className={formStyles.input}
-                />
-              </div>
-              <div className={formStyles.formGroup}>
-                <label className={formStyles.label}>Fecha fin</label>
-                <input
-                  type="date"
-                  name="endDate"
-                  value={formData.endDate}
-                  onChange={handleChange}
-                  className={formStyles.input}
-                />
-              </div>
-            </div>
-            <span className={formStyles.hint}>
-              Dejar vacío para que esté siempre visible
-            </span>
 
             <div className={formStyles.formActions}>
               <Link href="/admin/banners" className={formStyles.cancelButton}>

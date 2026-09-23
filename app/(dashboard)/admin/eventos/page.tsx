@@ -167,7 +167,6 @@ export default function AdminEventosPage() {
                   <th style={{ width: 40 }}></th>
                   <th>Publicación</th>
                   <th>Fecha</th>
-                  <th>Link</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -195,11 +194,6 @@ export default function AdminEventosPage() {
                       </div>
                     </td>
                     <td className={styles.viewsCell}>{formatDate(evento.startDate)}</td>
-                    <td>
-                      <span className={styles.viewsCell} style={{ fontSize: "0.8rem" }}>
-                        {evento.link ? evento.link.slice(0, 40) + (evento.link.length > 40 ? "..." : "") : "Sin link"}
-                      </span>
-                    </td>
                     <td>
                       <button
                         onClick={() => toggleActive(evento)}

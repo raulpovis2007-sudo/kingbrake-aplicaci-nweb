@@ -130,8 +130,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Splide CSS loaded via npm import in components */}
 
         {/* Favicon */}
-        <link rel="shortcut icon" href="/assets/images/image0.png" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="/assets/images/image0.png" />
+        <link rel="shortcut icon" href="/assets/images/logo-principal.webp" type="image/webp" />
+        <link rel="apple-touch-icon" href="/assets/images/logo-principal.webp" />
 
         {/* JSON-LD Schemas para SEO */}
         <LocalBusinessSchema />
