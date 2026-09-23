@@ -47,7 +47,7 @@ export default async function ProductoPage({ params }: Props) {
     <main className={styles.page}>
       <section className={styles.detalle}>
         <div className={styles.container}>
-          <Link href={`/catalogo?linea=${product.category.parent?.slug ?? product.category.slug}`} className={styles.backLink}>
+          <Link href={`/catalogo?categoria=${product.category.parent?.slug ?? product.category.slug}`} className={styles.backLink}>
             <ArrowLeft size={18} />
             Regresar al catálogo
           </Link>

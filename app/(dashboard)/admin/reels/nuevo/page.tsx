@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Cropper, { Area } from "react-easy-crop";
@@ -70,6 +70,15 @@ export default function NuevoReelPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -101,6 +110,7 @@ export default function NuevoReelPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    dirtyRef.current = true;
     setError(null);
   };
 
@@ -159,6 +169,7 @@ export default function NuevoReelPage() {
       if (!cloudinaryRes.ok) throw new Error(cloudinaryData.error?.message || "Error al subir imagen");
 
       setFormData((prev) => ({ ...prev, thumbnailUrl: cloudinaryData.secure_url }));
+      dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir imagen");
     } finally {
@@ -251,6 +262,7 @@ export default function NuevoReelPage() {
       }
 
       setFormData((prev) => ({ ...prev, videoUrl: cloudinaryData.secure_url }));
+      dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir video");
     } finally {
@@ -321,6 +333,7 @@ export default function NuevoReelPage() {
         throw new Error(data.error || "Error al crear el reel");
       }
 
+      dirtyRef.current = false;
       router.push("/admin/reels");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");

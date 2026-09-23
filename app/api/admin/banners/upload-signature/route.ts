@@ -31,6 +31,9 @@ export async function POST() {
     });
   } catch (error) {
     console.error("Error generating upload signature:", error);
-    return NextResponse.json({ error: "Error al generar firma de subida" }, { status: 500 });
+    return NextResponse.json({
+      error: "Error al generar firma de subida",
+      detail: error instanceof Error ? error.message : String(error),
+    }, { status: 500 });
   }
 }

@@ -10,6 +10,15 @@ export default function EditarBannerPage() {
   const router = useRouter();
   const params = useParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,6 +58,7 @@ export default function EditarBannerPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    dirtyRef.current = true;
     setError(null);
   };
 
@@ -87,6 +97,7 @@ export default function EditarBannerPage() {
       if (!cloudRes.ok) throw new Error(cloudData.error?.message || "Error al subir imagen");
 
       setFormData((prev) => ({ ...prev, image: cloudData.secure_url }));
+      dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir imagen");
     } finally {
@@ -123,6 +134,7 @@ export default function EditarBannerPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al actualizar el banner");
+      dirtyRef.current = false;
       router.push("/admin/banners");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");

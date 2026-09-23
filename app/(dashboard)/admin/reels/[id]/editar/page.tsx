@@ -74,6 +74,15 @@ export default function EditarReelPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -136,6 +145,7 @@ export default function EditarReelPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    dirtyRef.current = true;
     setError(null);
   };
 
@@ -194,6 +204,7 @@ export default function EditarReelPage() {
       if (!cloudinaryRes.ok) throw new Error(cloudinaryData.error?.message || "Error al subir imagen");
 
       setFormData((prev) => ({ ...prev, thumbnailUrl: cloudinaryData.secure_url }));
+      dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir imagen");
     } finally {
@@ -286,6 +297,7 @@ export default function EditarReelPage() {
       }
 
       setFormData((prev) => ({ ...prev, videoUrl: cloudinaryData.secure_url }));
+      dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir video");
     } finally {
@@ -355,6 +367,7 @@ export default function EditarReelPage() {
         throw new Error(data.error || "Error al actualizar el reel");
       }
 
+      dirtyRef.current = false;
       router.push("/admin/reels");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");

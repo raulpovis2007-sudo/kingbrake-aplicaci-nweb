@@ -73,6 +73,24 @@ export default function AdminDistribuidoresPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [filterRegion, setFilterRegion] = useState("");
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
+
+  function isFormDirty() {
+    return !!(form.name || form.address || form.phone || form.mapsUrl || form.image);
+  }
+
+  function tryCloseModal() {
+    if (isFormDirty()) {
+      setShowConfirmClose(true);
+    } else {
+      setShowModal(false);
+    }
+  }
+
+  function confirmCloseModal() {
+    setShowConfirmClose(false);
+    setShowModal(false);
+  }
 
   const filtered = useMemo(() => {
     let list = distributors;
@@ -342,11 +360,11 @@ export default function AdminDistribuidoresPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className={styles.overlay} onClick={() => setShowModal(false)}>
+        <div className={styles.overlay} onClick={tryCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editingId ? "Editar distribuidor" : "Nuevo distribuidor"}</h2>
-              <button onClick={() => setShowModal(false)} className={styles.closeBtn}><X size={20} /></button>
+              <button onClick={tryCloseModal} className={styles.closeBtn}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGrid}>
@@ -440,7 +458,7 @@ export default function AdminDistribuidoresPage() {
               {error && <p className={styles.formError}>{error}</p>}
 
               <div className={styles.formActions}>
-                <button type="button" onClick={() => setShowModal(false)} className={styles.cancelBtn}>
+                <button type="button" onClick={tryCloseModal} className={styles.cancelBtn}>
                   Cancelar
                 </button>
                 <button type="submit" className={styles.submitBtn} disabled={saving}>
@@ -448,6 +466,25 @@ export default function AdminDistribuidoresPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showConfirmClose && (
+        <div className={styles.overlay} style={{ zIndex: 1100 }} onClick={() => setShowConfirmClose(false)}>
+          <div className={styles.modal} style={{ maxWidth: 400, padding: 24 }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: "0 0 8px", fontSize: "1.1rem", color: "#1f2937" }}>¿Salir del formulario?</h3>
+            <p style={{ margin: "0 0 20px", fontSize: "0.9rem", color: "#6b7280" }}>
+              Los datos ingresados se perderán si sales sin guardar.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button type="button" className={styles.cancelBtn} onClick={() => setShowConfirmClose(false)}>
+                Seguir editando
+              </button>
+              <button type="button" onClick={confirmCloseModal} style={{ padding: "8px 20px", background: "#ef4444", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "inherit", fontSize: "0.875rem" }}>
+                Salir sin guardar
+              </button>
+            </div>
           </div>
         </div>
       )}

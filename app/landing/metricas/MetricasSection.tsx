@@ -5,7 +5,7 @@ const METRICS = [
   { value: "+15", label: "Años de experiencia" },
   { value: "+1000", label: "Aplicaciones" },
   { value: "+50", label: "Puntos de Venta" },
-  { value: "+10", label: "Líneas de Producto" },
+  { value: "+10", label: "Categorías de Producto" },
 ];
 
 export default function MetricasSection() {

@@ -1,5 +1,5 @@
 import Hero from "./landing/hero/Hero";
-import LineaProductos from "./landing/lineaProductos/LineaProductos";
+import Categorias from "./landing/categorias/Categorias";
 import MetricasSection from "./landing/metricas/MetricasSection";
 import EventosCarrusel from "./landing/eventosCarrusel/EventosCarrusel";
 import { ReelsSection } from "./components/Reels";
@@ -11,7 +11,7 @@ export default function Home() {
       <main>
         <Hero />
 
-        <LineaProductos />
+        <Categorias />
 
         <MetricasSection />
 

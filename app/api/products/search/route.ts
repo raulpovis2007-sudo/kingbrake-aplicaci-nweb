@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 
 const searchSchema = z.object({
-  linea: z.string().min(1),
+  categoria: z.string().min(1),
   brandId: z.string().min(1),
   modelId: z.string().min(1).optional(),
   generationId: z.string().min(1).optional(),
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { linea, brandId, modelId, generationId } = parsed.data;
+  const { categoria, brandId, modelId, generationId } = parsed.data;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const genFilter: Record<string, any> = {
@@ -39,8 +39,8 @@ export async function POST(req: NextRequest) {
       where: {
         isActive: true,
         OR: [
-          { category: { slug: linea } },
-          { category: { parent: { slug: linea } } },
+          { category: { slug: categoria } },
+          { category: { parent: { slug: categoria } } },
         ],
         compatibility: {
           some: { vehicleGeneration: genFilter },

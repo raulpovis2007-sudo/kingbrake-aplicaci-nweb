@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Upload, Loader2, ImageIcon } from "lucide-react";
@@ -9,6 +9,15 @@ import formStyles from "../../banners/nuevo/BannerForm.module.css";
 export default function NuevoEventoPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -26,6 +35,7 @@ export default function NuevoEventoPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    dirtyRef.current = true;
     setError(null);
   };
 
@@ -53,6 +63,7 @@ export default function NuevoEventoPage() {
       if (!cloudRes.ok) throw new Error(cloudData.error?.message || "Error al subir imagen");
 
       setFormData((prev) => ({ ...prev, image: cloudData.secure_url }));
+      dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir imagen");
     } finally {
@@ -88,6 +99,7 @@ export default function NuevoEventoPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al crear el evento");
+      dirtyRef.current = false;
       router.push("/admin/eventos");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");

@@ -33,6 +33,24 @@ export default function AdminCategoriasPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
+
+  function isFormDirty() {
+    return !!(form.name || form.description || form.icon);
+  }
+
+  function tryCloseModal() {
+    if (isFormDirty()) {
+      setShowConfirmClose(true);
+    } else {
+      setShowModal(false);
+    }
+  }
+
+  function confirmCloseModal() {
+    setShowConfirmClose(false);
+    setShowModal(false);
+  }
 
   async function fetchCategories() {
     const res = await fetch("/api/admin/categories");
@@ -163,11 +181,11 @@ export default function AdminCategoriasPage() {
       )}
 
       {showModal && (
-        <div className={styles.overlay} onClick={() => setShowModal(false)}>
+        <div className={styles.overlay} onClick={tryCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editingId ? "Editar categoría" : "Nueva categoría"}</h2>
-              <button className={styles.closeBtn} onClick={() => setShowModal(false)}>
+              <button className={styles.closeBtn} onClick={tryCloseModal}>
                 <X size={20} />
               </button>
             </div>
@@ -208,12 +226,31 @@ export default function AdminCategoriasPage() {
               </div>
 
               <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setShowModal(false)}>Cancelar</button>
+                <button type="button" className={styles.cancelBtn} onClick={tryCloseModal}>Cancelar</button>
                 <button type="submit" className={styles.saveBtn} disabled={saving}>
                   {saving ? "Guardando..." : editingId ? "Guardar cambios" : "Crear"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showConfirmClose && (
+        <div className={styles.overlay} style={{ zIndex: 1100 }} onClick={() => setShowConfirmClose(false)}>
+          <div className={styles.modal} style={{ maxWidth: 400, padding: 24 }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: "0 0 8px", fontSize: "1.1rem", color: "#1f2937" }}>¿Salir del formulario?</h3>
+            <p style={{ margin: "0 0 20px", fontSize: "0.9rem", color: "#6b7280" }}>
+              Los datos ingresados se perderán si sales sin guardar.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button type="button" className={styles.cancelBtn} onClick={() => setShowConfirmClose(false)}>
+                Seguir editando
+              </button>
+              <button type="button" className={styles.deleteBtn} style={{ padding: "8px 20px" }} onClick={confirmCloseModal}>
+                Salir sin guardar
+              </button>
+            </div>
           </div>
         </div>
       )}

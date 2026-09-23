@@ -22,7 +22,7 @@ interface Distributor {
 }
 
 const PER_PAGE = 4;
-const MOCK_IMAGE = "/assets/images/linea-productos/pastilla-freno.webp";
+const MOCK_IMAGE = "/assets/images/categorias/pastilla-freno.webp";
 
 export default function Distribuidores() {
   const [distributors, setDistributors] = useState<Distributor[]>([]);

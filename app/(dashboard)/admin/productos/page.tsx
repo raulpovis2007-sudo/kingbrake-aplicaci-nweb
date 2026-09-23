@@ -131,6 +131,7 @@ export default function AdminProductosPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const replaceIndexRef = useRef<number>(-1);
@@ -230,6 +231,23 @@ export default function AdminProductosPage() {
     // Si es subcategoría, el padre es parentId; si es padre, es él mismo
     if (cat.parentId) return cat.parentId;
     return categoryId;
+  }
+
+  function isFormDirty() {
+    return !!(form.name || form.sku || form.description || form.images.length > 0 || form.compatibility.length > 0 || form.parentCategoryId);
+  }
+
+  function tryCloseModal() {
+    if (isFormDirty()) {
+      setShowConfirmClose(true);
+    } else {
+      setShowModal(false);
+    }
+  }
+
+  function confirmCloseModal() {
+    setShowConfirmClose(false);
+    setShowModal(false);
   }
 
   function openNew() {
@@ -381,11 +399,35 @@ export default function AdminProductosPage() {
     }));
   }
 
+  function buildPendingCompat(): CompatEntry | null {
+    if (compatLevel === "none") return null;
+    if (compatLevel === "model-only") {
+      if (!selModelId) return null;
+      const model = vehicleModels.find((m) => m.id === selModelId);
+      const brand = brands.find((b) => b.id === selBrandId);
+      if (!model || !brand) return null;
+      if (form.compatibility.some((c) => c.type === "model" && c.id === selModelId)) return null;
+      return { type: "model", id: selModelId, label: `${brand.name} ${model.name}` };
+    }
+    if (!selGenId) return null;
+    const gen = vehicleGenerations.find((g) => g.id === selGenId);
+    const model = vehicleModels.find((m) => m.id === selModelId);
+    const brand = brands.find((b) => b.id === selBrandId);
+    if (!gen || !model || !brand) return null;
+    if (form.compatibility.some((c) => c.type === "generation" && c.id === selGenId)) return null;
+    return { type: "generation", id: selGenId, label: `${brand.name} ${model.name} — ${gen.name}` };
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) { setError("El nombre es obligatorio"); return; }
     if (!form.sku.trim()) { setError("El SKU es obligatorio"); return; }
     if (!form.categoryId) { setError("Debe seleccionar una categoría"); return; }
+
+    const pending = buildPendingCompat();
+    const finalCompat = pending
+      ? [...form.compatibility, pending]
+      : form.compatibility;
 
     setSaving(true);
     setError("");
@@ -405,7 +447,7 @@ export default function AdminProductosPage() {
         featured: form.featured,
         isActive: form.isActive,
         categoryId: form.categoryId,
-        compatibility: form.compatibility.map((c) => ({ type: c.type, id: c.id })),
+        compatibility: finalCompat.map((c) => ({ type: c.type, id: c.id })),
       }),
     });
 
@@ -554,11 +596,11 @@ export default function AdminProductosPage() {
       )}
 
       {showModal && (
-        <div className={styles.overlay} onClick={() => setShowModal(false)}>
+        <div className={styles.overlay} onClick={tryCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editingId ? "Editar producto" : "Nuevo producto"}</h2>
-              <button className={styles.closeBtn} onClick={() => setShowModal(false)}><X size={20} /></button>
+              <button className={styles.closeBtn} onClick={tryCloseModal}><X size={20} /></button>
             </div>
             <form onSubmit={handleSave} className={styles.form}>
               {error && <div className={styles.error}>{error}</div>}
@@ -597,9 +639,9 @@ export default function AdminProductosPage() {
                   />
                 </div>
 
-                {/* ─── Línea de producto → Subcategoría (cascada) ─── */}
+                {/* ─── Categoría → Subcategoría (cascada) ─── */}
                 <div className={styles.field}>
-                  <label>Línea de producto *</label>
+                  <label>Categoría *</label>
                   <select
                     value={form.parentCategoryId}
                     onChange={(e) => {
@@ -608,7 +650,7 @@ export default function AdminProductosPage() {
                     }}
                     className={styles.select}
                   >
-                    <option value="">Seleccionar línea...</option>
+                    <option value="">Seleccionar categoría...</option>
                     {parentCategories.map((cat) => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
@@ -633,7 +675,7 @@ export default function AdminProductosPage() {
                       ))}
                     </select>
                     <span style={{ fontSize: "0.75rem", color: "#999" }}>
-                      Tipo específico dentro de {parentCategories.find((c) => c.id === form.parentCategoryId)?.name || "la línea"}
+                      Tipo específico dentro de {parentCategories.find((c) => c.id === form.parentCategoryId)?.name || "la categoría"}
                     </span>
                   </div>
                 )}
@@ -662,7 +704,22 @@ export default function AdminProductosPage() {
                       </select>
                       <select
                         value={selModelId}
-                        onChange={(e) => setSelModelId(e.target.value)}
+                        onChange={(e) => {
+                          const newModelId = e.target.value;
+                          setSelModelId(newModelId);
+                          if (compatLevel === "model-only" && newModelId) {
+                            const model = vehicleModels.find((m) => m.id === newModelId);
+                            const brand = brands.find((b) => b.id === selBrandId);
+                            if (model && brand && !form.compatibility.some((c) => c.type === "model" && c.id === newModelId)) {
+                              setForm((prev) => ({
+                                ...prev,
+                                compatibility: [...prev.compatibility, { type: "model", id: newModelId, label: `${brand.name} ${model.name}` }],
+                              }));
+                              setSelBrandId("");
+                              setSelModelId("");
+                            }
+                          }
+                        }}
                         className={styles.select}
                         disabled={!selBrandId}
                       >
@@ -671,11 +728,27 @@ export default function AdminProductosPage() {
                           <option key={m.id} value={m.id}>{m.name}</option>
                         ))}
                       </select>
-                      {/* Generación: solo visible para compat "full" */}
                       {compatLevel === "full" && (
                         <select
                           value={selGenId}
-                          onChange={(e) => setSelGenId(e.target.value)}
+                          onChange={(e) => {
+                            const newGenId = e.target.value;
+                            setSelGenId(newGenId);
+                            if (newGenId) {
+                              const gen = vehicleGenerations.find((g) => g.id === newGenId);
+                              const model = vehicleModels.find((m) => m.id === selModelId);
+                              const brand = brands.find((b) => b.id === selBrandId);
+                              if (gen && model && brand && !form.compatibility.some((c) => c.type === "generation" && c.id === newGenId)) {
+                                setForm((prev) => ({
+                                  ...prev,
+                                  compatibility: [...prev.compatibility, { type: "generation", id: newGenId, label: `${brand.name} ${model.name} — ${gen.name}` }],
+                                }));
+                                setSelBrandId("");
+                                setSelModelId("");
+                                setSelGenId("");
+                              }
+                            }
+                          }}
                           className={styles.select}
                           disabled={!selModelId}
                         >
@@ -685,19 +758,6 @@ export default function AdminProductosPage() {
                           ))}
                         </select>
                       )}
-                      <button
-                        type="button"
-                        className={styles.addBtn}
-                        onClick={addCompatibility}
-                        disabled={
-                          compatLevel === "full"
-                            ? !selGenId || form.compatibility.some((c) => c.type === "generation" && c.id === selGenId)
-                            : !selModelId || form.compatibility.some((c) => c.type === "model" && c.id === selModelId)
-                        }
-                        style={{ padding: "8px 16px", flexShrink: 0 }}
-                      >
-                        <Plus size={16} /> Agregar
-                      </button>
                     </div>
                     {form.compatibility.length > 0 && (
                       <div className={styles.compatList}>
@@ -804,12 +864,31 @@ export default function AdminProductosPage() {
               </div>
 
               <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setShowModal(false)}>Cancelar</button>
+                <button type="button" className={styles.cancelBtn} onClick={tryCloseModal}>Cancelar</button>
                 <button type="submit" className={styles.saveBtn} disabled={saving || uploading}>
                   {saving ? "Guardando..." : editingId ? "Guardar cambios" : "Crear producto"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showConfirmClose && (
+        <div className={styles.overlay} style={{ zIndex: 1100 }} onClick={() => setShowConfirmClose(false)}>
+          <div className={styles.modal} style={{ maxWidth: 400, padding: 24 }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: "0 0 8px", fontSize: "1.1rem", color: "#1f2937" }}>¿Salir del formulario?</h3>
+            <p style={{ margin: "0 0 20px", fontSize: "0.9rem", color: "#6b7280" }}>
+              Los datos ingresados se perderán si sales sin guardar.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button type="button" className={styles.cancelBtn} onClick={() => setShowConfirmClose(false)}>
+                Seguir editando
+              </button>
+              <button type="button" className={styles.deleteBtn} style={{ padding: "8px 20px" }} onClick={confirmCloseModal}>
+                Salir sin guardar
+              </button>
+            </div>
           </div>
         </div>
       )}

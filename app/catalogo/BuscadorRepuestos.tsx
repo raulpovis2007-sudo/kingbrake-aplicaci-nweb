@@ -45,13 +45,13 @@ type SearchState = "idle" | "loading" | "results" | "empty" | "error";
 
 export default function BuscadorRepuestos() {
   const searchParams = useSearchParams();
-  const lineaSlug = searchParams.get("linea") || "";
+  const categoriaSlug = searchParams.get("categoria") || "";
 
   const [categories, setCategories] = useState<ParentCategory[]>([]);
-  const linea = categories.find((c) => c.slug === lineaSlug);
+  const categoria = categories.find((c) => c.slug === categoriaSlug);
 
-  const isNoGen = NO_GEN_SLUGS.includes(lineaSlug);
-  const isNoFilter = NO_FILTER_SLUGS.includes(lineaSlug);
+  const isNoGen = NO_GEN_SLUGS.includes(categoriaSlug);
+  const isNoFilter = NO_FILTER_SLUGS.includes(categoriaSlug);
 
   const [brandId, setBrandId] = useState("");
   const [modelId, setModelId] = useState("");
@@ -64,7 +64,7 @@ export default function BuscadorRepuestos() {
   const [searchState, setSearchState] = useState<SearchState>("idle");
 
   const skipCascadeRef = useRef(false);
-  const cacheKey = `kb-catalog-${lineaSlug}`;
+  const cacheKey = `kb-catalog-${categoriaSlug}`;
 
   useEffect(() => {
     fetch("/api/categories")
@@ -76,7 +76,7 @@ export default function BuscadorRepuestos() {
   }, []);
 
   useEffect(() => {
-    if (!lineaSlug) return;
+    if (!categoriaSlug) return;
     try {
       const raw = sessionStorage.getItem(cacheKey);
       if (!raw) return;
@@ -130,9 +130,9 @@ export default function BuscadorRepuestos() {
   }, [modelId]);
 
   useEffect(() => {
-    if (!isNoFilter || !lineaSlug) return;
+    if (!isNoFilter || !categoriaSlug) return;
     setSearchState("loading");
-    fetch(`/api/products?linea=${lineaSlug}`)
+    fetch(`/api/products?categoria=${categoriaSlug}`)
       .then((r) => r.json())
       .then((data: Product[]) => {
         if (Array.isArray(data)) {
@@ -149,12 +149,12 @@ export default function BuscadorRepuestos() {
         }
       })
       .catch(() => setSearchState("error"));
-  }, [isNoFilter, lineaSlug, cacheKey]);
+  }, [isNoFilter, categoriaSlug, cacheKey]);
 
-  const prevLineaRef = useRef(lineaSlug);
+  const prevCategoriaRef = useRef(categoriaSlug);
   useEffect(() => {
-    if (prevLineaRef.current === lineaSlug) return;
-    prevLineaRef.current = lineaSlug;
+    if (prevCategoriaRef.current === categoriaSlug) return;
+    prevCategoriaRef.current = categoriaSlug;
     setBrandId("");
     setModelId("");
     setGenerationId("");
@@ -162,13 +162,13 @@ export default function BuscadorRepuestos() {
       setSearchState("idle");
       setProducts([]);
     }
-  }, [lineaSlug, isNoFilter]);
+  }, [categoriaSlug, isNoFilter]);
 
   const canSearch = isNoFilter
     ? false
     : isNoGen
-      ? !!(lineaSlug && brandId && modelId)
-      : !!(lineaSlug && brandId && modelId && generationId);
+      ? !!(categoriaSlug && brandId && modelId)
+      : !!(categoriaSlug && brandId && modelId && generationId);
 
   const handleSearch = useCallback(async () => {
     if (!canSearch) return;
@@ -178,7 +178,7 @@ export default function BuscadorRepuestos() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          linea: lineaSlug,
+          categoria: categoriaSlug,
           brandId,
           modelId: modelId || undefined,
           generationId: generationId || undefined,
@@ -199,7 +199,7 @@ export default function BuscadorRepuestos() {
     } catch {
       setSearchState("error");
     }
-  }, [canSearch, lineaSlug, brandId, modelId, generationId, brands, models, generations, cacheKey]);
+  }, [canSearch, categoriaSlug, brandId, modelId, generationId, brands, models, generations, cacheKey]);
 
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(products.length / PER_PAGE));
@@ -212,20 +212,20 @@ export default function BuscadorRepuestos() {
     setPage(1);
   }, [products]);
 
-  if (!lineaSlug || !linea) {
+  if (!categoriaSlug || !categoria) {
     return (
       <div className={styles.wrapper}>
-        <div className={styles.lineaPicker}>
-          <h1 className={styles.lineaPickerTitle}>Buscar repuestos</h1>
-          <p className={styles.lineaPickerText}>
-            Selecciona una línea de producto para comenzar
+        <div className={styles.categoriaPicker}>
+          <h1 className={styles.categoriaPickerTitle}>Buscar repuestos</h1>
+          <p className={styles.categoriaPickerText}>
+            Selecciona una categoría para comenzar
           </p>
-          <div className={styles.lineaGrid}>
+          <div className={styles.categoriaGrid}>
             {categories.map((c) => (
               <Link
                 key={c.slug}
-                href={`/catalogo?linea=${c.slug}`}
-                className={styles.lineaCard}
+                href={`/catalogo?categoria=${c.slug}`}
+                className={styles.categoriaCard}
               >
                 <span>{c.name}</span>
               </Link>
@@ -238,12 +238,12 @@ export default function BuscadorRepuestos() {
 
   return (
     <div className={styles.wrapper}>
-      <nav className={styles.lineaTabs} aria-label="Líneas de producto">
+      <nav className={styles.categoriaTabs} aria-label="Categorías">
         {categories.map((c) => (
           <Link
             key={c.slug}
-            href={`/catalogo?linea=${c.slug}`}
-            className={`${styles.lineaTab} ${c.slug === lineaSlug ? styles.lineaTabActive : ""}`}
+            href={`/catalogo?categoria=${c.slug}`}
+            className={`${styles.categoriaTab} ${c.slug === categoriaSlug ? styles.categoriaTabActive : ""}`}
           >
             {c.name}
           </Link>

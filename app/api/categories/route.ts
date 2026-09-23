@@ -13,7 +13,7 @@ export async function GET() {
         icon: true,
         order: true,
         children: {
-          select: { id: true, name: true, slug: true },
+          select: { id: true, name: true, slug: true, icon: true },
           orderBy: { order: "asc" },
         },
         _count: { select: { products: true } },

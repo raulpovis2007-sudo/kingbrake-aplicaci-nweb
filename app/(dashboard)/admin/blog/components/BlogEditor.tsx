@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Eye, EyeOff, ArrowLeft, Monitor, Smartphone, Upload, Loader2 } from "lucide-react";
 import styles from "./BlogEditor.module.css";
@@ -57,6 +57,16 @@ export default function BlogEditor({
   originalSlug,
 }: BlogEditorProps) {
   const router = useRouter();
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -95,12 +105,12 @@ export default function BlogEditor({
     (field: keyof PostData, value: string | boolean) => {
       setFormData((prev) => {
         const updated = { ...prev, [field]: value };
-        // Auto-generate slug from title for new posts
         if (field === "title" && !isEditing) {
           updated.slug = generateSlug(value as string);
         }
         return updated;
       });
+      dirtyRef.current = true;
     },
     [isEditing]
   );
@@ -124,6 +134,7 @@ export default function BlogEditor({
 
       if (response.ok) {
         handleChange("coverImage", data.url);
+        dirtyRef.current = true;
       } else {
         alert(data.error || "Error al subir la imagen");
       }
@@ -162,6 +173,7 @@ export default function BlogEditor({
       });
 
       if (response.ok) {
+        dirtyRef.current = false;
         router.push("/admin/blog");
         router.refresh();
       } else {

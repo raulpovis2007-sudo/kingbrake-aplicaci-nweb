@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Upload, X, Loader2, ImageIcon } from "lucide-react";
@@ -19,6 +19,15 @@ export default function NuevoBannerPage() {
   const isVideo = bannerType === "NOSOTROS_VIDEO";
   const typeLabel = TYPE_LABELS[bannerType] || "Banner";
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dirtyRef = useRef(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (dirtyRef.current) e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -35,6 +44,7 @@ export default function NuevoBannerPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    dirtyRef.current = true;
     setError(null);
   };
 
@@ -79,6 +89,7 @@ export default function NuevoBannerPage() {
       if (!cloudRes.ok) throw new Error(cloudData.error?.message || "Error al subir imagen");
 
       setFormData((prev) => ({ ...prev, image: cloudData.secure_url }));
+      dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir imagen");
     } finally {
@@ -115,6 +126,7 @@ export default function NuevoBannerPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al crear");
+      dirtyRef.current = false;
       router.push(`/admin/banners?type=${bannerType}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");

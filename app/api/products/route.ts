@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
-  const lineaSlug = req.nextUrl.searchParams.get("linea");
-  if (!lineaSlug) {
-    return NextResponse.json({ error: "Parámetro linea requerido" }, { status: 400 });
+  const categoriaSlug = req.nextUrl.searchParams.get("categoria");
+  if (!categoriaSlug) {
+    return NextResponse.json({ error: "Parámetro categoria requerido" }, { status: 400 });
   }
 
   try {
@@ -12,8 +12,8 @@ export async function GET(req: NextRequest) {
       where: {
         isActive: true,
         OR: [
-          { category: { slug: lineaSlug } },
-          { category: { parent: { slug: lineaSlug } } },
+          { category: { slug: categoriaSlug } },
+          { category: { parent: { slug: categoriaSlug } } },
         ],
       },
       select: {

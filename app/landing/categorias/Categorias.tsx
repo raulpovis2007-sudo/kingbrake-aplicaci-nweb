@@ -2,17 +2,25 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Crown } from "lucide-react";
-import styles from "./LineaProductos.module.css";
+import styles from "./Categorias.module.css";
+
+interface SubCategory {
+  id: string;
+  name: string;
+  slug: string;
+  icon: string | null;
+}
 
 interface ParentCategory {
   id: string;
   name: string;
   slug: string;
-  children: { id: string; name: string; slug: string }[];
+  children: SubCategory[];
 }
 
-export default function LineaProductos() {
+export default function Categorias() {
   const [categories, setCategories] = useState<ParentCategory[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -28,12 +36,10 @@ export default function LineaProductos() {
   if (categories.length === 0) return null;
 
   const cat = categories[activeIndex];
-  const items = cat.children.length > 0
-    ? cat.children.map((sub) => ({ nombre: sub.name, href: `/catalogo?linea=${cat.slug}` }))
-    : [{ nombre: cat.name, href: `/catalogo?linea=${cat.slug}` }];
+  const subs = cat.children;
 
   return (
-    <section className={styles.wrapper} id="linea-productos">
+    <section className={styles.wrapper} id="categorias">
       <div className={styles.container}>
         <div className={styles.titleBlock}>
           <Crown size={28} className={styles.accentIcon} />
@@ -54,19 +60,33 @@ export default function LineaProductos() {
           ))}
         </div>
 
-        <div className={styles.collage}>
-          {items.map((item) => (
-            <Link key={item.nombre} href={item.href} className={styles.card}>
-              <div className={styles.cardContent}>
-                <span className={styles.cardName}>{item.nombre}</span>
-                <span className={styles.cardCta}>Ver más →</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {subs.length > 0 && (
+          <div className={styles.collage}>
+            {subs.map((sub) => (
+              <Link key={sub.slug} href={`/subcategoria/${sub.slug}`} className={styles.card}>
+                {sub.icon?.startsWith("http") && (
+                  <div className={styles.cardImageBox}>
+                    <Image
+                      src={sub.icon}
+                      alt={sub.name}
+                      fill
+                      sizes="(max-width: 600px) 50vw, 350px"
+                      className={styles.cardImage}
+                    />
+                    <div className={styles.cardOverlay} />
+                  </div>
+                )}
+                <div className={styles.cardContent}>
+                  <span className={styles.cardName}>{sub.name}</span>
+                  <span className={styles.cardCta}>Ver más →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className={styles.actions}>
-          <Link href={`/catalogo?linea=${cat.slug}`} className={styles.btnCatalogo}>
+          <Link href={`/catalogo?categoria=${cat.slug}`} className={styles.btnCatalogo}>
             Ir a catálogo
           </Link>
         </div>

@@ -108,6 +108,7 @@
   align-items: flex-end;
   text-decoration: none;
   cursor: pointer;
+  background: #0e1469;
 }
 
 .cardImageBox {

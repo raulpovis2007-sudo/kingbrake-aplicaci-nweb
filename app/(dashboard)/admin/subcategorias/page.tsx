@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Pencil, Trash2, Plus, X, FolderTree } from "lucide-react";
+import Image from "next/image";
+import { Pencil, Trash2, Plus, X, FolderTree, Upload } from "lucide-react";
 import styles from "../categorias/AdminCategorias.module.css";
 
 interface Category {
@@ -25,6 +26,22 @@ interface FormData {
 
 const EMPTY_FORM: FormData = { name: "", description: "", icon: "", parentId: "" };
 
+async function uploadImage(file: File): Promise<string> {
+  const sigRes = await fetch("/api/admin/categories/upload-signature", { method: "POST" });
+  if (!sigRes.ok) throw new Error("Error al obtener firma");
+  const { signature, timestamp, cloudName, apiKey, folder } = await sigRes.json();
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("signature", signature);
+  fd.append("timestamp", timestamp.toString());
+  fd.append("api_key", apiKey);
+  fd.append("folder", folder);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: fd });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || "Error al subir");
+  return data.secure_url;
+}
+
 export default function AdminSubcategoriasPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +52,25 @@ export default function AdminSubcategoriasPage() {
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
   const [filterParent, setFilterParent] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [showConfirmClose, setShowConfirmClose] = useState(false);
+
+  function isFormDirty() {
+    return !!(form.name || form.description || form.icon || form.parentId);
+  }
+
+  function tryCloseModal() {
+    if (isFormDirty()) {
+      setShowConfirmClose(true);
+    } else {
+      setShowModal(false);
+    }
+  }
+
+  function confirmCloseModal() {
+    setShowConfirmClose(false);
+    setShowModal(false);
+  }
 
   async function fetchCategories() {
     const res = await fetch("/api/admin/categories");
@@ -176,7 +212,11 @@ export default function AdminSubcategoriasPage() {
                         {("parentName" in sub) ? (sub as any).parentName : "—"}
                       </td>
                       <td className={styles.nameCell}>
-                        {sub.icon && <span className={styles.icon}>{sub.icon}</span>}
+                        {sub.icon?.startsWith("http") && (
+                          <span style={{ display: "inline-block", width: 32, height: 32, borderRadius: 4, overflow: "hidden", verticalAlign: "middle", marginRight: 8, position: "relative" }}>
+                            <Image src={sub.icon} alt="" fill style={{ objectFit: "cover" }} sizes="32px" />
+                          </span>
+                        )}
                         {sub.name}
                       </td>
                       <td className={styles.slug}>{sub.slug}</td>
@@ -206,11 +246,11 @@ export default function AdminSubcategoriasPage() {
       )}
 
       {showModal && (
-        <div className={styles.overlay} onClick={() => setShowModal(false)}>
+        <div className={styles.overlay} onClick={tryCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editingId ? "Editar subcategoría" : "Nueva subcategoría"}</h2>
-              <button className={styles.closeBtn} onClick={() => setShowModal(false)}>
+              <button className={styles.closeBtn} onClick={tryCloseModal}>
                 <X size={20} />
               </button>
             </div>
@@ -253,23 +293,73 @@ export default function AdminSubcategoriasPage() {
               </div>
 
               <div className={styles.field}>
-                <label>Icono (emoji o identificador)</label>
-                <input
-                  type="text"
-                  value={form.icon}
-                  onChange={(e) => setForm((p) => ({ ...p, icon: e.target.value }))}
-                  placeholder="Ej: 🔧"
-                  maxLength={20}
-                />
+                <label>Imagen</label>
+                {form.icon && (
+                  <div style={{ marginBottom: 8, position: "relative", width: 120, height: 120, borderRadius: 8, overflow: "hidden", border: "1px solid #e5e7eb" }}>
+                    <Image src={form.icon} alt="Preview" fill style={{ objectFit: "cover" }} />
+                    <button
+                      type="button"
+                      onClick={() => setForm((p) => ({ ...p, icon: "" }))}
+                      style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: "50%", width: 24, height: 24, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
+                <label
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 16px", border: "1.5px dashed #d1d5db", borderRadius: 8, cursor: uploading ? "wait" : "pointer", fontSize: "0.875rem", color: "#6b7280" }}
+                >
+                  <Upload size={16} />
+                  {uploading ? "Subiendo..." : "Subir imagen"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    disabled={uploading}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 5 * 1024 * 1024) { setError("La imagen no debe superar 5MB"); return; }
+                      setUploading(true);
+                      try {
+                        const url = await uploadImage(file);
+                        setForm((p) => ({ ...p, icon: url }));
+                      } catch {
+                        setError("Error al subir la imagen");
+                      } finally {
+                        setUploading(false);
+                      }
+                    }}
+                  />
+                </label>
               </div>
 
               <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setShowModal(false)}>Cancelar</button>
+                <button type="button" className={styles.cancelBtn} onClick={tryCloseModal}>Cancelar</button>
                 <button type="submit" className={styles.saveBtn} disabled={saving}>
                   {saving ? "Guardando..." : editingId ? "Guardar cambios" : "Crear"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showConfirmClose && (
+        <div className={styles.overlay} style={{ zIndex: 1100 }} onClick={() => setShowConfirmClose(false)}>
+          <div className={styles.modal} style={{ maxWidth: 400, padding: 24 }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: "0 0 8px", fontSize: "1.1rem", color: "#1f2937" }}>¿Salir del formulario?</h3>
+            <p style={{ margin: "0 0 20px", fontSize: "0.9rem", color: "#6b7280" }}>
+              Los datos ingresados se perderán si sales sin guardar.
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button type="button" className={styles.cancelBtn} onClick={() => setShowConfirmClose(false)}>
+                Seguir editando
+              </button>
+              <button type="button" className={styles.deleteBtn} style={{ padding: "8px 20px" }} onClick={confirmCloseModal}>
+                Salir sin guardar
+              </button>
+            </div>
           </div>
         </div>
       )}

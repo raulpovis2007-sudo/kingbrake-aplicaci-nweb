@@ -106,7 +106,7 @@ const CIFRAS = [
   { valor: 15, sufijo: "+", label: "Años de experiencia" },
   { valor: 1000, sufijo: "+", label: "Aplicaciones" },
   { valor: 50, sufijo: "+", label: "Puntos de Venta" },
-  { valor: 10, sufijo: "+", label: "Líneas de Producto" },
+  { valor: 10, sufijo: "+", label: "Categorías de Producto" },
 ];
 
 const TIMELINE = [
