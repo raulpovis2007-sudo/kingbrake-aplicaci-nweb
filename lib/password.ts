@@ -1,3 +1,5 @@
+import { randomInt } from 'crypto';
+
 /**
  * Utilidades para generación y validación de contraseñas seguras
  */
@@ -19,16 +21,16 @@ export function generateSecurePassword(length: number = 16): string {
 
   // Asegurar al menos un caracter de cada tipo
   const password: string[] = [
-    UPPERCASE[Math.floor(Math.random() * UPPERCASE.length)],
-    LOWERCASE[Math.floor(Math.random() * LOWERCASE.length)],
-    NUMBERS[Math.floor(Math.random() * NUMBERS.length)],
-    SPECIAL[Math.floor(Math.random() * SPECIAL.length)],
+    UPPERCASE[randomInt(UPPERCASE.length)],
+    LOWERCASE[randomInt(LOWERCASE.length)],
+    NUMBERS[randomInt(NUMBERS.length)],
+    SPECIAL[randomInt(SPECIAL.length)],
   ];
 
   // Completar el resto con caracteres aleatorios de todos los tipos
   const allChars = UPPERCASE + LOWERCASE + NUMBERS + SPECIAL;
   for (let i = password.length; i < finalLength; i++) {
-    password.push(allChars[Math.floor(Math.random() * allChars.length)]);
+    password.push(allChars[randomInt(allChars.length)]);
   }
 
   // Mezclar los caracteres para que no siempre estén en el mismo orden
@@ -41,7 +43,7 @@ export function generateSecurePassword(length: number = 16): string {
 function shuffleArray<T>(array: T[]): T[] {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomInt(i + 1);
     [result[i], result[j]] = [result[j], result[i]];
   }
   return result;
