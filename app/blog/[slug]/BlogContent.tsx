@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useMemo } from "react";
 import DOMPurify from "dompurify";
+import sanitizeHtml from "sanitize-html";
 import styles from "./BlogPost.module.css";
 
 interface BlogContentProps {
@@ -13,6 +14,42 @@ interface TocItem {
   text: string;
   level: number;
 }
+
+// Opciones de sanitización robusta para el blog en el servidor
+const sanitizeHtmlOptions: sanitizeHtml.IOptions = {
+  allowedTags: [
+    ...sanitizeHtml.defaults.allowedTags,
+    "img",
+    "iframe",
+    "figure",
+    "figcaption",
+    "h1",
+  ],
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    "*": ["class", "id", "style"],
+    a: ["href", "name", "target", "rel"],
+    img: ["src", "srcset", "alt", "title", "width", "height", "loading"],
+    iframe: [
+      "src",
+      "width",
+      "height",
+      "frameborder",
+      "allowfullscreen",
+      "allow",
+      "loading",
+    ],
+  },
+  allowedIframeHostnames: [
+    "www.youtube.com",
+    "youtube.com",
+    "player.vimeo.com",
+    "www.instagram.com",
+    "instagram.com",
+    "www.tiktok.com",
+    "tiktok.com",
+  ],
+};
 
 // Limpiar el HTML de caracteres problemáticos
 function cleanHtmlContent(html: string): string {
@@ -54,15 +91,19 @@ export default function BlogContent({ content }: BlogContentProps) {
 
   const { html: cleanedContent, toc } = useMemo(() => {
     const cleaned = cleanHtmlContent(content);
-    // DOMPurify requires a browser DOM — skip sanitization during SSR prerender
+    // Capa 1 (Server-side & SSR): sanitizar HTML antes de cualquier renderizado
+    const serverSanitized = sanitizeHtml(cleaned, sanitizeHtmlOptions);
+
+    // Capa 2 (Client-side): DOMPurify en el navegador como segunda barrera de defensa
     const sanitized =
       typeof window !== "undefined"
-        ? DOMPurify.sanitize(cleaned, {
+        ? DOMPurify.sanitize(serverSanitized, {
             ADD_TAGS: ["iframe"],
             ADD_ATTR: ["target", "allowfullscreen", "frameborder", "allow", "loading"],
             ALLOW_DATA_ATTR: false,
           })
-        : cleaned;
+        : serverSanitized;
+
     return processContent(sanitized);
   }, [content]);
 
