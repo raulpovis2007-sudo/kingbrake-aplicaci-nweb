@@ -1,4 +1,5 @@
 // services/auth.service.ts
+import { randomInt } from "crypto";
 import { LoginFormData, RegisterFormData } from "@/app/(auth)/login/types";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
@@ -65,7 +66,7 @@ export async function registerUser(payload: RegisterFormData) {
 // ============================================
 
 export async function generateAndSendOTP(email: string, name: string) {
-  const code = String(Math.floor(100000 + Math.random() * 900000)); // 6 dígitos
+  const code = randomInt(100000, 1000000).toString(); // 6 dígitos criptográficamente seguros
   const hashedCode = await bcrypt.hash(code, 10);
   const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
