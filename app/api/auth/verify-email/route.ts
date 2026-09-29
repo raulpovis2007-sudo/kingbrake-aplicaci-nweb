@@ -4,7 +4,7 @@ import { rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   // Rate limit: 5 intentos por IP cada 15 minutos (previene brute force del OTP)
-  const blocked = rateLimitResponse(req, "verify-email", 5, 15 * 60 * 1000);
+  const blocked = await rateLimitResponse(req, "verify-email", 5, 15 * 60 * 1000);
   if (blocked) return blocked;
 
   const { email, code } = await req.json();

@@ -14,7 +14,7 @@ function hashToken(token: string): string {
 
 export async function POST(req: Request) {
   // Rate limit: 3 solicitudes por IP cada 15 minutos
-  const blocked = rateLimitResponse(req, "forgot-password", 3, 15 * 60 * 1000);
+  const blocked = await rateLimitResponse(req, "forgot-password", 3, 15 * 60 * 1000);
   if (blocked) return blocked;
 
   const { email } = await req.json();
