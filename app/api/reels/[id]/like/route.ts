@@ -13,7 +13,7 @@ export async function POST(
 ) {
   try {
     // Rate limit: 10 likes por IP por minuto
-    const blocked = rateLimitResponse(_req, "reel-like", 10, 60 * 1000);
+    const blocked = await rateLimitResponse(_req, "reel-like", 10, 60 * 1000);
     if (blocked) return blocked;
 
     const { id } = await params;

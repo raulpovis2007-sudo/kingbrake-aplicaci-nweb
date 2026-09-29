@@ -17,7 +17,7 @@ export async function POST(
 ) {
   try {
     // Rate limit: 30 views por IP por minuto
-    const blocked = rateLimitResponse(_req, "reel-view", 30, 60 * 1000);
+    const blocked = await rateLimitResponse(_req, "reel-view", 30, 60 * 1000);
     if (blocked) return blocked;
 
     const { id } = await params;

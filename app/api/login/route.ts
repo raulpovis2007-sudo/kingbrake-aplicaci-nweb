@@ -7,7 +7,7 @@ import { rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   // Rate limit: 10 intentos por IP cada 15 minutos
-  const blocked = rateLimitResponse(req, "login", 10, 15 * 60 * 1000);
+  const blocked = await rateLimitResponse(req, "login", 10, 15 * 60 * 1000);
   if (blocked) return blocked;
 
   try {
