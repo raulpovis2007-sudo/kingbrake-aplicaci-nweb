@@ -4,6 +4,14 @@ import crypto from "crypto";
 import { getResendClient, EMAIL_FROM } from "@/lib/email/resend";
 import { rateLimitResponse } from "@/lib/rate-limit";
 
+/**
+ * Hashea un token con SHA-256 para almacenamiento seguro en BD.
+ * El token en texto plano NUNCA se persiste; solo se envía por email al usuario.
+ */
+function hashToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
 export async function POST(req: Request) {
   // Rate limit: 3 solicitudes por IP cada 15 minutos
   const blocked = rateLimitResponse(req, "forgot-password", 3, 15 * 60 * 1000);
@@ -42,20 +50,24 @@ export async function POST(req: Request) {
   // Usuarios de Google sin contraseña no pueden resetear por este flujo
   if (!user.password && user.accounts.length > 0) return okResponse;
 
-  // Generar token único
+  // Generar token único en texto plano (solo para enviar al usuario por email)
   const rawToken = crypto.randomBytes(32).toString("hex");
+  // Hashear con SHA-256 antes de persistir en BD
+  const hashedToken = hashToken(rawToken);
   const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
   const identifier = `reset:${normalizedEmail}`;
 
   // Single DB round trip: delete old tokens + insert new in one statement
+  // Se guarda el hash del token, NUNCA el token en texto plano
   await db.$executeRaw`
     WITH deleted AS (
       DELETE FROM "VerificationToken" WHERE identifier = ${identifier}
     )
     INSERT INTO "VerificationToken" (identifier, token, expires)
-    VALUES (${identifier}, ${rawToken}, ${expires})
+    VALUES (${identifier}, ${hashedToken}, ${expires})
   `;
 
+  // El rawToken (texto plano) solo viaja por email — jamás toca la BD
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${rawToken}`;
 
   const resend = getResendClient();
