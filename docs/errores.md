@@ -86,10 +86,11 @@ _(Errores visibles y roturas que afectan directamente a los usuarios en vivo)_
   * **Solución requerida:** Reemplazar las imágenes temporales por imágenes reales optimizadas en Cloudinary o assets del proyecto.  
   * **Ubicación:** Panel admin → `/admin/blog`
 
-- [ ] **08. CSP bloquea embeds de Instagram y TikTok**  
+- [x] **08. CSP bloquea embeds de Instagram y TikTok**  
   * **Problema:** Los videos Reels incrustados se rompen en producción debido a que la Content Security Policy (CSP) no tiene los dominios de iframe autorizados.  
   * **Solución requerida:** Agregar los dominios permitidos (`instagram.com`, `www.instagram.com`, `tiktok.com`, `www.tiktok.com`, etc.) a la directiva `frame-src` en la configuración de cabeceras de seguridad.  
-  * **Ubicación:** `next.config.mjs` (Línea 202)
+  * **Ubicación:** `next.config.mjs` (Línea 187)  
+  * _Resuelto:_ Se ampliaron los orígenes de `frame-src` en la directiva CSP de `next.config.mjs` para autorizar Instagram (`instagram.com`, `www.instagram.com`, `*.instagram.com`), TikTok (`tiktok.com`, `www.tiktok.com`, `*.tiktok.com`), YouTube (`youtube.com`, `www.youtube-nocookie.com`), Google Maps (`maps.google.com`) y Libro de Reclamaciones (`app.reclamovirtual.pe`).
 
 - [ ] **09. Cron `/api/cron/cleanup` configurado en `vercel.json` pero la ruta NO EXISTE**  
   * **Problema:** Vercel ejecuta una tarea programada diaria que devuelve error HTTP 404 continuo en los logs del servidor.  
@@ -273,11 +274,11 @@ Aspectos positivos validados durante la auditoría que deben preservarse:
 | Categoría | Total Hallazgos | Estado |
 | :--- | :---: | :---: |
 | 🔴 **Fase 1 — Críticos de Seguridad** | 4 | **4 / 4 Completadas `[x]`** |
-| 🟠 **Fase 2 — Críticos de Producción** | 9 | **1 / 9 Completadas** (8 pendientes) |
+| 🟠 **Fase 2 — Críticos de Producción** | 9 | **2 / 9 Completadas** (7 pendientes) |
 | 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | Pendientes `[ ]` |
 | 🔵 **Fase 4 — Limpieza y Detalles** | 10 | Pendientes `[ ]` |
 | ✅ **Fortalezas y Buenas Prácticas** | 10 | Validadas |
-| **TOTAL TAREAS ACCIONABLES** | **38** | **5 / 38 completadas** |
+| **TOTAL TAREAS ACCIONABLES** | **38** | **6 / 38 completadas** |
 
 > ⏱️ **Tiempo estimado total para resolución completa:** ~2 horas de desarrollo enfocado.  
 > 💡 *Recuerda: Cada vez que un agente o desarrollador resuelva un ítem, debe marcar el check `- [x]` correspondiente en este archivo para mantener la sincronización.*

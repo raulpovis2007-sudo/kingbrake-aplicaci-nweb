@@ -184,7 +184,7 @@ const nextConfig = {
               "media-src 'self' https://res.cloudinary.com",
               "font-src 'self' https://fonts.gstatic.com",
               "connect-src 'self' https://api.cloudinary.com https://maps.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.facebook.com https://analytics.tiktok.com",
-              "frame-src 'self' https://www.google.com https://www.youtube.com",
+              "frame-src 'self' https://www.google.com https://maps.google.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://instagram.com https://*.instagram.com https://www.tiktok.com https://tiktok.com https://*.tiktok.com https://app.reclamovirtual.pe",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
