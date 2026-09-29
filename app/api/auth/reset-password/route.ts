@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { rateLimitResponse } from "@/lib/rate-limit";
+
+/**
+ * Hashea el token recibido por URL con SHA-256 para compararlo
+ * contra el hash almacenado en BD (nunca se guarda el token en texto plano).
+ */
+function hashToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 export async function POST(req: Request) {
   // Rate limit: 5 intentos por IP cada 15 minutos
@@ -18,9 +27,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "La contraseña debe tener al menos 8 caracteres." }, { status: 400 });
   }
 
-  // Buscar el token
+  // Hashear el token recibido para buscarlo en BD (donde solo existe el hash)
+  const hashedToken = hashToken(token);
+
+  // Buscar por el hash del token, no por el token en texto plano
   const record = await db.verificationToken.findUnique({
-    where: { token },
+    where: { token: hashedToken },
   });
 
   if (!record || !record.identifier.startsWith("reset:")) {
@@ -28,20 +40,20 @@ export async function POST(req: Request) {
   }
 
   if (record.expires < new Date()) {
-    await db.verificationToken.delete({ where: { token } });
+    await db.verificationToken.delete({ where: { token: hashedToken } });
     return NextResponse.json({ error: "El enlace ha expirado. Solicita uno nuevo." }, { status: 400 });
   }
 
   const email = record.identifier.replace("reset:", "");
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 12);
 
   await db.$transaction([
     db.user.update({
       where: { email },
       data: { password: hashedPassword },
     }),
-    db.verificationToken.delete({ where: { token } }),
+    db.verificationToken.delete({ where: { token: hashedToken } }),
   ]);
 
   return NextResponse.json({ message: "Contraseña actualizada correctamente." });
