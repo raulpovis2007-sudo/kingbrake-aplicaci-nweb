@@ -41,25 +41,29 @@ Este documento actúa como la **memoria central y única fuente de verdad** del 
 ## 🔴 FASE 1 — CRÍTICOS DE SEGURIDAD
 _(Corregir de inmediato, riesgo de hackeo y vulnerabilidad crítica)_
 
-- [ ] **01. `Math.random()` inseguro para generar códigos OTP y contraseñas**  
+- [x] **01. `Math.random()` inseguro para generar códigos OTP y contraseñas**  
   * **Problema:** Generación predecible de números pseudoaleatorios. Un atacante puede predecir códigos OTP de verificación o contraseñas temporales.  
   * **Solución requerida:** Reemplazar por `crypto.randomInt()` nativo de Node.js o `crypto.getRandomValues()`.  
-  * **Ubicación:** `lib/password.ts` y `services/auth/auth.server.ts`
+  * **Ubicación:** `lib/password.ts` y `services/auth/auth.server.ts`  
+  * _Resuelto (rama `fix/replace-math-random`):_ Reemplazado `Math.random()` por `crypto.randomInt()` nativo de Node.js en `lib/password.ts` (generación de contraseñas y algoritmo Fisher-Yates) y `services/auth/auth.server.ts` (código OTP de 6 dígitos criptográficamente seguro).
 
-- [ ] **02. Tokens de reset de contraseña guardados en TEXTO PLANO en la BD**  
+- [x] **02. Tokens de reset de contraseña guardados en TEXTO PLANO en la BD**  
   * **Problema:** Si la base de datos se filtra o se expone por una brecha, todos los tokens de restablecimiento activos quedan expuestos, comprometiendo cuentas de usuarios.  
   * **Solución requerida:** Hashear los tokens con SHA-256 antes de guardarlos en la BD y comparar hashes al validar la solicitud.  
-  * **Ubicación:** `app/api/auth/forgot-password/route.ts`
+  * **Ubicación:** `app/api/auth/forgot-password/route.ts`  
+  * _Resuelto (rama `fix/02-hash-reset-tokens`):_ Se hashean los tokens con `crypto.createHash('sha256')` antes de guardarlos en BD en `forgot-password`. Al validar el reseteo en `reset-password`, se hashea el token recibido y se compara/elimina por el hash. El token en texto plano solo viaja por email al usuario.
 
-- [ ] **03. Rate limiting en memoria (`Map`) inefectivo en Vercel Serverless**  
+- [x] **03. Rate limiting en memoria (`Map`) inefectivo en Vercel Serverless**  
   * **Problema:** `Map` en memoria local NO funciona en entornos serverless multi-instancia de Vercel (cada invocación/lambda tiene su propia memoria aislada). Además, la IP se puede falsificar fácilmente manipulando `X-Forwarded-For`.  
   * **Solución requerida:** Migrar la capa de rate limiting a Redis distribuido (ej. Upstash Redis `@upstash/ratelimit`) y sanitizar la obtención de la IP real.  
-  * **Ubicación:** `lib/rate-limit.ts`
+  * **Ubicación:** `lib/rate-limit.ts`  
+  * _Resuelto (rama `fix/03-rate-limit-upstash-redis`):_ Migrado rate limiting a `@upstash/ratelimit` y `@upstash/redis` distribuido con fallback graceful en memoria local (`console.warn`) cuando no hay credenciales configuradas. Sanitización estricta de IPs con validación `net.isIP` y prioridad a cabeceras de infraestructura (`x-vercel-forwarded-for`, `cf-connecting-ip`, `x-real-ip`).
 
-- [ ] **04. Vulnerabilidad XSS en Blog**  
+- [x] **04. Vulnerabilidad XSS en Blog**  
   * **Problema:** `DOMPurify` solo sanitiza en el navegador del cliente. El servidor renderiza el HTML crudo sin sanitización previa en SSR / hydration inicial. Un atacante con acceso a la creación de posts puede inyectar scripts maliciosos.  
   * **Solución requerida:** Implementar sanitización server-side (usando `isomorphic-dompurify` o `sanitize-html`) antes de inyectar el HTML en el DOM.  
-  * **Ubicación:** `app/blog/[slug]/BlogContent.tsx`
+  * **Ubicación:** `app/blog/[slug]/BlogContent.tsx`  
+  * _Resuelto (rama `fix/04-xss-server-side-sanitization`):_ Implementada sanitización previa en server-side / SSR usando `sanitize-html` con whitelist de tags y atributos permitidos para el blog, manteniendo `DOMPurify` en el navegador del cliente como segunda capa de defensa.
 
 ---
 
@@ -267,12 +271,12 @@ Aspectos positivos validados durante la auditoría que deben preservarse:
 ## 📊 RESUMEN FINAL DE LA AUDITORÍA
 | Categoría | Total Hallazgos | Estado |
 | :--- | :---: | :---: |
-| 🔴 **Fase 1 — Críticos de Seguridad** | 4 | Pendientes `[ ]` |
+| 🔴 **Fase 1 — Críticos de Seguridad** | 4 | ✅ 4 / 4 completadas |
 | 🟠 **Fase 2 — Críticos de Producción** | 9 | Pendientes `[ ]` |
 | 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | Pendientes `[ ]` |
 | 🔵 **Fase 4 — Limpieza y Detalles** | 10 | Pendientes `[ ]` |
 | ✅ **Fortalezas y Buenas Prácticas** | 10 | Validadas |
-| **TOTAL TAREAS ACCIONABLES** | **38** | **0 / 38 completadas** |
+| **TOTAL TAREAS ACCIONABLES** | **38** | **4 / 38 completadas** |
 
 > ⏱️ **Tiempo estimado total para resolución completa:** ~2 horas de desarrollo enfocado.  
 > 💡 *Recuerda: Cada vez que un agente o desarrollador resuelva un ítem, debe marcar el check `- [x]` correspondiente en este archivo para mantener la sincronización.*
