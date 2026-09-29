@@ -41,35 +41,40 @@ Este documento actúa como la **memoria central y única fuente de verdad** del 
 ## 🔴 FASE 1 — CRÍTICOS DE SEGURIDAD
 _(Corregir de inmediato, riesgo de hackeo y vulnerabilidad crítica)_
 
-- [ ] **01. `Math.random()` inseguro para generar códigos OTP y contraseñas**  
+- [x] **01. `Math.random()` inseguro para generar códigos OTP y contraseñas**  
   * **Problema:** Generación predecible de números pseudoaleatorios. Un atacante puede predecir códigos OTP de verificación o contraseñas temporales.  
   * **Solución requerida:** Reemplazar por `crypto.randomInt()` nativo de Node.js o `crypto.getRandomValues()`.  
-  * **Ubicación:** `lib/password.ts` y `services/auth/auth.server.ts`
+  * **Ubicación:** `lib/password.ts` y `services/auth/auth.server.ts`  
+  * _Resuelto:_ Reemplazado por `crypto.randomInt()` en generación de contraseñas seguras y códigos OTP de 6 dígitos (PR #2, commit `c350881`).
 
-- [ ] **02. Tokens de reset de contraseña guardados en TEXTO PLANO en la BD**  
+- [x] **02. Tokens de reset de contraseña guardados en TEXTO PLANO en la BD**  
   * **Problema:** Si la base de datos se filtra o se expone por una brecha, todos los tokens de restablecimiento activos quedan expuestos, comprometiendo cuentas de usuarios.  
   * **Solución requerida:** Hashear los tokens con SHA-256 antes de guardarlos en la BD y comparar hashes al validar la solicitud.  
-  * **Ubicación:** `app/api/auth/forgot-password/route.ts`
+  * **Ubicación:** `app/api/auth/forgot-password/route.ts`  
+  * _Resuelto:_ Tokens hasheados con SHA-256 antes de persistir en la BD; el token en texto plano solo viaja por email y se valida por hash (PR #3, commit `af140b9`).
 
-- [ ] **03. Rate limiting en memoria (`Map`) inefectivo en Vercel Serverless**  
+- [x] **03. Rate limiting en memoria (`Map`) inefectivo en Vercel Serverless**  
   * **Problema:** `Map` en memoria local NO funciona en entornos serverless multi-instancia de Vercel (cada invocación/lambda tiene su propia memoria aislada). Además, la IP se puede falsificar fácilmente manipulando `X-Forwarded-For`.  
   * **Solución requerida:** Migrar la capa de rate limiting a Redis distribuido (ej. Upstash Redis `@upstash/ratelimit`) y sanitizar la obtención de la IP real.  
-  * **Ubicación:** `lib/rate-limit.ts`
+  * **Ubicación:** `lib/rate-limit.ts`  
+  * _Resuelto:_ Migrado a Upstash Redis con ventana deslizante, sanitización estricta de IP con `net.isIP` y fallback en memoria (PR #4, commit `9bb798a`).
 
-- [ ] **04. Vulnerabilidad XSS en Blog**  
+- [x] **04. Vulnerabilidad XSS en Blog**  
   * **Problema:** `DOMPurify` solo sanitiza en el navegador del cliente. El servidor renderiza el HTML crudo sin sanitización previa en SSR / hydration inicial. Un atacante con acceso a la creación de posts puede inyectar scripts maliciosos.  
   * **Solución requerida:** Implementar sanitización server-side (usando `isomorphic-dompurify` o `sanitize-html`) antes de inyectar el HTML en el DOM.  
-  * **Ubicación:** `app/blog/[slug]/BlogContent.tsx`
+  * **Ubicación:** `app/blog/[slug]/BlogContent.tsx`  
+  * _Resuelto:_ Implementada sanitización estricta server-side con `sanitize-html` más whitelist de iframes/tags, manteniendo DOMPurify en el cliente (PR #5, commit `2950ef6`).
 
 ---
 
 ## 🟠 FASE 2 — CRÍTICOS DE PRODUCCIÓN
 _(Errores visibles y roturas que afectan directamente a los usuarios en vivo)_
 
-- [ ] **05. Contadores en "Quiénes Somos" muestran `+ 0 + AÑOS DE EXPERIENCIA`**  
+- [x] **05. Contadores en "Quiénes Somos" muestran `+ 0 + AÑOS DE EXPERIENCIA`**  
   * **Problema:** Bug doble: el signo `+` está duplicado en el renderizado y la animación de conteo no se dispara porque el viewport observer / trigger está mal calculado o fuera del alcance de scroll.  
   * **Solución requerida:** Eliminar el signo `+` redundante y calibrar el observer de Framer Motion / Intersection Observer para que dispare la animación correctamente.  
-  * **Ubicación:** `app/nosotros/Nosotros.tsx` (Línea 42)
+  * **Ubicación:** `app/nosotros/Nosotros.tsx` (Línea 42)  
+  * _Resuelto:_ Eliminado prefijo/sufijo redundante `+` en datos y componente, y calibrado IntersectionObserver a `amount: 0.2` para disparo inmediato de animación.
 
 - [ ] **06. Video con título "sadfasdf" visible en la Home**  
   * **Problema:** Registro de prueba (mock) sin limpiar en la base de datos de producción.  
@@ -267,12 +272,12 @@ Aspectos positivos validados durante la auditoría que deben preservarse:
 ## 📊 RESUMEN FINAL DE LA AUDITORÍA
 | Categoría | Total Hallazgos | Estado |
 | :--- | :---: | :---: |
-| 🔴 **Fase 1 — Críticos de Seguridad** | 4 | Pendientes `[ ]` |
-| 🟠 **Fase 2 — Críticos de Producción** | 9 | Pendientes `[ ]` |
+| 🔴 **Fase 1 — Críticos de Seguridad** | 4 | **4 / 4 Completadas `[x]`** |
+| 🟠 **Fase 2 — Críticos de Producción** | 9 | **1 / 9 Completadas** (8 pendientes) |
 | 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | Pendientes `[ ]` |
 | 🔵 **Fase 4 — Limpieza y Detalles** | 10 | Pendientes `[ ]` |
 | ✅ **Fortalezas y Buenas Prácticas** | 10 | Validadas |
-| **TOTAL TAREAS ACCIONABLES** | **38** | **0 / 38 completadas** |
+| **TOTAL TAREAS ACCIONABLES** | **38** | **5 / 38 completadas** |
 
 > ⏱️ **Tiempo estimado total para resolución completa:** ~2 horas de desarrollo enfocado.  
 > 💡 *Recuerda: Cada vez que un agente o desarrollador resuelva un ítem, debe marcar el check `- [x]` correspondiente en este archivo para mantener la sincronización.*

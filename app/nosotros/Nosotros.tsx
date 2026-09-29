@@ -18,28 +18,46 @@ import styles from "./Nosotros.module.css";
 
 /* ── Animated counter with easeOut ── */
 
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
+function AnimatedCounter({
+  target,
+  prefix = "+",
+  suffix = "",
+}: {
+  target: number;
+  prefix?: string;
+  suffix?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const [count, setCount] = useState(0);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
+  const inView = useInView(ref, { once: true, amount: 0.2 });
 
   useEffect(() => {
     if (!inView) return;
     const duration = 2000;
     const start = performance.now();
+    let animId: number;
 
     function tick(now: number) {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(eased * target));
-      if (progress < 1) requestAnimationFrame(tick);
+      if (progress < 1) {
+        animId = requestAnimationFrame(tick);
+      }
     }
 
-    requestAnimationFrame(tick);
+    animId = requestAnimationFrame(tick);
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+    };
   }, [inView, target]);
 
-  return <span ref={ref}>+{count.toLocaleString()}{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {prefix}{count.toLocaleString()}{suffix}
+    </span>
+  );
 }
 
 /* ── Stagger container ── */
@@ -59,7 +77,7 @@ const fadeUpSlow = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.25, 0.1, 0.25, 1] as const } },
 };
 
-const scaleIn = {
+const _scaleIn = {
   hidden: { opacity: 0, scale: 0.85 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } },
 };
@@ -103,13 +121,13 @@ const POR_QUE = [
 ];
 
 const CIFRAS = [
-  { valor: 15, sufijo: "+", label: "Años de experiencia" },
-  { valor: 1000, sufijo: "+", label: "Aplicaciones" },
-  { valor: 50, sufijo: "+", label: "Puntos de Venta" },
-  { valor: 10, sufijo: "+", label: "Categorías de Producto" },
+  { valor: 15, prefijo: "+", label: "Años de experiencia" },
+  { valor: 1000, prefijo: "+", label: "Aplicaciones" },
+  { valor: 50, prefijo: "+", label: "Puntos de Venta" },
+  { valor: 10, prefijo: "+", label: "Categorías de Producto" },
 ];
 
-const TIMELINE = [
+const _TIMELINE = [
   { year: "2009", text: "Fundación de King Brake en Lima, con la visión de revolucionar el mercado de frenos en Perú." },
   { year: "2014", text: "Expansión a 20 puntos de venta y lanzamiento de la línea de pastillas ceramicadas." },
   { year: "2019", text: "Cobertura nacional con más de 40 distribuidores y alianzas estratégicas con talleres." },
@@ -351,13 +369,13 @@ export default function Nosotros() {
             className={styles.cifrasGrid}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.4 }}
+            viewport={{ once: true, amount: 0.2 }}
             variants={stagger}
           >
             {CIFRAS.map((c) => (
               <motion.div key={c.label} className={styles.cifraItem} variants={fadeUp}>
                 <span className={styles.cifraValor}>
-                  <AnimatedCounter target={c.valor} suffix={c.sufijo} />
+                  <AnimatedCounter target={c.valor} prefix={c.prefijo} />
                 </span>
                 <div className={styles.cifraDivider} />
                 <span className={styles.cifraLabel}>{c.label}</span>
