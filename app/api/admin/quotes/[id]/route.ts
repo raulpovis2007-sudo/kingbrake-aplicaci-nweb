@@ -27,11 +27,17 @@ export async function PUT(
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
+  const VALID_STATUSES = ["PENDING", "CONFIRMED", "DELIVERED", "CANCELLED"];
   const body = await request.json();
   const { status, adminNote } = body;
 
   const data: Record<string, unknown> = {};
-  if (status) data.status = status;
+  if (status) {
+    if (!VALID_STATUSES.includes(status)) {
+      return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
+    }
+    data.status = status;
+  }
   if (adminNote !== undefined) data.adminNote = adminNote;
 
   const quote = await db.quote.update({

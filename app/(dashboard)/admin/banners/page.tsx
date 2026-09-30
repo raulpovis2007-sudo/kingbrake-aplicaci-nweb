@@ -209,7 +209,7 @@ export default function AdminBannersPage() {
                     <td className={styles.dragHandle}>{!isVideo && <GripVertical size={16} />}</td>
                     <td>
                       <div className={styles.reelInfo}>
-                        <div className={styles.thumbnail}>
+                        <div className={styles.thumbnail} style={!isVideo ? { width: 120, height: 40 } : undefined}>
                           {isVideo ? (
                             <video src={banner.image} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           ) : (

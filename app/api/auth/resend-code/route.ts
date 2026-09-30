@@ -14,16 +14,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Email requerido." }, { status: 400 });
   }
 
-  const user = await db.user.findUnique({ where: { email } });
-  if (!user) {
-    return NextResponse.json({ error: "Usuario no encontrado." }, { status: 404 });
-  }
+  const GENERIC_MSG = "Si el correo está registrado, se ha enviado un nuevo código.";
 
-  if (user.emailVerified) {
-    return NextResponse.json({ error: "Este email ya fue verificado." }, { status: 400 });
+  const user = await db.user.findUnique({ where: { email } });
+  if (!user || user.emailVerified) {
+    return NextResponse.json({ message: GENERIC_MSG });
   }
 
   await generateAndSendOTP(email, user.name);
 
-  return NextResponse.json({ message: "Código reenviado." });
+  return NextResponse.json({ message: GENERIC_MSG });
 }

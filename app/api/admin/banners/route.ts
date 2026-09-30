@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { title, image, link, startDate, endDate, type } = body;
+    const { title, image, imageMobile, link, startDate, endDate, type } = body;
 
     if (!title?.trim() || !image?.trim()) {
       return NextResponse.json(
@@ -69,10 +69,11 @@ export async function POST(req: NextRequest) {
       data: {
         title,
         image,
+        imageMobile: imageMobile || null,
         link: link || null,
         type: bannerType,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
+        startDate: startDate ? new Date(startDate + "T00:00:00-05:00") : null,
+        endDate: endDate ? new Date(endDate + "T00:00:00-05:00") : null,
         sortOrder: (maxOrder._max.sortOrder ?? -1) + 1,
       },
     });

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Pencil,
   Trash2,
@@ -18,7 +18,7 @@ import styles from "./AdminReels.module.css";
 // TIPOS
 // ============================================
 
-type ReelCategory = "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS";
+type ReelCategory = "TIPS" | "PRODUCTOS" | "INSTALACION" | "TESTIMONIOS" | "SOPORTE";
 
 interface Reel {
   id: number;
@@ -42,6 +42,7 @@ const categoryLabels: Record<ReelCategory, string> = {
   PRODUCTOS: "Productos",
   INSTALACION: "Instalación",
   TESTIMONIOS: "Testimonios",
+  SOPORTE: "Soporte Técnico",
 };
 
 const categoryColors: Record<ReelCategory, string> = {
@@ -49,14 +50,23 @@ const categoryColors: Record<ReelCategory, string> = {
   PRODUCTOS: "#10b981",
   INSTALACION: "#f59e0b",
   TESTIMONIOS: "#8b5cf6",
+  SOPORTE: "#6366f1",
 };
 
 // ============================================
 // COMPONENTE PRINCIPAL
 // ============================================
 
+const REEL_FILTERS = [
+  { value: "", label: "Todos" },
+  { value: "landing", label: "Landing" },
+  { value: "soporte", label: "Soporte Técnico" },
+] as const;
+
 export default function AdminReelsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeFilter = searchParams.get("filter") || "";
   const [reels, setReels] = useState<Reel[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<number | null>(null);
@@ -172,6 +182,12 @@ export default function AdminReelsPage() {
     }
   }
 
+  const filteredReels = activeFilter === "soporte"
+    ? reels.filter((r) => r.category === "SOPORTE")
+    : activeFilter === "landing"
+      ? reels.filter((r) => r.category !== "SOPORTE")
+      : reels;
+
   const formatNumber = (num: number) => {
     if (num >= 1000) {
       return (num / 1000).toFixed(1) + "k";
@@ -207,7 +223,19 @@ export default function AdminReelsPage() {
         </Link>
       </div>
 
-      {reels.length === 0 ? (
+      <nav className={styles.tabs}>
+        {REEL_FILTERS.map((f) => (
+          <Link
+            key={f.value}
+            href={f.value ? `/admin/reels?filter=${f.value}` : "/admin/reels"}
+            className={`${styles.tab} ${activeFilter === f.value ? styles.tabActive : ""}`}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </nav>
+
+      {filteredReels.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>
             <Play size={48} />
@@ -238,7 +266,7 @@ export default function AdminReelsPage() {
                 </tr>
               </thead>
               <tbody>
-                {reels.map((reel) => (
+                {filteredReels.map((reel) => (
                   <tr
                     key={reel.id}
                     draggable

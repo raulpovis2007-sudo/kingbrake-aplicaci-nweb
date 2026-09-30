@@ -180,6 +180,15 @@
   background: #fff8e6;
 }
 
+.expiredRow td {
+  background: #fef2f2 !important;
+}
+
+.expiredRow .reelTitle {
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
 /* Drag Handle */
 .dragHandle {
   cursor: grab;

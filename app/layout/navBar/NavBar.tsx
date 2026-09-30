@@ -503,7 +503,7 @@ export default function NavBar() {
                 </svg>
               </a>
               <a
-                href="https://www.facebook.com/KingBrakePeru"
+                href="https://www.linkedin.com/company/kingbrakeperu"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles["social-icon"]}
@@ -517,7 +517,7 @@ export default function NavBar() {
 
             {/* Botón CTA */}
             <a
-              href="https://wa.me/51908920221?text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
+              href="https://api.whatsapp.com/send?phone=51908920221&text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
               target="_blank"
               className={styles["sidebar-cta"]}
               onClick={() => setIsMobileMenuOpen(false)}

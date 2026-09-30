@@ -3,8 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { validatePasswordStrength } from "@/lib/password";
+import { rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  const blocked = await rateLimitResponse(req, "change-password", 5, 15 * 60 * 1000);
+  if (blocked) return blocked;
+
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {

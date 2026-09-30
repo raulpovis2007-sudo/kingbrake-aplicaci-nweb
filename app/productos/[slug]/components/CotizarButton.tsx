@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { MessageSquare, Pencil } from "lucide-react";
 import styles from "./CotizarButton.module.css";
-
-const WHATSAPP_NUMERO = "51908920221";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 
 interface Props {
   productId: string;
@@ -37,10 +36,7 @@ export default function CotizarButton({
       }).catch(() => {});
     }
 
-    window.open(
-      `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+    window.open(getWhatsAppUrl(message), "_blank");
   };
 
   return (

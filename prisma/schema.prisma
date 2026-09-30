@@ -278,8 +278,9 @@ enum BannerType {
 model Banner {
   id        String     @id @default(cuid())
   title     String     @db.VarChar(100)
-  image     String     @db.VarChar(500)
-  link      String?    @db.VarChar(500)
+  image       String     @db.VarChar(500)
+  imageMobile String?    @db.VarChar(500)
+  link        String?    @db.VarChar(500)
   type      BannerType @default(BANNER)
   sortOrder Int        @default(0)
   isActive  Boolean    @default(true)

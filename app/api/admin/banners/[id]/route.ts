@@ -58,17 +58,19 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { title, image, link, isActive, startDate, endDate } = body;
+    const { title, image, imageMobile, link, isActive, startDate, endDate, type } = body;
 
     const updated = await db.banner.update({
       where: { id },
       data: {
         ...(title !== undefined && { title }),
         ...(image !== undefined && { image }),
+        ...(imageMobile !== undefined && { imageMobile: imageMobile || null }),
         ...(link !== undefined && { link: link || null }),
+        ...(type !== undefined && { type }),
         ...(isActive !== undefined && { isActive }),
-        ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
-        ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
+        ...(startDate !== undefined && { startDate: startDate ? new Date(startDate + "T00:00:00-05:00") : null }),
+        ...(endDate !== undefined && { endDate: endDate ? new Date(endDate + "T00:00:00-05:00") : null }),
       },
     });
 

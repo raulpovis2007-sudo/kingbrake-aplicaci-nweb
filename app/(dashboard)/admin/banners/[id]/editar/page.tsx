@@ -3,13 +3,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Save, Upload, X, Loader2, ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Upload, X, Loader2, ImageIcon, Video, Monitor, Smartphone } from "lucide-react";
 import formStyles from "../../nuevo/BannerForm.module.css";
+
+type Platform = "desktop" | "mobile";
 
 export default function EditarBannerPage() {
   const router = useRouter();
   const params = useParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const mobileFileInputRef = useRef<HTMLInputElement>(null);
   const dirtyRef = useRef(false);
 
   useEffect(() => {
@@ -23,13 +26,16 @@ export default function EditarBannerPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingMobile, setUploadingMobile] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [activePlatform, setActivePlatform] = useState<Platform>("desktop");
 
   const [bannerType, setBannerType] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     image: "",
+    imageMobile: "",
   });
 
   useEffect(() => {
@@ -42,6 +48,7 @@ export default function EditarBannerPage() {
         setFormData({
           title: banner.title || "",
           image: banner.image || "",
+          imageMobile: banner.imageMobile || "",
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al cargar banner");
@@ -58,17 +65,25 @@ export default function EditarBannerPage() {
     setError(null);
   };
 
-  const handleFileSelect = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      setError("El archivo debe ser una imagen");
+  const isVideoType = bannerType === "NOSOTROS_VIDEO";
+
+  const handleFileSelect = async (file: File, target: "image" | "imageMobile" = "image") => {
+    const expectVideo = isVideoType && target === "image";
+    const isValid = expectVideo
+      ? file.type.startsWith("video/")
+      : file.type.startsWith("image/");
+    if (!isValid) {
+      setError(expectVideo ? "El archivo debe ser un video (MP4, WebM)" : "El archivo debe ser una imagen");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError("La imagen no debe superar 5MB");
+    const maxSize = expectVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError(`El archivo no debe superar ${expectVideo ? "50MB" : "5MB"}`);
       return;
     }
 
-    setUploading(true);
+    const setUploadState = target === "imageMobile" ? setUploadingMobile : setUploading;
+    setUploadState(true);
     setError(null);
 
     try {
@@ -84,20 +99,21 @@ export default function EditarBannerPage() {
       fd.append("api_key", apiKey);
       fd.append("folder", folder);
 
+      const resourceType = file.type.startsWith("video/") ? "video" : "image";
       const cloudRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
         { method: "POST", body: fd }
       );
       const cloudData = await cloudRes.json();
 
       if (!cloudRes.ok) throw new Error(cloudData.error?.message || "Error al subir imagen");
 
-      setFormData((prev) => ({ ...prev, image: cloudData.secure_url }));
+      setFormData((prev) => ({ ...prev, [target]: cloudData.secure_url }));
       dirtyRef.current = true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al subir imagen");
     } finally {
-      setUploading(false);
+      setUploadState(false);
     }
   };
 
@@ -111,23 +127,31 @@ export default function EditarBannerPage() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    if (e.dataTransfer.files?.[0]) handleFileSelect(e.dataTransfer.files[0]);
+    const target = activePlatform === "mobile" ? "imageMobile" : "image";
+    if (e.dataTransfer.files?.[0]) handleFileSelect(e.dataTransfer.files[0], target);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    const isVideo = bannerType === "NOSOTROS_VIDEO";
-    if (!isVideo && !formData.title.trim()) { setError("El título es obligatorio"); return; }
-    if (!formData.image.trim()) { setError(`Debes subir ${isVideo ? "un video" : "una imagen"}`); return; }
+    if (!isVideoType && !formData.title.trim()) { setError("El título es obligatorio"); return; }
+    const hasAny = formData.image.trim() || formData.imageMobile.trim();
+    if (isVideoType && !formData.image.trim()) { setError("Debes subir un video"); return; }
+    if (!isVideoType && !hasAny) { setError("Debes subir al menos una imagen (desktop o móvil)"); return; }
+
+    const mainImage = formData.image.trim() || formData.imageMobile.trim();
 
     setSaving(true);
     try {
       const res = await fetch(`/api/admin/banners/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          image: mainImage,
+          imageMobile: formData.imageMobile || null,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al actualizar el banner");
@@ -144,6 +168,11 @@ export default function EditarBannerPage() {
     return <div className={formStyles.container}><p>Cargando banner...</p></div>;
   }
 
+  const currentUploading = activePlatform === "mobile" ? uploadingMobile : uploading;
+  const currentImage = activePlatform === "mobile" ? formData.imageMobile : formData.image;
+  const currentInputRef = activePlatform === "mobile" ? mobileFileInputRef : fileInputRef;
+  const currentTarget: "image" | "imageMobile" = activePlatform === "mobile" ? "imageMobile" : "image";
+
   return (
     <div className={formStyles.container}>
       <div className={formStyles.header}>
@@ -158,7 +187,7 @@ export default function EditarBannerPage() {
           <div className={formStyles.formFields}>
             {error && <div className={formStyles.error}>{error}</div>}
 
-            {bannerType !== "NOSOTROS_VIDEO" && (
+            {!isVideoType && (
               <div className={formStyles.formGroup}>
                 <label className={formStyles.label}>
                   Título <span className={formStyles.required}>*</span>
@@ -176,66 +205,164 @@ export default function EditarBannerPage() {
               </div>
             )}
 
-            <div className={formStyles.formGroup}>
-              <label className={formStyles.label}>
-                Imagen <span className={formStyles.required}>*</span>
-              </label>
-              {formData.image ? (
-                <div className={formStyles.uploadedPreview}>
-                  <img src={formData.image} alt="Banner" />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({ ...prev, image: "" }));
-                      if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}
-                    className={formStyles.removeButton}
-                    title="Eliminar imagen"
+            {isVideoType ? (
+              <div className={formStyles.formGroup}>
+                <label className={formStyles.label}>
+                  Video <span className={formStyles.required}>*</span>
+                </label>
+                {formData.image ? (
+                  <div className={formStyles.videoPreview}>
+                    <video src={formData.image} controls muted playsInline />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, image: "" }));
+                        if (fileInputRef.current) fileInputRef.current.value = "";
+                      }}
+                      className={formStyles.removeButton}
+                      title="Eliminar video"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className={`${formStyles.uploadZone} ${dragActive ? formStyles.uploadZoneActive : ""} ${uploading ? formStyles.uploadZoneUploading : ""}`}
+                    onDragEnter={handleDrag}
+                    onDragLeave={handleDrag}
+                    onDragOver={handleDrag}
+                    onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDragActive(false); if (e.dataTransfer.files?.[0]) handleFileSelect(e.dataTransfer.files[0]); }}
+                    onClick={() => !uploading && fileInputRef.current?.click()}
                   >
-                    <X size={16} />
-                  </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="video/mp4,video/webm"
+                      onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+                      className={formStyles.fileInput}
+                      disabled={uploading}
+                    />
+                    {uploading ? (
+                      <>
+                        <Loader2 size={32} className={formStyles.spinner} />
+                        <span>Subiendo video...</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className={formStyles.uploadIcon}>
+                          <Video size={28} />
+                          <Upload size={16} className={formStyles.uploadArrow} />
+                        </div>
+                        <span className={formStyles.uploadText}>Arrastra un video o haz clic para seleccionar</span>
+                        <span className={formStyles.uploadHint}>MP4, WebM — máx. 1 min, 50MB</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className={formStyles.formGroup}>
+                  <label className={formStyles.label}>Subir imagen para</label>
+                  <div className={formStyles.platformSelector}>
+                    <button
+                      type="button"
+                      className={`${formStyles.platformButton} ${activePlatform === "desktop" ? formStyles.platformActive : ""}`}
+                      onClick={() => setActivePlatform("desktop")}
+                    >
+                      <Monitor size={18} />
+                      Desktop {formData.image && "✓"}
+                    </button>
+                    <button
+                      type="button"
+                      className={`${formStyles.platformButton} ${activePlatform === "mobile" ? formStyles.platformActive : ""}`}
+                      onClick={() => setActivePlatform("mobile")}
+                    >
+                      <Smartphone size={18} />
+                      Móvil {formData.imageMobile && "✓"}
+                    </button>
+                  </div>
+                  <span className={formStyles.hint}>
+                    {activePlatform === "desktop"
+                      ? "Imagen obligatoria — formato horizontal"
+                      : "Opcional — si no se sube, se usará la de desktop"}
+                  </span>
                 </div>
-              ) : (
-                <div
-                  className={`${formStyles.uploadZone} ${dragActive ? formStyles.uploadZoneActive : ""} ${uploading ? formStyles.uploadZoneUploading : ""}`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                  onClick={() => !uploading && fileInputRef.current?.click()}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-                    className={formStyles.fileInput}
-                    disabled={uploading}
-                  />
-                  {uploading ? (
-                    <>
-                      <Loader2 size={32} className={formStyles.spinner} />
-                      <span>Subiendo imagen...</span>
-                    </>
+
+                <div className={formStyles.formGroup}>
+                  {currentImage ? (
+                    <div
+                      className={formStyles.uploadedPreview}
+                      style={{
+                        width: "100%",
+                        aspectRatio: activePlatform === "desktop" ? "3/1" : "9/16",
+                        maxHeight: activePlatform === "mobile" ? 300 : undefined,
+                      }}
+                    >
+                      <img src={currentImage} alt={`Banner ${activePlatform}`} />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((prev) => ({ ...prev, [currentTarget]: "" }));
+                          if (currentInputRef.current) currentInputRef.current.value = "";
+                        }}
+                        className={formStyles.removeButton}
+                        title="Eliminar imagen"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
                   ) : (
-                    <>
-                      <div className={formStyles.uploadIcon}>
-                        <ImageIcon size={28} />
-                        <Upload size={16} className={formStyles.uploadArrow} />
-                      </div>
-                      <span className={formStyles.uploadText}>
-                        Arrastra una imagen o haz clic para seleccionar
-                      </span>
-                      <span className={formStyles.uploadHint}>
-                        {bannerType === "NOSOTROS_VIDEO"
-                          ? "MP4, WebM — máx. 50MB"
-                          : "Formato horizontal. Recomendado: 1920×600px (PNG, JPG, WebP, máx. 5MB)"}
-                      </span>
-                    </>
+                    <div
+                      className={`${formStyles.uploadZone} ${dragActive ? formStyles.uploadZoneActive : ""} ${currentUploading ? formStyles.uploadZoneUploading : ""}`}
+                      onDragEnter={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDragOver={handleDrag}
+                      onDrop={handleDrop}
+                      onClick={() => !currentUploading && currentInputRef.current?.click()}
+                    >
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0], "image")}
+                        className={formStyles.fileInput}
+                        disabled={uploading}
+                      />
+                      <input
+                        ref={mobileFileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0], "imageMobile")}
+                        className={formStyles.fileInput}
+                        disabled={uploadingMobile}
+                      />
+                      {currentUploading ? (
+                        <>
+                          <Loader2 size={32} className={formStyles.spinner} />
+                          <span>Subiendo imagen...</span>
+                        </>
+                      ) : (
+                        <>
+                          <div className={formStyles.uploadIcon}>
+                            {activePlatform === "desktop" ? <Monitor size={28} /> : <Smartphone size={28} />}
+                            <Upload size={16} className={formStyles.uploadArrow} />
+                          </div>
+                          <span className={formStyles.uploadText}>
+                            Arrastra una imagen o haz clic para seleccionar
+                          </span>
+                          <span className={formStyles.uploadHint}>
+                            {activePlatform === "desktop"
+                              ? "Formato horizontal. Recomendado: 1920×600px (PNG, JPG, WebP, máx. 5MB)"
+                              : "Formato vertical. Recomendado: 600×800px (PNG, JPG, WebP, máx. 5MB)"}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
+              </>
+            )}
 
             <div className={formStyles.formActions}>
               <Link href="/admin/banners" className={formStyles.cancelButton}>
@@ -243,7 +370,7 @@ export default function EditarBannerPage() {
               </Link>
               <button
                 type="submit"
-                disabled={saving || uploading}
+                disabled={saving || uploading || uploadingMobile}
                 className={formStyles.submitButton}
               >
                 {saving ? "Guardando..." : <><Save size={18} /> Guardar Cambios</>}
@@ -252,21 +379,50 @@ export default function EditarBannerPage() {
           </div>
 
           <div className={formStyles.previewColumn}>
-            <h3 className={formStyles.previewTitle}>Vista previa</h3>
-            <div className={formStyles.previewCard}>
-              {formData.image ? (
-                <img
-                  src={formData.image}
-                  alt="Preview"
-                  style={{ width: "100%", borderRadius: 8, display: "block" }}
-                />
-              ) : (
-                <div className={formStyles.thumbnailPlaceholder} style={{ aspectRatio: "3/1", width: "100%" }}>
-                  <ImageIcon size={32} />
-                  <span>Banner</span>
+            {isVideoType ? (
+              <>
+                <h3 className={formStyles.previewTitle}>Vista previa Video</h3>
+                <div className={formStyles.previewCard}>
+                  {formData.image ? (
+                    <video src={formData.image} controls muted playsInline style={{ width: "100%", borderRadius: 8, display: "block" }} />
+                  ) : (
+                    <div className={formStyles.thumbnailPlaceholder} style={{ aspectRatio: "9/16", width: "100%" }}>
+                      <Video size={32} />
+                      <span>Video</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </>
+            ) : (
+              <>
+                <h3 className={formStyles.previewTitle}>Vista previa Desktop</h3>
+                <div className={formStyles.previewCard}>
+                  {formData.image ? (
+                    <img src={formData.image} alt="Preview desktop" style={{ width: "100%", borderRadius: 8, display: "block" }} />
+                  ) : (
+                    <div className={formStyles.thumbnailPlaceholder} style={{ aspectRatio: "3/1", width: "100%" }}>
+                      <Monitor size={32} />
+                      <span>Desktop</span>
+                    </div>
+                  )}
+                </div>
+                <h3 className={formStyles.previewTitle} style={{ marginTop: 16 }}>Vista previa Móvil</h3>
+                <div className={formStyles.previewCard} style={{ maxWidth: 200 }}>
+                  {(formData.imageMobile || formData.image) ? (
+                    <img
+                      src={formData.imageMobile || formData.image}
+                      alt="Preview móvil"
+                      style={{ width: "100%", borderRadius: 8, display: "block" }}
+                    />
+                  ) : (
+                    <div className={formStyles.thumbnailPlaceholder} style={{ aspectRatio: "3/4", width: "100%" }}>
+                      <Smartphone size={24} />
+                      <span>Móvil</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </form>

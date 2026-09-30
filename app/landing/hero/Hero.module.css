@@ -45,17 +45,21 @@
   object-position: center;
 }
 
-@media (min-width: 768px) {
-  .heroSection {
-    height: 100vh;
-    height: 100dvh;
-  }
+.desktopOnly {
+  display: block;
 }
 
-@media (max-width: 767px) {
-  .heroSection {
-    height: auto;
-    aspect-ratio: 16 / 9;
+.mobileOnly {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktopOnly {
+    display: none;
+  }
+
+  .mobileOnly {
+    display: block;
   }
 }
 

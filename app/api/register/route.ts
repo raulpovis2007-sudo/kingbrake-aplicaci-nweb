@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { registerUser } from "@/services/auth/auth.server";
 import { rateLimitResponse } from "@/lib/rate-limit";
+import { validatePasswordStrength } from "@/lib/password";
 
 export async function POST(req: Request) {
     // Rate limit: 5 registros por IP cada 15 minutos
@@ -19,8 +20,12 @@ export async function POST(req: Request) {
     if (!body.email || typeof body.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
         return NextResponse.json({ message: "Email inválido" }, { status: 400 });
     }
-    if (!body.password || typeof body.password !== "string" || body.password.length < 8) {
-        return NextResponse.json({ message: "La contraseña debe tener al menos 8 caracteres" }, { status: 400 });
+    if (!body.password || typeof body.password !== "string") {
+        return NextResponse.json({ message: "Contraseña requerida" }, { status: 400 });
+    }
+    const pwCheck = validatePasswordStrength(body.password);
+    if (!pwCheck.isValid) {
+        return NextResponse.json({ message: pwCheck.errors[0] }, { status: 400 });
     }
 
     try {

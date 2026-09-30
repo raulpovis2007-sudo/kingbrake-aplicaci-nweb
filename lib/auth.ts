@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const authOptions: NextAuthOptions = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,6 +25,11 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Credenciales requeridas");
+        }
+
+        const rl = await rateLimit(`login:${credentials.email}`, 5, 15 * 60 * 1000);
+        if (!rl.success) {
+          throw new Error("Demasiados intentos. Intenta en unos minutos.");
         }
 
         const user = await db.user.findUnique({
@@ -162,6 +168,14 @@ export const authOptions: NextAuthOptions = {
           token.role = dbUser.role;
           token.name = dbUser.name;
           token.picture = dbUser.image;
+        }
+      } else if (token.id) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { status: true },
+        });
+        if (dbUser?.status === "SUSPENDED") {
+          return { ...token, error: "suspended" };
         }
       }
       return token;

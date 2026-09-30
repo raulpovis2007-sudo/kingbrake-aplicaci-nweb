@@ -11,7 +11,14 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category") || "";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "9");
-    const publishedOnly = searchParams.get("published") !== "false";
+    let publishedOnly = true;
+    if (searchParams.get("published") === "false") {
+      const session = await getServerSession(authOptions);
+      if (!session?.user || session.user.role !== "ADMIN") {
+        return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      }
+      publishedOnly = false;
+    }
 
     const skip = (page - 1) * limit;
 

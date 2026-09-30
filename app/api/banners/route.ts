@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
         id: true,
         title: true,
         image: true,
+        imageMobile: true,
         link: true,
         startDate: true,
       },

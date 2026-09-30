@@ -50,7 +50,7 @@ export function WebSiteSchema() {
     },
     potentialAction: {
       "@type": "SearchAction",
-      target: { "@type": "EntryPoint", urlTemplate: `${BASE_URL}/productos?q={search_term_string}` },
+      target: { "@type": "EntryPoint", urlTemplate: `${BASE_URL}/catalogo?q={search_term_string}` },
       "query-input": "required name=search_term_string",
     },
   };

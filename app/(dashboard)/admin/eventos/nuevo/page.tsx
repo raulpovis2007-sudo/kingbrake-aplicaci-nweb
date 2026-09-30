@@ -28,6 +28,8 @@ export default function NuevoEventoPage() {
     title: "",
     image: "",
     type: "EVENT" as "EVENT" | "SOPORTE",
+    startDate: "",
+    endDate: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -92,7 +94,13 @@ export default function NuevoEventoPage() {
       const res = await fetch("/api/admin/banners", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          title: formData.title,
+          image: formData.image,
+          type: formData.type,
+          startDate: formData.startDate || null,
+          endDate: formData.endDate || null,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al crear el evento");
@@ -161,6 +169,18 @@ export default function NuevoEventoPage() {
                 <option value="SOPORTE">Página Soporte Técnico</option>
               </select>
             </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div className={formStyles.formGroup}>
+                <label className={formStyles.label}>Fecha inicio</label>
+                <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className={formStyles.input} />
+              </div>
+              <div className={formStyles.formGroup}>
+                <label className={formStyles.label}>Fecha fin</label>
+                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={formStyles.input} />
+              </div>
+            </div>
+            <span className={formStyles.hint}>Si no se indica, la publicación se muestra permanentemente</span>
 
             <div className={formStyles.formActions}>
               <Link href="/admin/eventos" className={formStyles.cancelButton}>Cancelar</Link>

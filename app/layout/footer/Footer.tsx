@@ -73,7 +73,7 @@ export default function Footer() {
               </a>
             </div>
             <a
-              href="https://wa.me/51908920221?text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
+              href="https://api.whatsapp.com/send?phone=51908920221&text=%C2%A1Hola!%20Quiero%20cotizar%20productos%20King%20Brake"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.ctaButton}
@@ -100,8 +100,9 @@ export default function Footer() {
               <nav className={styles.navLinks}>
                 <a href="/">Inicio</a>
                 <a href="/catalogo">Catálogo</a>
+                <a href="/nosotros">Nosotros</a>
                 <a href="/soporte">Soporte técnico</a>
-                <a href="/#distribuidores">Distribuidores</a>
+                <a href="/distribuidores">Distribuidores</a>
               </nav>
             </div>
 
@@ -172,8 +173,8 @@ export default function Footer() {
           </a>
         </div>
 
-        {/* Libro de Reclamaciones */}
-        
+        {/* Libro de Reclamaciones — descomentar cuando King Brake tenga URL en reclamovirtual.pe */}
+        {/* <ComplaintBookButton /> */}
 
         {/* Copyright */}
         <div className={styles.copyright}>

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { rateLimitResponse } from "@/lib/rate-limit";
+import { validatePasswordStrength } from "@/lib/password";
 
 /**
  * Hashea el token recibido por URL con SHA-256 para compararlo
@@ -23,8 +24,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Datos incompletos." }, { status: 400 });
   }
 
-  if (password.length < 8) {
-    return NextResponse.json({ error: "La contraseña debe tener al menos 8 caracteres." }, { status: 400 });
+  const pwCheck = validatePasswordStrength(password);
+  if (!pwCheck.isValid) {
+    return NextResponse.json({ error: pwCheck.errors[0] }, { status: 400 });
   }
 
   // Hashear el token recibido para buscarlo en BD (donde solo existe el hash)

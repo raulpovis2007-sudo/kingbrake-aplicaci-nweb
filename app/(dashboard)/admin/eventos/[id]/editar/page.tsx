@@ -30,6 +30,8 @@ export default function EditarEventoPage() {
     title: "",
     image: "",
     type: "EVENT" as "EVENT" | "SOPORTE",
+    startDate: "",
+    endDate: "",
   });
 
   useEffect(() => {
@@ -42,6 +44,8 @@ export default function EditarEventoPage() {
           title: data.title || "",
           image: data.image || "",
           type: data.type || "EVENT",
+          startDate: data.startDate ? new Date(data.startDate).toLocaleDateString("en-CA", { timeZone: "America/Lima" }) : "",
+          endDate: data.endDate ? new Date(data.endDate).toLocaleDateString("en-CA", { timeZone: "America/Lima" }) : "",
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al cargar evento");
@@ -114,7 +118,13 @@ export default function EditarEventoPage() {
       const res = await fetch(`/api/admin/banners/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          title: formData.title,
+          image: formData.image,
+          type: formData.type,
+          startDate: formData.startDate || null,
+          endDate: formData.endDate || null,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al actualizar");
@@ -183,6 +193,18 @@ export default function EditarEventoPage() {
                 <option value="SOPORTE">Página Soporte Técnico</option>
               </select>
             </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+              <div className={formStyles.formGroup}>
+                <label className={formStyles.label}>Fecha inicio</label>
+                <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} className={formStyles.input} />
+              </div>
+              <div className={formStyles.formGroup}>
+                <label className={formStyles.label}>Fecha fin</label>
+                <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={formStyles.input} />
+              </div>
+            </div>
+            <span className={formStyles.hint}>Si no se indica, la publicación se muestra permanentemente</span>
 
             <div className={formStyles.formActions}>
               <Link href="/admin/eventos" className={formStyles.cancelButton}>Cancelar</Link>

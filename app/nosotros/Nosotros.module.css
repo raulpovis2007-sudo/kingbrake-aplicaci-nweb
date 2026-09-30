@@ -12,6 +12,22 @@
   overflow: hidden;
 }
 
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.heroVideoOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 10, 51, 0.65);
+  z-index: 0;
+}
+
 .heroGrid {
   position: absolute;
   inset: 0;

@@ -4,8 +4,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { db } from "@/lib/db";
 import styles from "./SubcategoriaDetalle.module.css";
-
-const WHATSAPP_NUMERO = "51908920221";
+import { WHATSAPP_PHONE } from "@/lib/whatsapp";
 const PER_PAGE = 10;
 
 interface Props {
@@ -99,7 +98,7 @@ export default async function SubcategoriaDetallePage({ params, searchParams }: 
 
               <div className={styles.cta}>
                 <a
-                  href={`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMERO}&text=${waMessage}`}
+                  href={`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${waMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={styles.whatsappBtn}

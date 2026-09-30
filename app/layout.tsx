@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Barlow } from "next/font/google";
 import "./globals.css";
 import { LayoutShell } from "./layout/LayoutShell";
 import { Providers } from "./providers";
@@ -9,7 +10,14 @@ import {
 } from "./components/SEO/JsonLd";
 //* REMOVED: getServerSession - bloqueaba el render de toda la página
 
-// ===================== FONTS LOCALES =====================
+// ===================== FONTS =====================
+const barlow = Barlow({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-barlow",
+  display: "swap",
+});
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -110,22 +118,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="es-PE"
-      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${barlow.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <head>
         {/* Viewport optimizado para móvil - previene zoom y comportamientos no deseados */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
 
         {/* Preconnect para recursos externos */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-
-        {/* Barlow - Fuente principal del proyecto */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
 
         {/* Splide CSS loaded via npm import in components */}
 

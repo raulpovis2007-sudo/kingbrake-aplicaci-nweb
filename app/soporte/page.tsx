@@ -170,7 +170,7 @@ export default function SoportePage() {
           <h2 className={styles.ctaTitle}>¿Necesitas ayuda adicional?</h2>
           <p className={styles.ctaText}>Nuestro equipo técnico está disponible para resolver tus dudas.</p>
           <a
-            href="https://wa.me/51908920221?text=%C2%A1Hola!%20Necesito%20soporte%20t%C3%A9cnico"
+            href="https://api.whatsapp.com/send?phone=51908920221&text=%C2%A1Hola!%20Necesito%20soporte%20t%C3%A9cnico"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.ctaBtn}

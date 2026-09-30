@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Pencil,
   Trash2,
@@ -11,6 +11,7 @@ import {
   EyeOff,
   GripVertical,
   CalendarDays,
+  ExternalLink,
 } from "lucide-react";
 import styles from "../banners/AdminBanners.module.css";
 
@@ -27,8 +28,21 @@ interface Banner {
   createdAt: string;
 }
 
+const FILTERS = [
+  { value: "", label: "Todos" },
+  { value: "EVENT", label: "Landing" },
+  { value: "SOPORTE", label: "Soporte Técnico" },
+] as const;
+
+const DESTINO_LABELS: Record<string, string> = {
+  EVENT: "Landing",
+  SOPORTE: "Soporte Técnico",
+};
+
 export default function AdminEventosPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeFilter = searchParams.get("filter") || "";
   const [eventos, setEventos] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -120,9 +134,18 @@ export default function AdminEventosPage() {
     }
   }
 
+  const filtered = activeFilter
+    ? eventos.filter((e) => e.type === activeFilter)
+    : eventos;
+
   const formatDate = (d: string | null) => {
-    if (!d) return "—";
-    return new Date(d).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
+    if (!d) return null;
+    return new Date(d).toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Lima" });
+  };
+
+  const isExpired = (evento: Banner) => {
+    if (!evento.endDate) return false;
+    return new Date(evento.endDate) < new Date();
   };
 
   if (loading) {
@@ -145,7 +168,19 @@ export default function AdminEventosPage() {
         </Link>
       </div>
 
-      {eventos.length === 0 ? (
+      <nav className={styles.tabs}>
+        {FILTERS.map((f) => (
+          <Link
+            key={f.value}
+            href={f.value ? `/admin/eventos?filter=${f.value}` : "/admin/eventos"}
+            className={`${styles.tab} ${activeFilter === f.value ? styles.tabActive : ""}`}
+          >
+            {f.label}
+          </Link>
+        ))}
+      </nav>
+
+      {filtered.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><CalendarDays size={48} /></div>
           <p>No hay publicaciones todavía</p>
@@ -166,13 +201,18 @@ export default function AdminEventosPage() {
                 <tr>
                   <th style={{ width: 40 }}></th>
                   <th>Publicación</th>
-                  <th>Fecha</th>
+                  <th>Destino</th>
+                  <th>Programación</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {eventos.map((evento) => (
+                {filtered.map((evento) => {
+                  const expired = isExpired(evento);
+                  const start = formatDate(evento.startDate);
+                  const end = formatDate(evento.endDate);
+                  return (
                   <tr
                     key={evento.id}
                     draggable
@@ -180,12 +220,12 @@ export default function AdminEventosPage() {
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, evento.id)}
                     onDragEnd={() => setDraggingId(null)}
-                    className={draggingId === evento.id ? styles.dragging : ""}
+                    className={`${draggingId === evento.id ? styles.dragging : ""} ${expired ? styles.expiredRow : ""}`}
                   >
                     <td className={styles.dragHandle}><GripVertical size={16} /></td>
                     <td>
                       <div className={styles.reelInfo}>
-                        <div className={styles.thumbnail}>
+                        <div className={styles.thumbnail} style={expired ? { opacity: 0.5, filter: "grayscale(1)" } : undefined}>
                           <img src={evento.image} alt={evento.title} />
                         </div>
                         <div className={styles.reelText}>
@@ -193,7 +233,22 @@ export default function AdminEventosPage() {
                         </div>
                       </div>
                     </td>
-                    <td className={styles.viewsCell}>{formatDate(evento.startDate)}</td>
+                    <td>
+                      <span className={styles.categoryBadge} style={{ backgroundColor: evento.type === "EVENT" ? "#3b82f6" : "#8b5cf6" }}>
+                        {DESTINO_LABELS[evento.type] || evento.type}
+                      </span>
+                    </td>
+                    <td className={styles.viewsCell}>
+                      {start || end ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: "0.8rem" }}>
+                          {start && <span>Desde: {start}</span>}
+                          {end && <span style={expired ? { color: "#dc2626", fontWeight: 600 } : undefined}>Hasta: {end}</span>}
+                        </div>
+                      ) : (
+                        <span style={{ color: "#9ca3af", fontSize: "0.8rem" }}>Permanente</span>
+                      )}
+                      {expired && <span style={{ display: "inline-block", marginTop: 4, padding: "2px 6px", background: "#fef2f2", color: "#dc2626", borderRadius: 4, fontSize: "0.7rem", fontWeight: 600 }}>Vencida</span>}
+                    </td>
                     <td>
                       <button
                         onClick={() => toggleActive(evento)}
@@ -222,7 +277,8 @@ export default function AdminEventosPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

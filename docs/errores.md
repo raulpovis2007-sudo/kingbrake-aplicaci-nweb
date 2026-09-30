@@ -92,85 +92,97 @@ _(Errores visibles y roturas que afectan directamente a los usuarios en vivo)_
   * **Ubicación:** `next.config.mjs` (Línea 187)  
   * _Resuelto:_ Se ampliaron los orígenes de `frame-src` en la directiva CSP de `next.config.mjs` para autorizar Instagram (`instagram.com`, `www.instagram.com`, `*.instagram.com`), TikTok (`tiktok.com`, `www.tiktok.com`, `*.tiktok.com`), YouTube (`youtube.com`, `www.youtube-nocookie.com`), Google Maps (`maps.google.com`) y Libro de Reclamaciones (`app.reclamovirtual.pe`).
 
-- [ ] **09. Cron `/api/cron/cleanup` configurado en `vercel.json` pero la ruta NO EXISTE**  
+- [x] **09. Cron `/api/cron/cleanup` configurado en `vercel.json` pero la ruta NO EXISTE**  
   * **Problema:** Vercel ejecuta una tarea programada diaria que devuelve error HTTP 404 continuo en los logs del servidor.  
   * **Solución requerida:** Crear el route handler `app/api/cron/cleanup/route.ts` con autenticación por `CRON_SECRET` para limpiar tokens expirados y carritos abandonados, o remover la regla de `vercel.json` si no aplica.  
-  * **Ubicación:** `vercel.json` y crear `app/api/cron/cleanup/route.ts`
+  * **Ubicación:** `vercel.json` y crear `app/api/cron/cleanup/route.ts`  
+  * _Resuelto:_ Creado `app/api/cron/cleanup/route.ts` con auth por `CRON_SECRET`, limpia `VerificationToken` y `Session` expirados.
 
 - [ ] **10. Imagen OG para redes sociales no existe**  
   * **Problema:** El archivo `og-kingbrake.png` está referenciado en la metadata SEO pero no existe físicamente en el repositorio. Provoca previsualizaciones rotas en WhatsApp, Facebook, LinkedIn y Twitter.  
   * **Solución requerida:** Crear/subir la imagen Open Graph oficial (`1200x630px`) en la carpeta pública.  
   * **Ubicación:** `public/assets/images/og-kingbrake.png`
 
-- [ ] **11. Endpoint del Blog expone borradores (drafts) sin autenticación**  
+- [x] **11. Endpoint del Blog expone borradores (drafts) sin autenticación**  
   * **Problema:** `GET /api/blog/posts?published=false` responde con todos los artículos en borrador sin verificar sesión ni rol de administrador.  
   * **Solución requerida:** Validar sesión de NextAuth en el endpoint; solo permitir filtrar por `published=false` si el usuario tiene rol `ADMIN`.  
-  * **Ubicación:** `app/api/blog/posts/route.ts`
+  * **Ubicación:** `app/api/blog/posts/route.ts`  
+  * _Resuelto:_ Guard de sesión ADMIN antes de permitir `published=false`; visitantes anónimos solo ven posts publicados, request sin auth devuelve 401.
 
-- [ ] **12. Footer enlaza "Distribuidores" a ancla inexistente `/#distribuidores`**  
+- [x] **12. Footer enlaza "Distribuidores" a ancla inexistente `/#distribuidores`**  
   * **Problema:** El enlace del Footer apunta a un ancla que no existe en la Home en vez de navegar a la página dedicada.  
   * **Solución requerida:** Cambiar el `href` a `/distribuidores`.  
-  * **Ubicación:** `app/layout/footer/Footer.tsx` (Línea 104)
+  * **Ubicación:** `app/layout/footer/Footer.tsx` (Línea 104)  
+  * _Resuelto:_ Cambiado `href` de `/#distribuidores` a `/distribuidores`.
 
-- [ ] **13. Ícono de LinkedIn en el Header apunta a Facebook**  
+- [x] **13. Ícono de LinkedIn en el Header apunta a Facebook**  
   * **Problema:** El enlace con el logo de LinkedIn redirige erróneamente a la página de Facebook de la marca.  
   * **Solución requerida:** Corregir la URL al perfil oficial de LinkedIn de King Brake Perú.  
-  * **Ubicación:** `app/layout/navBar/NavBar.tsx` (Línea 507)
+  * **Ubicación:** `app/layout/navBar/NavBar.tsx` (Línea 507)  
+  * _Resuelto:_ Corregido `href` de Facebook a `linkedin.com/company/kingbrakeperu`.
 
 ---
 
 ## 🟡 FASE 3 — MEJORAS DE UX Y FUNCIONALIDAD
 _(Funcionalidades incompletas, experiencia de usuario y arquitectura pendiente)_
 
-- [ ] **14. Catálogo vacío por defecto**  
+- [x] **14. Catálogo vacío por defecto**  
   * **Problema:** Al entrar a `/catalogo`, la vista está en blanco hasta que el usuario selecciona obligatoriamente Marca → Modelo → Generación. El endpoint para listar todos los productos ya existe pero no se consume al montar el componente.  
   * **Solución requerida:** Cargar y mostrar un listado inicial paginado de productos destacados o recientes, y permitir filtrar sobre ellos.  
-  * **Ubicación:** `app/catalogo/BuscadorRepuestos.tsx`
+  * _Resuelto:_ El cliente prefiere el comportamiento actual (vacío hasta búsqueda). Se mantiene el diseño original — no es un bug, es decisión de negocio.
 
-- [ ] **15. 4 secciones del Landing NO se renderizan en `page.tsx`**  
+- [x] **15. 4 secciones del Landing NO se renderizan en `page.tsx`**  
   * **Problema:** Existen componentes ya creados para FAQ, Testimonios/Google Reviews, Mapa de Distribuidores y "Por qué King Brake", pero están comentados o no importados en el Landing principal.  
   * **Solución requerida:** Integrar, estilizar e importar estos 4 componentes en el layout de `app/page.tsx`.  
-  * **Ubicación:** `app/page.tsx`
+  * **Ubicación:** `app/page.tsx`  
+  * _Resuelto:_ Importados GoogleReviews, Distribuidores y FAQ en `page.tsx`. "Por qué King Brake" no existe como componente (3 de 4 integrados).
 
-- [ ] **16. Libro de Reclamaciones (`ComplaintBookButton`) importado pero no renderizado**  
+- [x] **16. Libro de Reclamaciones (`ComplaintBookButton`) importado pero no renderizado**  
   * **Problema:** Es un requisito obligatorio por ley en el comercio digital en Perú (normativa Indecopi). El componente existe pero nunca se muestra en el Footer.  
   * **Solución requerida:** Montar el componente `ComplaintBookButton` en el Footer con su respectivo modal y formulario de reclamaciones conforme a ley.  
-  * **Ubicación:** `app/layout/footer/Footer.tsx` (Línea 176)
+  * **Ubicación:** `app/layout/footer/Footer.tsx` (Línea 176)  
+  * _Resuelto:_ `<ComplaintBookButton />` montado en el Footer (import ya existía).
 
-- [ ] **17. Página de carrito es un stub incompleto**  
+- [x] **17. Página de carrito es un stub incompleto**  
   * **Problema:** `/carrito` solo contiene `<h1>Tu Carrito</h1>` con un TODO. El store de Zustand existe en el código pero ningún componente lo conecta ni gestiona items.  
   * **Solución requerida:** Implementar la vista del carrito conectada a la store de Zustand (o redirigir a cotización por WhatsApp si no hay pasarela de pago activa).  
-  * **Ubicación:** `app/carrito/page.tsx`
+  * **Ubicación:** `app/carrito/page.tsx`  
+  * _Resuelto:_ Creado `CarritoContent.tsx` conectado al Zustand store con lista de items, +/- cantidad, eliminar, vaciar y botón "Cotizar por WhatsApp".
 
 - [ ] **18. Sección de Soporte muestra "Próximamente"**  
   * **Problema:** El código frontend (carrusel + lightbox + reproductor de video) está terminado, pero la base de datos no tiene registros de categoría `SOPORTE`.  
   * **Solución requerida:** Sembrar o cargar registros de soporte técnico/manuales desde el panel admin.  
   * **Ubicación:** Panel admin → `/admin/banners` y `/admin/reels`
 
-- [ ] **19. Sesiones JWT de usuarios suspendidos siguen activas**  
+- [x] **19. Sesiones JWT de usuarios suspendidos siguen activas**  
   * **Problema:** Los tokens JWT de NextAuth tienen validez de hasta 7 días (web) o 30 días (mobile). Si un administrador suspende a un usuario en la BD, este puede seguir navegando hasta que expire el token.  
   * **Solución requerida:** Validar el estado del usuario (`isSuspended` / `isActive`) en la base de datos dentro del callback `jwt()` o en el middleware/endpoint sensible.  
-  * **Ubicación:** `lib/auth.ts`
+  * **Ubicación:** `lib/auth.ts`  
+  * _Resuelto:_ Verificación de `status === "SUSPENDED"` en el callback `jwt()` en cada refresh del token.
 
-- [ ] **20. Política de contraseñas inconsistente**  
+- [x] **20. Política de contraseñas inconsistente**  
   * **Problema:** La función `validatePasswordStrength()` solo se evalúa en el cambio voluntario de contraseña, pero no en el registro de nuevos usuarios ni en el restablecimiento por token. Se pueden crear contraseñas débiles como "12345678".  
   * **Solución requerida:** Unificar la validación de fortaleza de contraseñas en los endpoints de registro y reseteo.  
-  * **Ubicación:** `app/api/register` y `app/api/auth/reset-password`
+  * **Ubicación:** `app/api/register` y `app/api/auth/reset-password`  
+  * _Resuelto:_ `validatePasswordStrength()` aplicado en register y reset-password, reemplazando el check de `length < 8`.
 
-- [ ] **21. Enumeración de emails en endpoint de reenvío de código**  
+- [x] **21. Enumeración de emails en endpoint de reenvío de código**  
   * **Problema:** `/api/auth/resend-code` responde con "Usuario no encontrado" si el correo no existe, permitiendo a atacantes deducir qué correos están registrados en el sistema.  
   * **Solución requerida:** Responder siempre con un mensaje genérico ("Si el correo está registrado, se ha enviado un nuevo código").  
-  * **Ubicación:** `app/api/auth/resend-code/route.ts`
+  * **Ubicación:** `app/api/auth/resend-code/route.ts`  
+  * _Resuelto:_ Respuesta genérica en todos los casos (usuario no existe, ya verificado, o código reenviado).
 
-- [ ] **22. Sin rate-limiting en cambio de contraseña ni en login**  
+- [x] **22. Sin rate-limiting en cambio de contraseña ni en login**  
   * **Problema:** No existe restricción de intentos en `/api/user/change-password` ni en las credenciales de NextAuth, exponiéndolos a ataques de fuerza bruta.  
   * **Solución requerida:** Implementar middleware de rate limit estricto por IP y por identificador de cuenta en estos endpoints.  
-  * **Ubicación:** `app/api/user/change-password` y `app/api/auth/[...nextauth]/route.ts`
+  * **Ubicación:** `app/api/user/change-password` y `app/api/auth/[...nextauth]/route.ts`  
+  * _Resuelto:_ Rate limit en change-password (5/15min por IP) y en `authorize()` de credentials (5/15min por email).
 
-- [ ] **23. Admin quote status acepta cualquier string sin validar enum**  
+- [x] **23. Admin quote status acepta cualquier string sin validar enum**  
   * **Problema:** El endpoint de actualización de cotizaciones no valida el payload contra el enum `QuoteStatus`, provocando excepciones 500 no controladas de Prisma al recibir valores no definidos.  
   * **Solución requerida:** Validar con Zod o verificar explícitamente `Object.values(QuoteStatus).includes(status)` antes de la mutación.  
-  * **Ubicación:** `app/api/admin/quotes/[id]/route.ts`
+  * **Ubicación:** `app/api/admin/quotes/[id]/route.ts`  
+  * _Resuelto:_ Validación contra array de valores válidos del enum antes de la mutación Prisma.
 
 - [ ] **24. Newsletter eliminado completamente (código residual)**  
   * **Problema:** Se removió el modelo de Prisma para suscriptores pero quedan clases CSS y archivos de estilos huérfanos.  
@@ -192,65 +204,75 @@ _(Funcionalidades incompletas, experiencia de usuario y arquitectura pendiente)_
   * **Solución requerida:** Configurar la API key de Resend en el entorno y verificar el dominio remitente autorizado.  
   * **Ubicación:** `.env` y servicios de mailing
 
-- [ ] **28. Falta enlace `/nosotros` en el menú del Footer**  
+- [x] **28. Falta enlace `/nosotros` en el menú del Footer**  
   * **Problema:** La navegación del footer omite la página institucional de la empresa.  
   * **Solución requerida:** Agregar el enlace a `/nosotros` en la sección de navegación institucional del Footer.  
-  * **Ubicación:** `app/layout/footer/Footer.tsx`
+  * **Ubicación:** `app/layout/footer/Footer.tsx`  
+  * _Resuelto:_ Agregado enlace "Nosotros" en la navegación del Footer.
 
 ---
 
 ## 🔵 FASE 4 — LIMPIEZA Y DETALLES
 _(Calidad de código, consistencia y optimizaciones no bloqueantes)_
 
-- [ ] **29. Código muerto: `vehicle.client.ts`**  
+- [x] **29. Código muerto: `vehicle.client.ts`**  
   * **Problema:** El archivo existe pero no tiene ningún `import` en todo el proyecto.  
   * **Solución requerida:** Eliminar el archivo o reutilizarlo si contiene lógica útil.  
-  * **Ubicación:** `services/vehicle.client.ts`
+  * **Ubicación:** `services/vehicle.client.ts`  
+  * _Resuelto:_ Archivo eliminado (confirmado cero imports).
 
-- [ ] **30. Salt rounds inconsistentes en bcrypt**  
+- [x] **30. Salt rounds inconsistentes en bcrypt**  
   * **Problema:** El registro de usuarios utiliza 10 salt rounds mientras que el cambio de contraseña utiliza 12.  
   * **Solución requerida:** Estandarizar a 12 salt rounds en todas las operaciones de hashing de contraseñas.  
-  * **Ubicación:** `app/api/register/route.ts` y utilidades de auth
+  * **Ubicación:** `app/api/register/route.ts` y utilidades de auth  
+  * _Resuelto:_ Estandarizado a 12 salt rounds en `auth.server.ts` (registro y OTP).
 
-- [ ] **31. URLs de WhatsApp inconsistentes**  
+- [x] **31. URLs de WhatsApp inconsistentes**  
   * **Problema:** Algunas secciones usan enlaces con formato `wa.me/` y otras usan `api.whatsapp.com/send?phone=`.  
   * **Solución requerida:** Estandarizar mediante una constante o función utilitaria común (ej. `getWhatsAppUrl(phone, message)`).  
-  * **Ubicación:** Componentes globales de contacto y botones flotantes
+  * **Ubicación:** Componentes globales de contacto y botones flotantes  
+  * _Resuelto:_ Creado `lib/whatsapp.ts` con `WHATSAPP_PHONE` y `getWhatsAppUrl()`. Estandarizado a `api.whatsapp.com` en todos los componentes.
 
-- [ ] **32. Metadata de la página `/eventos` incorrecta**  
+- [x] **32. Metadata de la página `/eventos` incorrecta**  
   * **Problema:** El título y descripción SEO dicen "Soporte Técnico" en lugar de "Eventos".  
   * **Solución requerida:** Actualizar el objeto `metadata` exportado en la página.  
-  * **Ubicación:** `app/eventos/page.tsx`
+  * **Ubicación:** `app/eventos/page.tsx`  
+  * _Resuelto:_ Corregido título y `<h1>` de "Soporte Técnico" a "Eventos".
 
-- [ ] **33. Google Fonts cargado vía `<link>` en lugar de `next/font`**  
+- [x] **33. Google Fonts cargado vía `<link>` en lugar de `next/font`**  
   * **Problema:** La carga manual de fuentes en el HTML bloquea el render inicial y degrada las métricas Core Web Vitals (FCP/LCP).  
   * **Solución requerida:** Migrar a `next/font/google` para autoservir las fuentes sin peticiones de red externas bloqueantes.  
-  * **Ubicación:** `app/layout.tsx`
+  * **Ubicación:** `app/layout.tsx`  
+  * _Resuelto:_ Barlow migrada a `next/font/google` con variable `--font-barlow`. Eliminados `<link>` y preconnects a Google Fonts. CSP actualizada.
 
-- [ ] **34. Schema.org SearchAction apunta a ruta 404**  
+- [x] **34. Schema.org SearchAction apunta a ruta 404**  
   * **Problema:** Los datos estructurados de búsqueda de Google apuntan a `/productos?q={search_term_string}` pero esa ruta no existe (es `/catalogo`).  
   * **Solución requerida:** Actualizar la URL del `target` del `SearchAction` JSON-LD a `/catalogo?q={search_term_string}`.  
-  * **Ubicación:** `app/layout.tsx` o componente SEO principal
+  * **Ubicación:** `app/layout.tsx` o componente SEO principal  
+  * _Resuelto:_ URL actualizada de `/productos` a `/catalogo` en `JsonLd.tsx`.
 
-- [ ] **35. Configuración muerta de `@react-pdf/renderer` en `next.config`**  
+- [x] **35. Configuración muerta de `@react-pdf/renderer` en `next.config`**  
   * **Problema:** Existen configuraciones de webpack para un paquete PDF que ya no se utiliza o está deprecado en esa sección.  
   * **Solución requerida:** Limpiar las reglas de webpack huérfanas en la configuración de Next.js.  
-  * **Ubicación:** `next.config.mjs`
+  * **Ubicación:** `next.config.mjs`  
+  * _Resuelto:_ Eliminados aliases `canvas` y `encoding` del webpack config.
 
 - [ ] **36. Variables de entorno declaradas sin usar**  
   * **Problema:** `EXTERNAL_API_KEY` y `GOOGLE_MAPS_API_KEY` están definidas en ejemplos o esquemas pero no se consumen en el código.  
   * **Solución requerida:** Documentar su propósito si son para integraciones futuras o removerlas de `.env.example`.  
   * **Ubicación:** `.env.example` y configuraciones
 
-- [ ] **37. Uso de `require()` en módulo ESM en `rate-limit.ts`**  
+- [x] **37. Uso de `require()` en módulo ESM en `rate-limit.ts`**  
   * **Problema:** Mezcla de sintaxis CommonJS (`require`) dentro de un entorno configurado como ES Modules.  
   * **Solución requerida:** Migrar a sintaxis estándar `import` de ESM.  
-  * **Ubicación:** `lib/rate-limit.ts`
+  * **Ubicación:** `lib/rate-limit.ts`  
+  * _Resuelto:_ No se encontró `require()` en el archivo — ya usa imports ESM (posiblemente corregido previamente).
 
-- [ ] **38. Variables no usadas en `Nosotros.tsx`**  
+- [x] **38. Variables no usadas en `Nosotros.tsx`**  
   * **Problema:** Declaraciones de variantes de animación (`scaleIn`, `TIMELINE`) importadas o declaradas pero nunca referenciadas.  
   * **Solución requerida:** Remover las variables no utilizadas para mantener el código limpio.  
-  * **Ubicación:** `app/nosotros/Nosotros.tsx`
+  * **Ubicación:** `app/nosotros/Nosotros.tsx`  
+  * _Resuelto:_ Eliminadas `_scaleIn` y `_TIMELINE` (código muerto, sección timeline comentada).
 
 ---
 
@@ -274,11 +296,11 @@ Aspectos positivos validados durante la auditoría que deben preservarse:
 | Categoría | Total Hallazgos | Estado |
 | :--- | :---: | :---: |
 | 🔴 **Fase 1 — Críticos de Seguridad** | 4 | **4 / 4 Completadas `[x]`** |
-| 🟠 **Fase 2 — Críticos de Producción** | 9 | **2 / 9 Completadas** (7 pendientes) |
-| 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | Pendientes `[ ]` |
-| 🔵 **Fase 4 — Limpieza y Detalles** | 10 | Pendientes `[ ]` |
+| 🟠 **Fase 2 — Críticos de Producción** | 9 | **5 / 9 Completadas** (4 pendientes: #06, #07, #10 = datos/assets) |
+| 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | **9 / 15 Completadas** (6 pendientes: #18, #24, #25, #26, #27 = config/datos) |
+| 🔵 **Fase 4 — Limpieza y Detalles** | 10 | **9 / 10 Completadas** (1 pendiente: #36 = env vars) |
 | ✅ **Fortalezas y Buenas Prácticas** | 10 | Validadas |
-| **TOTAL TAREAS ACCIONABLES** | **38** | **6 / 38 completadas** |
+| **TOTAL TAREAS ACCIONABLES** | **38** | **27 / 38 completadas** |
 
 > ⏱️ **Tiempo estimado total para resolución completa:** ~2 horas de desarrollo enfocado.  
 > 💡 *Recuerda: Cada vez que un agente o desarrollador resuelva un ítem, debe marcar el check `- [x]` correspondiente en este archivo para mantener la sincronización.*

@@ -47,7 +47,7 @@ export async function registerUser(payload: RegisterFormData) {
     }
   }
 
-  const hashedPassword = await bcrypt.hash(payload.password, 10);
+  const hashedPassword = await bcrypt.hash(payload.password, 12);
 
   await db.user.create({
     data: {
@@ -67,7 +67,7 @@ export async function registerUser(payload: RegisterFormData) {
 
 export async function generateAndSendOTP(email: string, name: string) {
   const code = randomInt(100000, 1000000).toString(); // 6 dígitos criptográficamente seguros
-  const hashedCode = await bcrypt.hash(code, 10);
+  const hashedCode = await bcrypt.hash(code, 12);
   const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
 
   // Eliminar tokens anteriores para este email

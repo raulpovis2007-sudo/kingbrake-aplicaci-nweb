@@ -77,10 +77,6 @@ const fadeUpSlow = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.25, 0.1, 0.25, 1] as const } },
 };
 
-const _scaleIn = {
-  hidden: { opacity: 0, scale: 0.85 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const } },
-};
 
 /* ── Data ── */
 
@@ -127,12 +123,6 @@ const CIFRAS = [
   { valor: 10, prefijo: "+", label: "Categorías de Producto" },
 ];
 
-const _TIMELINE = [
-  { year: "2009", text: "Fundación de King Brake en Lima, con la visión de revolucionar el mercado de frenos en Perú." },
-  { year: "2014", text: "Expansión a 20 puntos de venta y lanzamiento de la línea de pastillas ceramicadas." },
-  { year: "2019", text: "Cobertura nacional con más de 40 distribuidores y alianzas estratégicas con talleres." },
-  { year: "2024", text: "Más de 50 puntos de venta, catálogo digital y +200 modelos compatibles." },
-];
 
 export default function Nosotros() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -144,13 +134,40 @@ export default function Nosotros() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const orbScale = useTransform(scrollYProgress, [0, 1], [1, 1.4]);
 
+  const [heroVideoUrl, setHeroVideoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/banners?type=NOSOTROS_VIDEO")
+      .then((r) => r.ok ? r.json() : [])
+      .then((data: { image: string }[]) => {
+        if (data[0]?.image) setHeroVideoUrl(data[0].image);
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <>
       {/* ══════════ HERO ══════════ */}
       <section className={styles.hero} ref={heroRef}>
-        <div className={styles.heroGrid} />
-        <motion.div className={styles.heroOrb} style={{ scale: orbScale }} />
-        <motion.div className={styles.heroOrbSecondary} style={{ scale: orbScale }} />
+        {heroVideoUrl ? (
+          <>
+            <video
+              className={styles.heroVideo}
+              src={heroVideoUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+            />
+            <div className={styles.heroVideoOverlay} />
+          </>
+        ) : (
+          <>
+            <div className={styles.heroGrid} />
+            <motion.div className={styles.heroOrb} style={{ scale: orbScale }} />
+            <motion.div className={styles.heroOrbSecondary} style={{ scale: orbScale }} />
+          </>
+        )}
 
         <motion.div
           className={styles.heroContent}

@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
   Package,
@@ -11,12 +10,11 @@ import {
   Users,
   FileText,
   PlayCircle,
-  ImageIcon,
   Settings,
-  LogOut,
   ClipboardList,
   Car,
-  Image,
+  GalleryHorizontalEnd,
+  AppWindow,
   FolderTree,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
@@ -57,8 +55,8 @@ const navSections: NavSection[] = [
   {
     title: 'Contenido',
     items: [
-      { href: '/admin/banners', label: 'Imágenes y Medios', icon: Image },
-      { href: '/admin/eventos', label: 'Nuevas Aplicaciones', icon: ImageIcon },
+      { href: '/admin/banners', label: 'Imágenes y Medios', icon: GalleryHorizontalEnd },
+      { href: '/admin/eventos', label: 'Nuevas Aplicaciones', icon: AppWindow },
       { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
       { href: '/admin/blog', label: 'Blog', icon: FileText },
     ],
@@ -135,18 +133,6 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           ))}
         </nav>
 
-        <div className={styles.footer}>
-          <button
-            className={styles.logoutBtn}
-            onClick={() => signOut({ callbackUrl: '/' })}
-            title="Cerrar sesión"
-          >
-            <span className={styles.navIcon}>
-              <LogOut size={20} />
-            </span>
-            <span className={styles.logoutText}>Cerrar sesión</span>
-          </button>
-        </div>
       </aside>
     </>
   );
