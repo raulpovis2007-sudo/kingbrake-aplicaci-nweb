@@ -76,10 +76,11 @@ _(Errores visibles y roturas que afectan directamente a los usuarios en vivo)_
   * **Ubicación:** `app/nosotros/Nosotros.tsx` (Línea 42)  
   * _Resuelto:_ Eliminado prefijo/sufijo redundante `+` en datos y componente, y calibrado IntersectionObserver a `amount: 0.2` para disparo inmediato de animación.
 
-- [ ] **06. Video con título "sadfasdf" visible en la Home**  
+- [x] **06. Video con título "sadfasdf" visible en la Home**  
   * **Problema:** Registro de prueba (mock) sin limpiar en la base de datos de producción.  
   * **Solución requerida:** Eliminar o editar el registro desde la base de datos o el panel de administración.  
-  * **Ubicación:** Panel admin → `/admin/reels`
+  * **Ubicación:** Panel admin → `/admin/reels`  
+  * _Resuelto:_ Registro de prueba eliminado/editado desde el panel admin.
 
 - [ ] **07. Imágenes placeholder de `placehold.co` visibles en el Blog**  
   * **Problema:** Contenido de prueba visible públicamente en artículos reales del blog.  
@@ -149,10 +150,11 @@ _(Funcionalidades incompletas, experiencia de usuario y arquitectura pendiente)_
   * **Ubicación:** `app/carrito/page.tsx`  
   * _Resuelto:_ Creado `CarritoContent.tsx` conectado al Zustand store con lista de items, +/- cantidad, eliminar, vaciar y botón "Cotizar por WhatsApp".
 
-- [ ] **18. Sección de Soporte muestra "Próximamente"**  
+- [x] **18. Sección de Soporte muestra "Próximamente"**  
   * **Problema:** El código frontend (carrusel + lightbox + reproductor de video) está terminado, pero la base de datos no tiene registros de categoría `SOPORTE`.  
   * **Solución requerida:** Sembrar o cargar registros de soporte técnico/manuales desde el panel admin.  
-  * **Ubicación:** Panel admin → `/admin/banners` y `/admin/reels`
+  * **Ubicación:** Panel admin → `/admin/banners` y `/admin/reels`  
+  * _Resuelto:_ Registros de soporte cargados desde el panel admin. Filtros Landing/Soporte agregados en eventos y reels.
 
 - [x] **19. Sesiones JWT de usuarios suspendidos siguen activas**  
   * **Problema:** Los tokens JWT de NextAuth tienen validez de hasta 7 días (web) o 30 días (mobile). Si un administrador suspende a un usuario en la BD, este puede seguir navegando hasta que expire el token.  
@@ -184,20 +186,23 @@ _(Funcionalidades incompletas, experiencia de usuario y arquitectura pendiente)_
   * **Ubicación:** `app/api/admin/quotes/[id]/route.ts`  
   * _Resuelto:_ Validación contra array de valores válidos del enum antes de la mutación Prisma.
 
-- [ ] **24. Newsletter eliminado completamente (código residual)**  
+- [x] **24. Newsletter eliminado completamente (código residual)**  
   * **Problema:** Se removió el modelo de Prisma para suscriptores pero quedan clases CSS y archivos de estilos huérfanos.  
   * **Solución requerida:** Limpiar el CSS residual o reinstaurar la funcionalidad si el negocio requiere captación de leads.  
-  * **Ubicación:** Hojas de estilos y componentes de footer
+  * **Ubicación:** Hojas de estilos y componentes de footer  
+  * _Resuelto:_ No se encontro CSS residual de newsletter — ya estaba limpio.
 
-- [ ] **25. Sin campo de precios en productos**  
+- [x] **25. Sin campo de precios en productos**  
   * **Problema:** El campo `price` fue retirado del modelo de Prisma, dejando en ambigüedad si el flujo de venta es e-commerce directo o por cotización personalizada.  
   * **Solución requerida:** Definir la regla de negocio: si es catálogo consultivo/cotizador, estandarizar los botones a "Cotizar por WhatsApp"; si es e-commerce, restituir el campo en el schema.  
-  * **Ubicación:** `prisma/schema.prisma` y componentes de catálogo
+  * **Ubicación:** `prisma/schema.prisma` y componentes de catálogo  
+  * _Resuelto:_ Decision de negocio: sin precios, flujo es cotizacion por WhatsApp. Botones ya estandarizados.
 
-- [ ] **26. Google OAuth no configurado**  
+- [x] **26. Google OAuth no configurado**  
   * **Problema:** El botón "Continuar con Google" arroja error en runtime si no se definen las variables de entorno de Google Cloud Console.  
   * **Solución requerida:** Configurar `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` en Vercel/.env, o deshabilitar condicionalmente el botón en la UI si las keys no están presentes.  
-  * **Ubicación:** `.env` y `lib/auth.ts`
+  * **Ubicación:** `.env` y `lib/auth.ts`  
+  * _Resuelto:_ Variables de Google OAuth configuradas en entorno de produccion. Actualmente usa las credenciales del correo del desarrollador — pendiente migrar a la cuenta Google Cloud del cliente.
 
 - [ ] **27. Resend API Key no configurada**  
   * **Problema:** Los correos de bienvenida, verificación de email y reseteo de contraseña no se despachan por falta de la variable de entorno `RESEND_API_KEY`.  
@@ -296,11 +301,11 @@ Aspectos positivos validados durante la auditoría que deben preservarse:
 | Categoría | Total Hallazgos | Estado |
 | :--- | :---: | :---: |
 | 🔴 **Fase 1 — Críticos de Seguridad** | 4 | **4 / 4 Completadas `[x]`** |
-| 🟠 **Fase 2 — Críticos de Producción** | 9 | **5 / 9 Completadas** (4 pendientes: #06, #07, #10 = datos/assets) |
-| 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | **9 / 15 Completadas** (6 pendientes: #18, #24, #25, #26, #27 = config/datos) |
+| 🟠 **Fase 2 — Críticos de Producción** | 9 | **7 / 9 Completadas** (2 pendientes: #07, #10 = datos/assets) |
+| 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | **13 / 15 Completadas** (2 pendientes: #27 = Resend config, #36 = env vars) |
 | 🔵 **Fase 4 — Limpieza y Detalles** | 10 | **9 / 10 Completadas** (1 pendiente: #36 = env vars) |
 | ✅ **Fortalezas y Buenas Prácticas** | 10 | Validadas |
-| **TOTAL TAREAS ACCIONABLES** | **38** | **27 / 38 completadas** |
+| **TOTAL TAREAS ACCIONABLES** | **38** | **33 / 38 completadas** |
 
 > ⏱️ **Tiempo estimado total para resolución completa:** ~2 horas de desarrollo enfocado.  
 > 💡 *Recuerda: Cada vez que un agente o desarrollador resuelva un ítem, debe marcar el check `- [x]` correspondiente en este archivo para mantener la sincronización.*
