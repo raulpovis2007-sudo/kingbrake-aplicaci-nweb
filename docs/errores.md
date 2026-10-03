@@ -82,10 +82,11 @@ _(Errores visibles y roturas que afectan directamente a los usuarios en vivo)_
   * **Ubicación:** Panel admin → `/admin/reels`  
   * _Resuelto:_ Registro de prueba eliminado/editado desde el panel admin.
 
-- [ ] **07. Imágenes placeholder de `placehold.co` visibles en el Blog**  
+- [x] **07. Imágenes placeholder de `placehold.co` visibles en el Blog**  
   * **Problema:** Contenido de prueba visible públicamente en artículos reales del blog.  
   * **Solución requerida:** Reemplazar las imágenes temporales por imágenes reales optimizadas en Cloudinary o assets del proyecto.  
-  * **Ubicación:** Panel admin → `/admin/blog`
+  * **Ubicación:** Panel admin → `/admin/blog`  
+  * _Resuelto:_ Seed actualizado a imágenes locales (`PORTADA-1.png`, `PORTADA-2.png`), dominio `placehold.co` eliminado de `next.config.mjs`. Posts existentes en producción requieren reemplazo manual de imágenes vía panel admin.
 
 - [x] **08. CSP bloquea embeds de Instagram y TikTok**  
   * **Problema:** Los videos Reels incrustados se rompen en producción debido a que la Content Security Policy (CSP) no tiene los dominios de iframe autorizados.  
@@ -99,10 +100,11 @@ _(Errores visibles y roturas que afectan directamente a los usuarios en vivo)_
   * **Ubicación:** `vercel.json` y crear `app/api/cron/cleanup/route.ts`  
   * _Resuelto:_ Creado `app/api/cron/cleanup/route.ts` con auth por `CRON_SECRET`, limpia `VerificationToken` y `Session` expirados.
 
-- [ ] **10. Imagen OG para redes sociales no existe**  
+- [x] **10. Imagen OG para redes sociales no existe**  
   * **Problema:** El archivo `og-kingbrake.png` está referenciado en la metadata SEO pero no existe físicamente en el repositorio. Provoca previsualizaciones rotas en WhatsApp, Facebook, LinkedIn y Twitter.  
   * **Solución requerida:** Crear/subir la imagen Open Graph oficial (`1200x630px`) en la carpeta pública.  
-  * **Ubicación:** `public/assets/images/og-kingbrake.png`
+  * **Ubicación:** `public/assets/images/og-kingbrake.png`  
+  * _Resuelto:_ Creado `app/opengraph-image.tsx` y `app/twitter-image.tsx` con generación dinámica via `ImageResponse` de Next.js (1200x630, colores de marca). Eliminadas referencias manuales al PNG estático en `layout.tsx`.
 
 - [x] **11. Endpoint del Blog expone borradores (drafts) sin autenticación**  
   * **Problema:** `GET /api/blog/posts?published=false` responde con todos los artículos en borrador sin verificar sesión ni rol de administrador.  
@@ -262,10 +264,11 @@ _(Calidad de código, consistencia y optimizaciones no bloqueantes)_
   * **Ubicación:** `next.config.mjs`  
   * _Resuelto:_ Eliminados aliases `canvas` y `encoding` del webpack config.
 
-- [ ] **36. Variables de entorno declaradas sin usar**  
+- [x] **36. Variables de entorno declaradas sin usar**  
   * **Problema:** `EXTERNAL_API_KEY` y `GOOGLE_MAPS_API_KEY` están definidas en ejemplos o esquemas pero no se consumen en el código.  
   * **Solución requerida:** Documentar su propósito si son para integraciones futuras o removerlas de `.env.example`.  
-  * **Ubicación:** `.env.example` y configuraciones
+  * **Ubicación:** `.env.example` y configuraciones  
+  * _Resuelto:_ Eliminadas `EXTERNAL_API_KEY` y `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` de `.env.example` (cero referencias en código). Agregada `CRON_SECRET` que sí se consume.
 
 - [x] **37. Uso de `require()` en módulo ESM en `rate-limit.ts`**  
   * **Problema:** Mezcla de sintaxis CommonJS (`require`) dentro de un entorno configurado como ES Modules.  
@@ -301,11 +304,11 @@ Aspectos positivos validados durante la auditoría que deben preservarse:
 | Categoría | Total Hallazgos | Estado |
 | :--- | :---: | :---: |
 | 🔴 **Fase 1 — Críticos de Seguridad** | 4 | **4 / 4 Completadas `[x]`** |
-| 🟠 **Fase 2 — Críticos de Producción** | 9 | **7 / 9 Completadas** (2 pendientes: #07, #10 = datos/assets) |
-| 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | **13 / 15 Completadas** (2 pendientes: #27 = Resend config, #36 = env vars) |
-| 🔵 **Fase 4 — Limpieza y Detalles** | 10 | **9 / 10 Completadas** (1 pendiente: #36 = env vars) |
+| 🟠 **Fase 2 — Críticos de Producción** | 9 | **9 / 9 Completadas `[x]`** |
+| 🟡 **Fase 3 — Mejoras de UX y Funcionalidad** | 15 | **14 / 15 Completadas** (1 pendiente: #27 = Resend API Key) |
+| 🔵 **Fase 4 — Limpieza y Detalles** | 10 | **10 / 10 Completadas `[x]`** |
 | ✅ **Fortalezas y Buenas Prácticas** | 10 | Validadas |
-| **TOTAL TAREAS ACCIONABLES** | **38** | **33 / 38 completadas** |
+| **TOTAL TAREAS ACCIONABLES** | **38** | **37 / 38 completadas** |
 
 > ⏱️ **Tiempo estimado total para resolución completa:** ~2 horas de desarrollo enfocado.  
 > 💡 *Recuerda: Cada vez que un agente o desarrollador resuelva un ítem, debe marcar el check `- [x]` correspondiente en este archivo para mantener la sincronización.*

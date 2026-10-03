@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { db } from "@/lib/db";
 import CotizarButton from "./components/CotizarButton";
@@ -100,7 +101,7 @@ export default async function ProductoPage({ params, searchParams }: Props) {
                 <Link key={r.slug} href={`/productos/${r.slug}`} className={styles.relCard}>
                   <div className={styles.relImageBox}>
                     {r.images[0] ? (
-                      <img src={r.images[0]} alt={r.name} className={styles.relImage} />
+                      <Image src={r.images[0]} alt={r.name} fill sizes="(max-width: 768px) 50vw, 25vw" className={styles.relImage} />
                     ) : (
                       <span className={styles.relNoImage}>Sin imagen</span>
                     )}
