@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import {
   ShieldCheck,
@@ -229,7 +230,7 @@ export default function Nosotros() {
             variants={stagger}
           >
             <motion.div className={styles.historiaTexto} variants={fadeUp}>
-              <span className={styles.sectionLabel}>¿Quiénes somos?</span>
+              <h2 className={styles.historiaTitle}>¿Quiénes somos?</h2>
               <p className={styles.bodyText}>
                 KING BRAKE PERÚ es una empresa especializada en la importación
                 y comercialización de repuestos para sistemas de frenos
@@ -242,10 +243,8 @@ export default function Nosotros() {
                 Atendemos a distribuidores, mayoristas, casas de repuestos y
                 talleres especializados en todo el país.
               </p>
-            </motion.div>
 
-            <motion.div className={styles.historiaTexto} variants={fadeUp}>
-              <span className={styles.sectionLabel}>Nuestra historia</span>
+              <h2 className={styles.historiaTitle}>Nuestra historia</h2>
               <p className={styles.bodyText}>
                 Desde nuestros inicios, hemos trabajado con un objetivo claro:
                 convertirnos en un aliado estratégico para nuestros clientes,
@@ -256,6 +255,16 @@ export default function Nosotros() {
                 Perú y continuamos ampliando nuestro portafolio y cobertura
                 comercial.
               </p>
+            </motion.div>
+
+            <motion.div className={styles.historiaImageBox} variants={fadeUp}>
+              <Image
+                src="/assets/images/PORTADA-1.png"
+                alt="King Brake - Quiénes somos"
+                fill
+                sizes="(max-width: 767px) 100vw, 50vw"
+                className={styles.historiaImage}
+              />
             </motion.div>
           </motion.div>
         </div>
@@ -311,10 +320,12 @@ export default function Nosotros() {
           >
             <motion.div className={styles.mvCard} variants={fadeUpSlow}>
               <div className={styles.mvGlow} />
-              <div className={styles.mvIconWrap}>
-                <Rocket size={28} strokeWidth={1.6} />
+              <div className={styles.mvHeader}>
+                <h3 className={styles.mvTitle}>Nuestra misión</h3>
+                <div className={styles.mvIconWrap}>
+                  <Rocket size={22} strokeWidth={1.6} />
+                </div>
               </div>
-              <h3 className={styles.mvTitle}>Nuestra misión</h3>
               <p className={styles.mvText}>
                 Proporcionar soluciones completas para sistemas de frenos,
                 ofreciendo productos de alta calidad que garanticen seguridad,
@@ -324,10 +335,12 @@ export default function Nosotros() {
 
             <motion.div className={`${styles.mvCard} ${styles.mvCardVision}`} variants={fadeUpSlow}>
               <div className={styles.mvGlow} />
-              <div className={styles.mvIconWrap}>
-                <Eye size={28} strokeWidth={1.6} />
+              <div className={styles.mvHeader}>
+                <h3 className={styles.mvTitle}>Nuestra visión</h3>
+                <div className={styles.mvIconWrap}>
+                  <Eye size={22} strokeWidth={1.6} />
+                </div>
               </div>
-              <h3 className={styles.mvTitle}>Nuestra visión</h3>
               <p className={styles.mvText}>
                 Consolidarnos como una de las marcas líderes en sistemas de
                 frenos del Perú, destacando por nuestra calidad, innovación,
@@ -366,7 +379,7 @@ export default function Nosotros() {
                     className={styles.valorIconWrap}
                     style={{ "--valor-accent": v.accent } as React.CSSProperties}
                   >
-                    <v.icon size={26} strokeWidth={1.6} />
+                    <v.icon size={34} strokeWidth={1.5} />
                   </div>
                   <span className={styles.valorNum}>0{i + 1}</span>
                   <h3 className={styles.valorTitulo}>{v.titulo}</h3>

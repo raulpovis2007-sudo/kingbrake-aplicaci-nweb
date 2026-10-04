@@ -7,7 +7,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import styles from "./BuscadorRepuestos.module.css";
 
-const PER_PAGE = 10;
+const PER_PAGE = 12;
 
 const NO_GEN_SLUGS = ["sistema-hidraulico"];
 const NO_FILTER_SLUGS = ["lubricantes-de-freno"];
@@ -27,7 +27,11 @@ interface Compatibility {
   vehicleGeneration: {
     name: string;
     model: { name: string; brand: { name: string } };
-  };
+  } | null;
+  vehicleModel: {
+    name: string;
+    brand: { name: string };
+  } | null;
 }
 
 interface Product {
@@ -204,9 +208,7 @@ export default function BuscadorRepuestos() {
 
   const canSearch = isNoFilter
     ? false
-    : isNoGen
-      ? !!(categoriaSlug && brandId && modelId)
-      : !!(categoriaSlug && brandId && modelId && generationId);
+    : !!(categoriaSlug && brandId);
 
   const handleSearch = useCallback(async () => {
     if (!canSearch) return;
@@ -377,9 +379,7 @@ export default function BuscadorRepuestos() {
                 Encuentra el repuesto exacto para tu vehículo
               </p>
               <p className={styles.stateText}>
-                {isNoGen
-                  ? "Selecciona marca y modelo para ver repuestos compatibles."
-                  : "Completa los filtros de marca, modelo y generación para ver repuestos compatibles."}
+                Selecciona al menos una marca para buscar repuestos compatibles. Puedes refinar con modelo y generación.
               </p>
             </div>
           )}
@@ -407,7 +407,7 @@ export default function BuscadorRepuestos() {
                             src={p.images[0]}
                             alt={p.name}
                             fill
-                            sizes="100px"
+                            sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 33vw"
                             style={{ objectFit: "cover" }}
                           />
                         ) : (
@@ -429,13 +429,27 @@ export default function BuscadorRepuestos() {
                         <span className={styles.productCategory}>
                           {p.category.name}
                         </span>
-                        {p.compatibility && p.compatibility.length > 0 && (
-                          <span className={styles.productCompat}>
-                            {p.compatibility[0].vehicleGeneration.model.brand.name}{" "}
-                            {p.compatibility[0].vehicleGeneration.model.name}{" "}
-                            — {p.compatibility[0].vehicleGeneration.name}
-                          </span>
-                        )}
+                        {p.compatibility && p.compatibility.length > 0 && (() => {
+                          const c = p.compatibility[0];
+                          if (c.vehicleGeneration) {
+                            return (
+                              <span className={styles.productCompat}>
+                                {c.vehicleGeneration.model.brand.name}{" "}
+                                {c.vehicleGeneration.model.name}{" "}
+                                — {c.vehicleGeneration.name}
+                              </span>
+                            );
+                          }
+                          if (c.vehicleModel) {
+                            return (
+                              <span className={styles.productCompat}>
+                                {c.vehicleModel.brand.name}{" "}
+                                {c.vehicleModel.name}
+                              </span>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     </article>
                   </Link>

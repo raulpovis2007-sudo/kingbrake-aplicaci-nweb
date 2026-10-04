@@ -34,17 +34,32 @@ export async function POST(req: NextRequest) {
   if (modelId) genFilter.model.id = modelId;
   if (generationId) genFilter.id = generationId;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const modelFilter: Record<string, any> = {
+    brand: { id: brandId },
+  };
+  if (modelId) modelFilter.id = modelId;
+
+  const categoryFilter = [
+    { category: { slug: categoria } },
+    { category: { parent: { slug: categoria } } },
+  ];
+
+  const compatFilter = {
+    some: {
+      OR: [
+        { vehicleGeneration: genFilter },
+        { vehicleModel: modelFilter },
+      ],
+    },
+  };
+
   try {
     const products = await db.product.findMany({
       where: {
         isActive: true,
-        OR: [
-          { category: { slug: categoria } },
-          { category: { parent: { slug: categoria } } },
-        ],
-        compatibility: {
-          some: { vehicleGeneration: genFilter },
-        },
+        OR: categoryFilter,
+        compatibility: compatFilter,
       },
       select: {
         id: true,
@@ -55,7 +70,12 @@ export async function POST(req: NextRequest) {
         featured: true,
         category: { select: { name: true, slug: true } },
         compatibility: {
-          where: { vehicleGeneration: genFilter },
+          where: {
+            OR: [
+              { vehicleGeneration: genFilter },
+              { vehicleModel: modelFilter },
+            ],
+          },
           select: {
             vehicleGeneration: {
               select: {
@@ -66,6 +86,12 @@ export async function POST(req: NextRequest) {
                     brand: { select: { name: true } },
                   },
                 },
+              },
+            },
+            vehicleModel: {
+              select: {
+                name: true,
+                brand: { select: { name: true } },
               },
             },
           },

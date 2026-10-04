@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import {
   Pencil, Trash2, Plus, X, Search, Eye, EyeOff, Star,
-  Upload, Loader2, ImageIcon, Package, AlertTriangle,
+  Upload, Loader2, ImageIcon, Package, AlertTriangle, Check,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import styles from "./AdminProductos.module.css";
@@ -49,7 +49,7 @@ interface ProductFromAPI {
   description: string;
   sku: string;
   images: string[];
-  stock: number;
+
   featured: boolean;
   isActive: boolean;
   categoryId: string;
@@ -76,7 +76,7 @@ interface FormData {
   description: string;
   sku: string;
   images: string[];
-  stock: string;
+
   featured: boolean;
   isActive: boolean;
   parentCategoryId: string;
@@ -86,7 +86,7 @@ interface FormData {
 
 const EMPTY_FORM: FormData = {
   name: "", description: "", sku: "",
-  images: [], stock: "0", featured: false, isActive: true,
+  images: [], featured: false, isActive: true,
   parentCategoryId: "", categoryId: "",
   compatibility: [],
 };
@@ -272,7 +272,7 @@ export default function AdminProductosPage() {
       description: p.description,
       sku: p.sku,
       images: [...p.images],
-      stock: p.stock.toString(),
+
       featured: p.featured,
       isActive: p.isActive,
       parentCategoryId: parentCatId,
@@ -392,6 +392,29 @@ export default function AdminProductosPage() {
     setSelGenId("");
   }
 
+  async function addPartialCompatibility() {
+    if (!selModelId || !selBrandId) return;
+    const model = vehicleModels.find((m) => m.id === selModelId);
+    const brand = brands.find((b) => b.id === selBrandId);
+    if (!model || !brand) return;
+    if (form.compatibility.some((c) => c.type === "model" && c.id === selModelId)) return;
+
+    const newEntry: CompatEntry = { type: "model", id: selModelId, label: `${brand.name} ${model.name}` };
+    const updated = [...form.compatibility, newEntry];
+    setForm((prev) => ({ ...prev, compatibility: updated }));
+    setSelBrandId("");
+    setSelModelId("");
+    setSelGenId("");
+
+    if (editingId) {
+      await fetch(`/api/admin/products/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ compatibility: updated.map((c) => ({ type: c.type, id: c.id })) }),
+      });
+    }
+  }
+
   function removeCompatibility(entry: CompatEntry) {
     setForm((prev) => ({
       ...prev,
@@ -443,7 +466,7 @@ export default function AdminProductosPage() {
         description: form.description,
         sku: form.sku,
         images: form.images,
-        stock: parseInt(form.stock) || 0,
+
         featured: form.featured,
         isActive: form.isActive,
         categoryId: form.categoryId,
@@ -546,7 +569,7 @@ export default function AdminProductosPage() {
                 <th>Nombre</th>
                 <th>SKU</th>
                 <th>Categoría</th>
-                <th>Stock</th>
+
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -569,7 +592,7 @@ export default function AdminProductosPage() {
                   </td>
                   <td className={styles.sku}>{p.sku}</td>
                   <td className={styles.catCell}>{p.category.name}</td>
-                  <td className={styles.stock}>{p.stock}</td>
+
                   <td>
                     <button
                       className={`${styles.statusBadge} ${p.isActive ? styles.active : styles.inactive}`}
@@ -626,16 +649,6 @@ export default function AdminProductosPage() {
                     onChange={(e) => setForm((p) => ({ ...p, sku: e.target.value }))}
                     placeholder="KB-CU-001"
                     maxLength={30}
-                  />
-                </div>
-
-                <div className={styles.field}>
-                  <label>Stock</label>
-                  <input
-                    type="number"
-                    value={form.stock}
-                    onChange={(e) => setForm((p) => ({ ...p, stock: e.target.value }))}
-                    min="0"
                   />
                 </div>
 
@@ -757,6 +770,17 @@ export default function AdminProductosPage() {
                             <option key={g.id} value={g.id}>{g.name}</option>
                           ))}
                         </select>
+                      )}
+                      {compatLevel === "full" && selModelId && (
+                        <button
+                          type="button"
+                          className={styles.compatAddBtn}
+                          onClick={addPartialCompatibility}
+                          title="Guardar solo con marca y modelo"
+                        >
+                          <Check size={14} />
+                          Guardar
+                        </button>
                       )}
                     </div>
                     {form.compatibility.length > 0 && (

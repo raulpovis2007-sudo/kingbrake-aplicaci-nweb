@@ -63,6 +63,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'i.imgur.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
       // ponytail: si el blog necesita más dominios, agregar aquí explícitamente
       // NO usar hostname: '**' — permite SSRF vía next/image
     ],

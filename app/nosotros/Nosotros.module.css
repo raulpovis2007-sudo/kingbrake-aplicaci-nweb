@@ -212,10 +212,31 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 48px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .historiaTexto {}
+
+.historiaTitle {
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #fe0008;
+  margin: 0 0 16px;
+  line-height: 1.2;
+}
+
+.historiaImageBox {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.historiaImage {
+  object-fit: cover;
+}
 
 /* ══════════════════════════════════════════
    TIMELINE
@@ -325,14 +346,14 @@
 .mvGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: 20px;
 }
 
 .mvCard {
   position: relative;
   background: #fff;
-  border-radius: 20px;
-  padding: 44px 36px;
+  border-radius: 14px;
+  padding: 24px 24px 20px;
   border: 1px solid #e5e7eb;
   overflow: hidden;
   transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.4s ease;
@@ -358,16 +379,23 @@
   background: radial-gradient(circle, rgba(254, 0, 8, 0.05) 0%, transparent 70%);
 }
 
+.mvHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
 .mvIconWrap {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #0e1469 0%, #1a2180 100%);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 24px;
+  flex-shrink: 0;
 }
 
 .mvCardVision .mvIconWrap {
@@ -375,10 +403,10 @@
 }
 
 .mvTitle {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 800;
   color: #0e1469;
-  margin: 0 0 14px;
+  margin: 0;
   letter-spacing: -0.01em;
 }
 
@@ -434,8 +462,8 @@
 }
 
 .valorIconWrap {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   color: var(--valor-accent, #fe0008);
@@ -693,6 +721,10 @@
     gap: 32px;
   }
 
+  .historiaImageBox {
+    max-height: 360px;
+  }
+
   .timeline {
     padding-left: 28px;
   }
@@ -724,7 +756,7 @@
   }
 
   .mvCard {
-    padding: 32px 28px;
+    padding: 20px 18px 16px;
   }
 
   .valoresSection {

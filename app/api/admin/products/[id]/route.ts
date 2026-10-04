@@ -62,7 +62,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const { id } = params;
   const body = await req.json();
-  const { name, description, sku, images, stock, featured, isActive, categoryId, compatibility } = body;
+  const { name, description, sku, images, featured, isActive, categoryId, compatibility } = body;
 
   const existing = await db.product.findUnique({ where: { id } });
   if (!existing) {
@@ -92,7 +92,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
   if (description !== undefined) data.description = description?.trim() || "";
   if (images !== undefined) data.images = images;
-  if (stock !== undefined) data.stock = parseInt(String(stock)) || 0;
+
   if (featured !== undefined) data.featured = featured;
   if (isActive !== undefined) data.isActive = isActive;
   if (categoryId !== undefined) data.categoryId = categoryId;

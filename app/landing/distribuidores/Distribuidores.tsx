@@ -19,10 +19,11 @@ interface Distributor {
   lat: number;
   lng: number;
   phone: string | null;
+  image: string | null;
 }
 
 const PER_PAGE = 4;
-const MOCK_IMAGE = "/assets/images/categorias/pastilla-freno.webp";
+const FALLBACK_IMAGE = "/assets/images/categorias/pastilla-freno.webp";
 
 export default function Distribuidores() {
   const [distributors, setDistributors] = useState<Distributor[]>([]);
@@ -159,7 +160,7 @@ export default function Distribuidores() {
                 >
                   <div className={styles.cardImageBox}>
                     <Image
-                      src={MOCK_IMAGE}
+                      src={d.image || FALLBACK_IMAGE}
                       alt={d.name}
                       fill
                       sizes="280px"

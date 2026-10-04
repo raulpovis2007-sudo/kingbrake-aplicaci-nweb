@@ -16,14 +16,6 @@ export interface RecentQuote {
   user: { name: string; email: string };
 }
 
-export interface LowStockProduct {
-  id: string;
-  name: string;
-  sku: string;
-  stock: number;
-  images: string[];
-}
-
 export interface TopQuotedProduct {
   name: string;
   sku: string;
@@ -54,15 +46,6 @@ export async function getRecentQuotes(): Promise<RecentQuote[]> {
       createdAt: true,
       user: { select: { name: true, email: true } },
     },
-  });
-}
-
-export async function getLowStockProducts(): Promise<LowStockProduct[]> {
-  return db.product.findMany({
-    where: { isActive: true, stock: { lte: 5 } },
-    select: { id: true, name: true, sku: true, stock: true, images: true },
-    orderBy: { stock: 'asc' },
-    take: 8,
   });
 }
 
