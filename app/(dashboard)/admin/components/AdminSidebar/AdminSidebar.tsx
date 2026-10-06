@@ -16,6 +16,7 @@ import {
   GalleryHorizontalEnd,
   AppWindow,
   FolderTree,
+  ChevronLeft,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -74,15 +75,23 @@ const navSections: NavSection[] = [
 interface AdminSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+export function AdminSidebar({ isOpen, onClose, collapsed, onToggleCollapse }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
   };
+
+  const sidebarClasses = [
+    styles.sidebar,
+    isOpen ? styles.sidebarOpen : '',
+    collapsed ? styles.sidebarCollapsed : '',
+  ].filter(Boolean).join(' ');
 
   return (
     <>
@@ -93,7 +102,7 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       />
 
       <aside
-        className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}
+        className={sidebarClasses}
         role="navigation"
         aria-label="Menú principal"
       >
@@ -133,6 +142,16 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           ))}
         </nav>
 
+        <button
+          className={styles.collapseBtn}
+          onClick={onToggleCollapse}
+          title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+        >
+          <ChevronLeft
+            size={14}
+            className={`${styles.collapseIcon} ${collapsed ? styles.collapseIconRotated : ''}`}
+          />
+        </button>
       </aside>
     </>
   );

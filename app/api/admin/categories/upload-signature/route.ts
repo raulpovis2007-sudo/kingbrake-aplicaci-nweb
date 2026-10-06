@@ -7,12 +7,20 @@ export async function POST() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json({ error: "No autorizado", step: "auth" }, { status: 401 });
     }
+
+    const hasCloudName = !!process.env.CLOUDINARY_CLOUD_NAME;
+    const hasApiKey = !!process.env.CLOUDINARY_API_KEY;
+    const hasApiSecret = !!process.env.CLOUDINARY_API_SECRET;
 
     if (!isCloudinaryConfigured()) {
       return NextResponse.json(
-        { error: "Cloudinary no está configurado" },
+        {
+          error: "Cloudinary no está configurado",
+          step: "config",
+          vars: { hasCloudName, hasApiKey, hasApiSecret },
+        },
         { status: 500 }
       );
     }
@@ -33,9 +41,11 @@ export async function POST() {
       folder,
     });
   } catch (error) {
-    console.error("Error generating upload signature:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    console.error("Error generating upload signature:", message, stack);
     return NextResponse.json(
-      { error: "Error al generar firma de subida" },
+      { error: "Error al generar firma de subida", step: "catch", detail: message },
       { status: 500 }
     );
   }

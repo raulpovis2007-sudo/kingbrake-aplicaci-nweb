@@ -31,6 +31,10 @@
   isolation: isolate;
 }
 
+.containerCollapsed .mainArea {
+  margin-left: 72px;
+}
+
 .content {
   flex: 1;
   background-color: #F9FAFB;
@@ -76,6 +80,10 @@
     margin-left: 0;
     width: 100%;
     max-width: 100%;
+  }
+
+  .containerCollapsed .mainArea {
+    margin-left: 0;
   }
 
   .content {
