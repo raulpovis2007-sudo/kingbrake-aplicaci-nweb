@@ -293,6 +293,25 @@ model Banner {
 }
 
 // ============================================
+// LÍNEA DE TIEMPO (CMS)
+// ============================================
+
+model TimelineMilestone {
+  id          String   @id @default(cuid())
+  year        Int
+  month       Int?
+  title       String   @db.VarChar(120)
+  description String?  @db.Text
+  image       String?  @db.VarChar(500)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, order])
+}
+
+// ============================================
 // REELS EDUCATIVOS
 // ============================================
 

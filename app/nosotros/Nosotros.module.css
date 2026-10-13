@@ -239,107 +239,6 @@
 }
 
 /* ══════════════════════════════════════════
-   TIMELINE
-   ══════════════════════════════════════════ */
-
-.timelineSection {
-  padding: 56px 0;
-  background: #f8f9fc;
-  position: relative;
-}
-
-.timeline {
-  position: relative;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px 0;
-}
-
-.timelineLine {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(180deg, #e5e7eb 0%, #0e1469 50%, #e5e7eb 100%);
-  transform: translateX(-50%);
-}
-
-.timelineItem {
-  position: relative;
-  display: flex;
-  justify-content: flex-end;
-  padding-right: calc(50% + 40px);
-  margin-bottom: 48px;
-}
-
-.timelineItem:last-child {
-  margin-bottom: 0;
-}
-
-.timelineItemRight {
-  justify-content: flex-start;
-  padding-right: 0;
-  padding-left: calc(50% + 40px);
-}
-
-.timelineDot {
-  position: absolute;
-  left: 50%;
-  top: 6px;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #fff;
-  border: 3px solid #0e1469;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-
-.timelineDotInner {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #fe0008;
-}
-
-.timelineCard {
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px 28px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f0f0f0;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.timelineCard:hover {
-  box-shadow: 0 8px 32px rgba(14, 20, 105, 0.1);
-  transform: translateY(-2px);
-}
-
-.timelineYear {
-  display: inline-block;
-  font-size: 13px;
-  font-weight: 800;
-  color: #fe0008;
-  letter-spacing: 0.06em;
-  margin-bottom: 8px;
-  padding: 3px 10px;
-  background: rgba(254, 0, 8, 0.06);
-  border-radius: 4px;
-}
-
-.timelineText {
-  font-size: 14px;
-  line-height: 1.7;
-  color: #4b5563;
-  margin: 0;
-}
-
-/* ══════════════════════════════════════════
    MISIÓN / VISIÓN
    ══════════════════════════════════════════ */
 
@@ -711,8 +610,7 @@
     height: 200px;
   }
 
-  .section,
-  .timelineSection {
+  .section {
     padding: 40px 0;
   }
 
@@ -723,31 +621,6 @@
 
   .historiaImageBox {
     max-height: 360px;
-  }
-
-  .timeline {
-    padding-left: 28px;
-  }
-
-  .timelineLine {
-    left: 0;
-    transform: none;
-  }
-
-  .timelineItem,
-  .timelineItemRight {
-    padding-right: 0;
-    padding-left: 40px;
-    justify-content: flex-start;
-  }
-
-  .timelineDot {
-    left: 0;
-    transform: translateX(-50%);
-  }
-
-  .timelineCard {
-    padding: 20px 22px;
   }
 
   .mvGrid {
@@ -814,8 +687,7 @@
     gap: 24px;
   }
 
-  .section,
-  .timelineSection {
+  .section {
     padding: 48px 0;
   }
 }

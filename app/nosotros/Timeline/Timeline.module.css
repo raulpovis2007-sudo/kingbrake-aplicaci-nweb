@@ -1,0 +1,305 @@
+/* ══════════════════════════════════════════
+   SERPENTINE TIMELINE
+   ══════════════════════════════════════════ */
+
+.section {
+  padding: 80px 0;
+  background: #070a33;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 64px;
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fe0008;
+  margin-bottom: 12px;
+}
+
+.heading {
+  font-size: 36px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  line-height: 1.15;
+}
+
+/* ── Track ── */
+
+.track {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ── Row: horizontal group of milestones ── */
+
+.row {
+  display: flex;
+  position: relative;
+}
+
+.rowLTR {
+  flex-direction: row;
+}
+
+.rowRTL {
+  flex-direction: row-reverse;
+}
+
+/* Horizontal connecting line through the middle of the row */
+.row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* ── Milestone: one item in the row ── */
+
+.milestone {
+  flex: 1;
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  text-align: center;
+  padding: 0 8px;
+  min-width: 0;
+}
+
+/* ── Top: photo area (above the line) ── */
+
+.msTop {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 16px;
+  min-height: 60px;
+}
+
+.msImage {
+  display: block;
+  max-width: 180px;
+  max-height: 150px;
+  width: auto;
+  height: auto;
+}
+
+/* ── Center: dot on the line ── */
+
+.msCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  height: 16px;
+}
+
+.msDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: #070a33;
+}
+
+/* ── Bottom: year + text (below the line) ── */
+
+.msBottom {
+  padding-top: 14px;
+}
+
+.msYear {
+  display: block;
+  font-size: 30px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.msTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 4px;
+  line-height: 1.45;
+}
+
+.msDesc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.38);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Turn: vertical connector between rows ── */
+
+.turn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 14px;
+  height: 56px;
+}
+
+.turnRight {
+  margin-left: auto;
+}
+
+.turnLeft {
+  margin-right: auto;
+}
+
+.turnDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: #070a33;
+  flex-shrink: 0;
+}
+
+.turnLine {
+  width: 2px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ══════════════════════════════════════════
+   MOBILE — vertical timeline
+   ══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .section {
+    padding: 56px 0;
+  }
+
+  .heading {
+    font-size: 28px;
+  }
+
+  .track {
+    padding-left: 44px;
+    padding-right: 16px;
+    position: relative;
+  }
+
+  /* Vertical rail */
+  .track::before {
+    content: "";
+    position: absolute;
+    left: 30px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .row,
+  .rowLTR,
+  .rowRTL {
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .row::before {
+    display: none;
+  }
+
+  .milestone {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding: 0;
+    gap: 8px;
+    position: relative;
+  }
+
+  /* Dot on the left rail */
+  .milestone::before {
+    content: "";
+    position: absolute;
+    left: -21px;
+    top: 3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: #070a33;
+  }
+
+  .msTop {
+    order: 2;
+    padding: 0;
+    justify-content: flex-start;
+    min-height: 0;
+  }
+
+  .msImage {
+    max-width: 100%;
+    max-height: none;
+  }
+
+  .msCenter {
+    display: none;
+  }
+
+  .msBottom {
+    order: 1;
+    padding: 0;
+  }
+
+  .msYear {
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  .turn {
+    display: none;
+  }
+}
+
+/* ══════════════════════════════════════════
+   DESKTOP LARGE
+   ══════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+  .heading {
+    font-size: 44px;
+  }
+
+  .msImage {
+    max-width: 220px;
+    max-height: 180px;
+  }
+
+  .msYear {
+    font-size: 36px;
+  }
+
+  .milestone {
+    padding: 0 16px;
+  }
+
+  .msTitle {
+    font-size: 14px;
+  }
+
+  .msDesc {
+    font-size: 13px;
+  }
+}

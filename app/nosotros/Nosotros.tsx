@@ -15,6 +15,7 @@ import {
   ChevronDown,
   CheckCircle,
 } from "lucide-react";
+import Timeline from "./Timeline/Timeline";
 import styles from "./Nosotros.module.css";
 
 /* ── Animated counter with easeOut ── */
@@ -270,43 +271,8 @@ export default function Nosotros() {
         </div>
       </section>
 
-      {/* ══════════ TIMELINE (desactivado) ══════════ */}
-      {/* <section className={styles.timelineSection}>
-        <div className={styles.container}>
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={stagger}
-          >
-            <motion.span className={styles.sectionLabelCenter} variants={fadeUp}>
-              Nuestro recorrido
-            </motion.span>
-            <motion.h2 className={styles.sectionTitleCenter} variants={fadeUp}>
-              Hitos que nos definen
-            </motion.h2>
-
-            <div className={styles.timeline}>
-              <div className={styles.timelineLine} />
-              {TIMELINE.map((item, i) => (
-                <motion.div
-                  key={item.year}
-                  className={`${styles.timelineItem} ${i % 2 === 1 ? styles.timelineItemRight : ""}`}
-                  variants={fadeUp}
-                >
-                  <div className={styles.timelineDot}>
-                    <div className={styles.timelineDotInner} />
-                  </div>
-                  <div className={styles.timelineCard}>
-                    <span className={styles.timelineYear}>{item.year}</span>
-                    <p className={styles.timelineText}>{item.text}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section> */}
+      {/* ══════════ LÍNEA DE TIEMPO (CMS) ══════════ */}
+      <Timeline />
 
       {/* ══════════ MISIÓN Y VISIÓN ══════════ */}
       <section className={styles.section}>
