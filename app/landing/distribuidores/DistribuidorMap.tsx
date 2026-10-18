@@ -122,7 +122,7 @@ export default function DistribuidorMap({
       />
       <ZoomControl position="bottomright" />
 
-      {geoData && <GeoJSON data={geoData} style={deptStyle} />}
+      {geoData && <GeoJSON data={geoData} style={deptStyle} interactive={false} />}
 
       {distributors.map((d) => (
         <CircleMarker
