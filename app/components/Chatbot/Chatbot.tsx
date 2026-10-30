@@ -164,7 +164,6 @@ export default function Chatbot() {
   const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const pendingVoiceRef = useRef(false);
   const inputTextRef = useRef("");
 
   const scrollToBottom = useCallback(() => {
@@ -180,14 +179,6 @@ export default function Chatbot() {
   useEffect(() => {
     inputTextRef.current = inputText;
   }, [inputText]);
-
-  useEffect(() => {
-    if (!isListening && pendingVoiceRef.current && inputTextRef.current.trim()) {
-      pendingVoiceRef.current = false;
-      handleTextSubmit();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isListening]);
 
   const addBotMessage = (text: string) => {
     setShowOptions(false);
@@ -247,19 +238,33 @@ export default function Chatbot() {
     }
   };
 
-  const toggleMic = () => {
+  const micTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const toggleMic = async () => {
     if (isListening) {
+      if (micTimeoutRef.current) clearTimeout(micTimeoutRef.current);
       recognitionRef.current?.stop();
       setIsListening(false);
       return;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      addBotMessage("Tu navegador no soporta reconocimiento de voz. Usa Google Chrome para esta función.");
+      return;
+    }
 
-    const recognition = new SpeechRecognition();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+    } catch {
+      addBotMessage("No se pudo acceder al micrófono. Verifica los permisos de tu navegador.");
+      return;
+    }
+
+    const recognition = new SR();
     recognition.lang = "es-PE";
-    recognition.continuous = true;
+    recognition.continuous = false;
     recognition.interimResults = true;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -268,20 +273,29 @@ export default function Chatbot() {
         transcript += event.results[i][0].transcript;
       }
       setInputText(transcript);
-
-      const lastResult = event.results[event.results.length - 1];
-      if (lastResult.isFinal) {
-        pendingVoiceRef.current = true;
-        recognition.stop();
-      }
     };
 
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => {
+      if (micTimeoutRef.current) clearTimeout(micTimeoutRef.current);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      if (micTimeoutRef.current) clearTimeout(micTimeoutRef.current);
+      setIsListening(false);
+    };
 
     recognitionRef.current = recognition;
-    recognition.start();
-    setIsListening(true);
+    try {
+      recognition.start();
+      setIsListening(true);
+      micTimeoutRef.current = setTimeout(() => {
+        recognition.stop();
+        setIsListening(false);
+      }, 15000);
+    } catch {
+      addBotMessage("Error al iniciar el reconocimiento de voz. Intenta de nuevo.");
+    }
   };
 
   const handleBack = () => {
