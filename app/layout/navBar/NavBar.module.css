@@ -187,7 +187,7 @@
 }
 
 .navbar-text {
-  color: #fe0008;
+  color: #ffffff;
   white-space: pre-line;
   margin-top: 0;
   margin-bottom: 0;
@@ -202,7 +202,7 @@
 }
 
 .navbar-item:hover .navbar-text {
-  color: #ff6666;
+  color: #fe0008;
 }
 
 .icon {
@@ -1013,6 +1013,7 @@
 
   .navbar-item-active {
     background: rgba(255, 255, 255, 0.08);
+    border-left: 3px solid #fe0008;
   }
 
   /* Mostrar flechas en móvil */
@@ -1067,7 +1068,7 @@
   }
 
   .navbar-item:hover .navbar-text {
-    color: #b00006 !important;
+    color: #fe0008 !important;
   }
 
   /* Botones CTA ocupan todo el ancho */

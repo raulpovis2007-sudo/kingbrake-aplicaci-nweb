@@ -348,3 +348,14 @@ model Reel {
   @@index([isActive, sortOrder])
   @@index([category])
 }
+
+// ============================================
+// CONTENIDO DE PÁGINAS (CMS)
+// ============================================
+
+model PageContent {
+  id        String   @id @default(cuid())
+  key       String   @unique @db.VarChar(100)
+  data      Json
+  updatedAt DateTime @updatedAt
+}

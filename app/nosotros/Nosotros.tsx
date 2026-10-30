@@ -138,12 +138,25 @@ export default function Nosotros() {
 
   const [heroVideoUrl, setHeroVideoUrl] = useState<string | null>(null);
 
+  interface NosotrosContent {
+    quienesSomos: string;
+    historia: string;
+    image: string;
+  }
+
+  const [cmsData, setCmsData] = useState<NosotrosContent | null>(null);
+
   useEffect(() => {
     fetch("/api/banners?type=NOSOTROS_VIDEO")
       .then((r) => r.ok ? r.json() : [])
       .then((data: { image: string }[]) => {
         if (data[0]?.image) setHeroVideoUrl(data[0].image);
       })
+      .catch(() => {});
+
+    fetch("/api/page-content/nosotros")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d: NosotrosContent | null) => { if (d) setCmsData(d); })
       .catch(() => {});
   }, []);
 
@@ -232,35 +245,23 @@ export default function Nosotros() {
           >
             <motion.div className={styles.historiaTexto} variants={fadeUp}>
               <h2 className={styles.historiaTitle}>¿Quiénes somos?</h2>
-              <p className={styles.bodyText}>
-                KING BRAKE PERÚ es una empresa especializada en la importación
-                y comercialización de repuestos para sistemas de frenos
-                automotrices. Nos enfocamos exclusivamente en productos de
-                frenado para vehículos livianos y comerciales, ofreciendo
-                soluciones confiables, seguras y de alta calidad para el
-                mercado peruano.
-              </p>
-              <p className={styles.bodyText}>
-                Atendemos a distribuidores, mayoristas, casas de repuestos y
-                talleres especializados en todo el país.
-              </p>
+              {(cmsData?.quienesSomos ?? "KING BRAKE PERÚ es una empresa especializada en la importación y comercialización de repuestos para sistemas de frenos automotrices. Nos enfocamos exclusivamente en productos de frenado para vehículos livianos y comerciales, ofreciendo soluciones confiables, seguras y de alta calidad para el mercado peruano.\n\nAtendemos a distribuidores, mayoristas, casas de repuestos y talleres especializados en todo el país.")
+                .split("\n\n")
+                .map((p, i) => (
+                  <p key={i} className={styles.bodyText}>{p}</p>
+                ))}
 
               <h2 className={styles.historiaTitle}>Nuestra historia</h2>
-              <p className={styles.bodyText}>
-                Desde nuestros inicios, hemos trabajado con un objetivo claro:
-                convertirnos en un aliado estratégico para nuestros clientes,
-                ofreciendo productos con una excelente relación entre calidad,
-                rendimiento y precio. Gracias a la confianza de nuestros
-                clientes y al compromiso de nuestro equipo, hoy contamos con
-                una presencia cada vez mayor en las principales ciudades del
-                Perú y continuamos ampliando nuestro portafolio y cobertura
-                comercial.
-              </p>
+              {(cmsData?.historia ?? "Desde nuestros inicios, hemos trabajado con un objetivo claro: convertirnos en un aliado estratégico para nuestros clientes, ofreciendo productos con una excelente relación entre calidad, rendimiento y precio. Gracias a la confianza de nuestros clientes y al compromiso de nuestro equipo, hoy contamos con una presencia cada vez mayor en las principales ciudades del Perú y continuamos ampliando nuestro portafolio y cobertura comercial.")
+                .split("\n\n")
+                .map((p, i) => (
+                  <p key={i} className={styles.bodyText}>{p}</p>
+                ))}
             </motion.div>
 
             <motion.div className={styles.historiaImageBox} variants={fadeUp}>
               <Image
-                src="/assets/images/PORTADA-1.png"
+                src={cmsData?.image ?? "/assets/images/PORTADA-1.png"}
                 alt="King Brake - Quiénes somos"
                 fill
                 sizes="(max-width: 767px) 100vw, 50vw"

@@ -99,7 +99,7 @@
 /* ── Chat window ── */
 .chatWindow {
   width: 370px;
-  max-height: 680px;
+  max-height: 780px;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
@@ -196,7 +196,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 480px;
+  max-height: 580px;
   background: #f7f7fb;
 }
 
@@ -316,7 +316,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 14px 0 4px;
+  padding: 24px 0 4px;
   margin-top: auto;
   animation: msgIn 0.3s ease-out;
 }

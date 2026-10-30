@@ -18,6 +18,7 @@ import {
   FolderTree,
   ChevronLeft,
   History,
+  Info,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -62,6 +63,7 @@ const navSections: NavSection[] = [
       { href: '/admin/reels', label: 'Reels', icon: PlayCircle },
       { href: '/admin/blog', label: 'Blog', icon: FileText },
       { href: '/admin/timeline', label: 'Línea de tiempo', icon: History },
+      { href: '/admin/nosotros', label: 'Quiénes Somos', icon: Info },
     ],
   },
   {
