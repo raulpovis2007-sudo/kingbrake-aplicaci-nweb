@@ -172,7 +172,7 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+            value: 'camera=(), microphone=(self), geolocation=(self), interest-cohort=()',
           },
           ...(process.env.NODE_ENV === 'production' ? [{
             key: 'Content-Security-Policy',
