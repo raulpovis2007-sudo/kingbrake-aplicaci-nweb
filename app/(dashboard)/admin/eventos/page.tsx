@@ -13,6 +13,7 @@ import {
   CalendarDays,
   ExternalLink,
 } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "../banners/AdminBanners.module.css";
 
 interface Banner {
@@ -149,7 +150,7 @@ export default function AdminEventosPage() {
   };
 
   if (loading) {
-    return <div className={styles.container}><div className={styles.loading}>Cargando eventos...</div></div>;
+    return <AdminSkeleton variant="cards" rows={4} />;
   }
 
   return (

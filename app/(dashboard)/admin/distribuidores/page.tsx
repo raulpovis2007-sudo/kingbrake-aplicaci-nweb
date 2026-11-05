@@ -12,6 +12,7 @@ import {
   Search,
   AlertTriangle,
 } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminDistribuidores.module.css";
 
 interface Distributor {
@@ -254,7 +255,7 @@ export default function AdminDistribuidoresPage() {
   }
 
   if (loading) {
-    return <div className={styles.container}><div className={styles.loading}>Cargando distribuidores...</div></div>;
+    return <AdminSkeleton cols={4} rows={6} />;
   }
 
   return (

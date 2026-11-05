@@ -20,6 +20,17 @@ async function getProduct(slug: string) {
       category: {
         select: { name: true, slug: true, parent: { select: { name: true, slug: true } } },
       },
+      subcategories: { where: { isActive: true }, select: { id: true, name: true } },
+      compatibility: {
+        select: {
+          vehicleGeneration: {
+            select: { name: true, model: { select: { name: true, brand: { select: { name: true } } } } },
+          },
+          vehicleModel: {
+            select: { name: true, brand: { select: { name: true } } },
+          },
+        },
+      },
     },
   });
 }
@@ -62,7 +73,12 @@ export default async function ProductoPage({ params, searchParams }: Props) {
 
           <div className={styles.grid}>
             {/* Galería de imágenes con flechas */}
-            <ProductGallery images={product.images} name={product.name} />
+            <ProductGallery
+              images={product.images}
+              name={product.name}
+              sku={product.sku}
+              category={product.category.parent ? `${product.category.parent.name} › ${product.category.name}` : product.category.name}
+            />
 
             <div className={styles.infoCol}>
               <span className={styles.categoriaLabel}>
@@ -70,8 +86,39 @@ export default async function ProductoPage({ params, searchParams }: Props) {
                   ? `${product.category.parent.name} › ${product.category.name}`
                   : product.category.name}
               </span>
+              {product.subcategories && product.subcategories.length > 0 && (
+                <div className={styles.subcatTags}>
+                  {product.subcategories.map((s) => (
+                    <span key={s.id} className={styles.subcatTag}>{s.name}</span>
+                  ))}
+                </div>
+              )}
               <h1 className={styles.titulo}>{product.name}</h1>
               <p className={styles.sku}>SKU: {product.sku}</p>
+
+              {product.compatibility.length > 0 && (() => {
+                const labels = product.compatibility.map((c) => {
+                  if (c.vehicleGeneration) {
+                    const g = c.vehicleGeneration;
+                    return `${g.model.brand.name} ${g.model.name} — ${g.name}`;
+                  }
+                  if (c.vehicleModel) {
+                    return `${c.vehicleModel.brand.name} ${c.vehicleModel.name}`;
+                  }
+                  return null;
+                }).filter(Boolean) as string[];
+                labels.sort((a, b) => a.localeCompare(b, "es"));
+                return (
+                  <div className={styles.compatSection}>
+                    <h3 className={styles.compatTitulo}>Compatibilidad vehicular</h3>
+                    <div className={styles.compatTags}>
+                      {labels.map((label) => (
+                        <span key={label} className={styles.compatTag}>{label}</span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {product.description && (
                 <div

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Pencil, Trash2, Plus, Eye, EyeOff } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminBlog.module.css";
 
 interface Category {
@@ -97,9 +98,7 @@ export default function AdminBlogPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Cargando posts...</div>
-      </div>
+      <AdminSkeleton variant="cards" rows={6} />
     );
   }
 

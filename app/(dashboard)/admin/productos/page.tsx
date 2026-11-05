@@ -6,6 +6,7 @@ import {
   Upload, Loader2, ImageIcon, Package, AlertTriangle, Check,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminProductos.module.css";
 
 const RichTextEditor = dynamic(
@@ -54,6 +55,7 @@ interface ProductFromAPI {
   isActive: boolean;
   categoryId: string;
   category: { id: string; name: string };
+  subcategories?: { id: string; name: string }[];
   compatibility?: {
     vehicleGenerationId: string | null;
     vehicleGeneration: {
@@ -81,6 +83,7 @@ interface FormData {
   isActive: boolean;
   parentCategoryId: string;
   categoryId: string;
+  subcategoryIds: string[];
   compatibility: CompatEntry[];
 }
 
@@ -88,6 +91,7 @@ const EMPTY_FORM: FormData = {
   name: "", description: "", sku: "",
   images: [], featured: false, isActive: true,
   parentCategoryId: "", categoryId: "",
+  subcategoryIds: [],
   compatibility: [],
 };
 
@@ -203,10 +207,13 @@ export default function AdminProductosPage() {
   // Auto-seleccionar subcategoría cuando solo hay una
   useEffect(() => {
     if (subcategories.length === 1) {
-      setForm((p) => ({ ...p, categoryId: subcategories[0].id }));
+      setForm((p) => ({
+        ...p,
+        categoryId: subcategories[0].id,
+        subcategoryIds: p.subcategoryIds.length > 0 ? p.subcategoryIds : [subcategories[0].id],
+      }));
     } else if (subcategories.length === 0 && form.parentCategoryId) {
-      // Sin subcategorías → el producto va directo a la categoría padre
-      setForm((p) => ({ ...p, categoryId: form.parentCategoryId }));
+      setForm((p) => ({ ...p, categoryId: form.parentCategoryId, subcategoryIds: [] }));
     }
   }, [subcategories, form.parentCategoryId]);
 
@@ -234,7 +241,7 @@ export default function AdminProductosPage() {
   }
 
   function isFormDirty() {
-    return !!(form.name || form.sku || form.description || form.images.length > 0 || form.compatibility.length > 0 || form.parentCategoryId);
+    return !!(form.name || form.sku || form.description || form.images.length > 0 || form.compatibility.length > 0 || form.subcategoryIds.length > 0 || form.parentCategoryId);
   }
 
   function tryCloseModal() {
@@ -277,6 +284,7 @@ export default function AdminProductosPage() {
       isActive: p.isActive,
       parentCategoryId: parentCatId,
       categoryId: p.categoryId,
+      subcategoryIds: (p.subcategories || []).map((s) => s.id),
       compatibility: (p.compatibility || []).map((c) => {
         if (c.vehicleModelId && c.vehicleModel) {
           return {
@@ -445,7 +453,10 @@ export default function AdminProductosPage() {
     e.preventDefault();
     if (!form.name.trim()) { setError("El nombre es obligatorio"); return; }
     if (!form.sku.trim()) { setError("El SKU es obligatorio"); return; }
-    if (!form.categoryId) { setError("Debe seleccionar una categoría"); return; }
+    if (!form.categoryId && form.subcategoryIds.length === 0 && !form.parentCategoryId) {
+      setError("Debe seleccionar una categoría");
+      return;
+    }
 
     const pending = buildPendingCompat();
     const finalCompat = pending
@@ -469,7 +480,8 @@ export default function AdminProductosPage() {
 
         featured: form.featured,
         isActive: form.isActive,
-        categoryId: form.categoryId,
+        categoryId: form.subcategoryIds.length > 0 ? form.subcategoryIds[0] : form.categoryId,
+        subcategoryIds: form.subcategoryIds,
         compatibility: finalCompat.map((c) => ({ type: c.type, id: c.id })),
       }),
     });
@@ -513,7 +525,7 @@ export default function AdminProductosPage() {
     fetchData();
   }
 
-  if (loading) return <div className={styles.container}><p>Cargando...</p></div>;
+  if (loading) return <AdminSkeleton cols={5} showImage rows={8} />;
 
   return (
     <div className={styles.container}>
@@ -659,7 +671,7 @@ export default function AdminProductosPage() {
                     value={form.parentCategoryId}
                     onChange={(e) => {
                       const newParent = e.target.value;
-                      setForm((p) => ({ ...p, parentCategoryId: newParent, categoryId: "", compatibility: [] }));
+                      setForm((p) => ({ ...p, parentCategoryId: newParent, categoryId: "", subcategoryIds: [], compatibility: [] }));
                     }}
                     className={styles.select}
                   >
@@ -675,20 +687,32 @@ export default function AdminProductosPage() {
 
                 {subcategories.length > 0 && (
                   <div className={styles.field}>
-                    <label>Subcategoría *</label>
-                    <select
-                      value={form.categoryId}
-                      onChange={(e) => setForm((p) => ({ ...p, categoryId: e.target.value }))}
-                      className={styles.select}
-                      disabled={subcategories.length === 1}
-                    >
-                      {subcategories.length > 1 && <option value="">Seleccionar subcategoría...</option>}
+                    <label>Subcategorías</label>
+                    <div className={styles.subcatCheckboxes}>
                       {subcategories.map((sub) => (
-                        <option key={sub.id} value={sub.id}>{sub.name}</option>
+                        <label key={sub.id} className={styles.subcatCheckbox}>
+                          <input
+                            type="checkbox"
+                            checked={form.subcategoryIds.includes(sub.id)}
+                            onChange={(e) => {
+                              setForm((p) => {
+                                const ids = e.target.checked
+                                  ? [...p.subcategoryIds, sub.id]
+                                  : p.subcategoryIds.filter((id) => id !== sub.id);
+                                return {
+                                  ...p,
+                                  subcategoryIds: ids,
+                                  categoryId: ids.length > 0 ? ids[0] : p.parentCategoryId,
+                                };
+                              });
+                            }}
+                          />
+                          {sub.name}
+                        </label>
                       ))}
-                    </select>
+                    </div>
                     <span style={{ fontSize: "0.75rem", color: "#999" }}>
-                      Tipo específico dentro de {parentCategories.find((c) => c.id === form.parentCategoryId)?.name || "la categoría"}
+                      Puede seleccionar varias subcategorías. Se mostrarán como etiquetas en el catálogo.
                     </span>
                   </div>
                 )}
@@ -812,7 +836,7 @@ export default function AdminProductosPage() {
                   <RichTextEditor
                     value={form.description}
                     onChange={(val) => setForm((p) => ({ ...p, description: val }))}
-                    placeholder="Escribe la descripción del producto..."
+                    placeholder={"Ej: Pastilla ceramicada de alta performance.\n• Material: Cerámica\n• Posición: Delantera\n• Incluye: Sensor de desgaste\n• Presentación: Juego x4 pastillas"}
                   />
                 </div>
 

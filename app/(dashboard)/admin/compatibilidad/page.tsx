@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, X, Car, ChevronRight } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 
 interface Brand {
   id: string;
@@ -174,7 +175,7 @@ export default function AdminCompatibilidadPage() {
   const selectedBrandData = brands.find((b) => b.id === selectedBrand);
   const selectedModelData = models.find((m) => m.id === selectedModel);
 
-  if (loading) return <div style={{ padding: "2rem" }}>Cargando...</div>;
+  if (loading) return <AdminSkeleton cols={3} rows={6} />;
 
   return (
     <div style={{ width: "100%" }}>
@@ -183,9 +184,9 @@ export default function AdminCompatibilidadPage() {
         <p style={{ fontSize: "0.875rem", color: "#888", margin: "4px 0 0" }}>Administra marcas, modelos y generaciones</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "220px 220px 1fr", gap: "16px", minHeight: "400px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "220px 220px 1fr", gap: "16px", height: "calc(100vh - 160px)" }}>
         {/* Brands column */}
-        <div style={{ background: "#f9f9f9", borderRadius: "12px", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ background: "#f9f9f9", borderRadius: "12px", padding: "14px", display: "flex", flexDirection: "column", gap: "10px", overflow: "hidden" }}>
           <h2 style={{ fontSize: "0.75rem", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>Marcas</h2>
 
           <div style={{ display: "flex", gap: "6px" }}>
@@ -244,7 +245,7 @@ export default function AdminCompatibilidadPage() {
         </div>
 
         {/* Models column */}
-        <div style={{ background: "#f9f9f9", borderRadius: "12px", padding: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ background: "#f9f9f9", borderRadius: "12px", padding: "14px", display: "flex", flexDirection: "column", gap: "10px", overflow: "hidden" }}>
           <h2 style={{ fontSize: "0.75rem", fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>
             {selectedBrandData ? `Modelos — ${selectedBrandData.name}` : "Modelos"}
           </h2>
@@ -312,7 +313,7 @@ export default function AdminCompatibilidadPage() {
         </div>
 
         {/* Generations column */}
-        <div>
+        <div style={{ overflowY: "auto" }}>
           {!selectedModel ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", color: "#999", gap: "8px" }}>
               <Car size={40} strokeWidth={1.2} />

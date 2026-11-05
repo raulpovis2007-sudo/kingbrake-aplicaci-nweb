@@ -64,6 +64,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     include: {
       category: { select: { id: true, name: true } },
+      subcategories: { select: { id: true, name: true } },
       compatibility: compatibilityInclude,
     },
   });
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, description, sku, images, featured, isActive, categoryId, compatibility } = body;
+  const { name, description, sku, images, featured, isActive, categoryId, subcategoryIds, compatibility } = body;
 
   if (!name?.trim()) {
     return NextResponse.json({ error: "El nombre es obligatorio" }, { status: 400 });
@@ -113,6 +114,8 @@ export async function POST(req: NextRequest) {
       )
     : [];
 
+  const subIds: string[] = Array.isArray(subcategoryIds) ? subcategoryIds : [];
+
   const product = await db.product.create({
     data: {
       name: name.trim(),
@@ -124,12 +127,16 @@ export async function POST(req: NextRequest) {
       featured: featured ?? false,
       isActive: isActive ?? true,
       categoryId,
+      ...(subIds.length > 0
+        ? { subcategories: { connect: subIds.map((id: string) => ({ id })) } }
+        : {}),
       ...(compatData.length > 0
         ? { compatibility: { create: compatData } }
         : {}),
     },
     include: {
       category: { select: { id: true, name: true } },
+      subcategories: { select: { id: true, name: true } },
       compatibility: compatibilityInclude,
     },
   });

@@ -101,10 +101,12 @@ model Category {
   description String?
   icon        String?
   order       Int        @default(0)
+  isActive    Boolean    @default(true)
   parentId    String?
   parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryHierarchy")
   products    Product[]
+  taggedProducts Product[] @relation("ProductSubcategories")
 
   @@index([parentId])
 }
@@ -124,6 +126,7 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   category      Category               @relation(fields: [categoryId], references: [id])
+  subcategories Category[]             @relation("ProductSubcategories")
   compatibility ProductCompatibility[]
   quotes        Quote[]
 

@@ -428,6 +428,25 @@
 .spinner { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+.subcatCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.subcatCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.subcatCheckbox input[type="checkbox"] {
+  accent-color: #0e1469;
+}
+
 /* Checkboxes */
 .checkboxRow {
   display: flex;

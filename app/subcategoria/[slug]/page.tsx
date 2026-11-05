@@ -29,26 +29,34 @@ export default async function SubcategoriaDetallePage({ params, searchParams }: 
     where: { slug: params.slug },
     include: {
       parent: { select: { name: true, slug: true } },
-      products: {
-        where: { isActive: true },
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-          sku: true,
-          images: true,
-        },
-        orderBy: [{ featured: "desc" }, { name: "asc" }],
-      },
     },
   });
 
   if (!category || !category.parentId) notFound();
 
-  const total = category.products.length;
+  const categoryProducts = await db.product.findMany({
+    where: {
+      isActive: true,
+      OR: [
+        { categoryId: category.id },
+        { subcategories: { some: { id: category.id } } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      sku: true,
+      images: true,
+      featured: true,
+    },
+    orderBy: [{ featured: "desc" }, { name: "asc" }],
+  });
+
+  const total = categoryProducts.length;
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
   const page = Math.min(Math.max(1, Number(searchParams.page) || 1), totalPages);
-  const paginated = category.products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const paginated = categoryProducts.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const waMessage = encodeURIComponent(
     `Hola King Brake! Me interesa la línea de ${category.name}. ¿Podrían darme más información?`

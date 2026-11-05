@@ -34,6 +34,8 @@ interface Compatibility {
   } | null;
 }
 
+interface Subcategory { id: string; name: string }
+
 interface Product {
   id: string;
   name: string;
@@ -42,6 +44,7 @@ interface Product {
   images: string[];
   featured?: boolean;
   category: { name: string; slug: string };
+  subcategories?: Subcategory[];
   compatibility?: Compatibility[];
 }
 
@@ -426,30 +429,17 @@ export default function BuscadorRepuestos() {
                       <div className={styles.productInfo}>
                         <span className={styles.productSku}>{p.sku}</span>
                         <h3 className={styles.productName}>{p.name}</h3>
-                        <span className={styles.productCategory}>
-                          {p.category.name}
-                        </span>
-                        {p.compatibility && p.compatibility.length > 0 && (() => {
-                          const c = p.compatibility[0];
-                          if (c.vehicleGeneration) {
-                            return (
-                              <span className={styles.productCompat}>
-                                {c.vehicleGeneration.model.brand.name}{" "}
-                                {c.vehicleGeneration.model.name}{" "}
-                                — {c.vehicleGeneration.name}
-                              </span>
-                            );
-                          }
-                          if (c.vehicleModel) {
-                            return (
-                              <span className={styles.productCompat}>
-                                {c.vehicleModel.brand.name}{" "}
-                                {c.vehicleModel.name}
-                              </span>
-                            );
-                          }
-                          return null;
-                        })()}
+                        {p.subcategories && p.subcategories.length > 0 ? (
+                          <div className={styles.productTags}>
+                            {p.subcategories.map((s) => (
+                              <span key={s.id} className={styles.productCategory}>{s.name}</span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className={styles.productCategory}>
+                            {p.category.name}
+                          </span>
+                        )}
                       </div>
                     </article>
                   </Link>

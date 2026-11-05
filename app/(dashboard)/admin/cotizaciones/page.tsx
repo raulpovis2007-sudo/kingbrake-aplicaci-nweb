@@ -11,6 +11,7 @@ import {
   Save,
   FileText,
 } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminCotizaciones.module.css";
 
 interface Quote {
@@ -111,7 +112,7 @@ export default function AdminCotizacionesPage() {
       </div>
 
       {loading ? (
-        <p className={styles.loading}>Cargando...</p>
+        <AdminSkeleton variant="cards" rows={4} />
       ) : quotes.length === 0 ? (
         <div className={styles.empty}>
           <FileText size={48} strokeWidth={1} />

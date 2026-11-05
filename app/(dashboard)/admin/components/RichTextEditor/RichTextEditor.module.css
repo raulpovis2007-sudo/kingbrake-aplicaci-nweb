@@ -38,6 +38,7 @@
 .editor :global(.ql-editor.ql-blank::before) {
   color: #999;
   font-style: normal;
+  white-space: pre-line;
 }
 
 .editor :global(.ql-editor h1) {

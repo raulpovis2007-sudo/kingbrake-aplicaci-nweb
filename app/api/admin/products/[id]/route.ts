@@ -62,7 +62,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const { id } = params;
   const body = await req.json();
-  const { name, description, sku, images, featured, isActive, categoryId, compatibility } = body;
+  const { name, description, sku, images, featured, isActive, categoryId, subcategoryIds, compatibility } = body;
 
   const existing = await db.product.findUnique({ where: { id } });
   if (!existing) {
@@ -97,6 +97,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (isActive !== undefined) data.isActive = isActive;
   if (categoryId !== undefined) data.categoryId = categoryId;
 
+  if (Array.isArray(subcategoryIds)) {
+    data.subcategories = { set: subcategoryIds.map((sid: string) => ({ id: sid })) };
+  }
+
   // compatibility: array de { type: "generation"|"model", id }
   if (Array.isArray(compatibility)) {
     await db.productCompatibility.deleteMany({ where: { productId: id } });
@@ -118,6 +122,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     data,
     include: {
       category: { select: { id: true, name: true } },
+      subcategories: { select: { id: true, name: true } },
       compatibility: compatibilityInclude,
     },
   });

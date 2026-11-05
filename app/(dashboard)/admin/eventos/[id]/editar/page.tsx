@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Upload, Loader2, ImageIcon } from "lucide-react";
+import AdminSkeleton from "../../../components/AdminSkeleton/AdminSkeleton";
 import formStyles from "../../../banners/nuevo/BannerForm.module.css";
 
 export default function EditarEventoPage() {
@@ -137,7 +138,7 @@ export default function EditarEventoPage() {
     }
   };
 
-  if (loading) return <div className={formStyles.container}><p>Cargando evento...</p></div>;
+  if (loading) return <AdminSkeleton cols={3} rows={4} />;
 
   return (
     <div className={formStyles.container}>

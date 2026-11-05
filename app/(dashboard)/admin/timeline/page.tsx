@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Pencil, Trash2, Plus, X, Clock, Upload, AlertTriangle, Eye, EyeOff } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "../categorias/AdminCategorias.module.css";
 
 interface Milestone {
@@ -149,7 +150,7 @@ export default function AdminTimelinePage() {
     return String(m.year);
   }
 
-  if (loading) return <div className={styles.container}><p>Cargando...</p></div>;
+  if (loading) return <AdminSkeleton cols={4} rows={5} />;
 
   return (
     <div className={styles.container}>

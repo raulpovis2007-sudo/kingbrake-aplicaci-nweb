@@ -15,6 +15,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
+import AdminSkeleton from "../../../components/AdminSkeleton/AdminSkeleton";
 import styles from "../../nuevo/ReelForm.module.css";
 
 // ============================================
@@ -377,23 +378,7 @@ export default function EditarReelPage() {
   };
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "4rem",
-            color: "#666",
-            gap: "0.5rem",
-          }}
-        >
-          <Loader2 size={20} className={styles.spinner} />
-          Cargando reel...
-        </div>
-      </div>
-    );
+    return <AdminSkeleton cols={3} rows={4} />;
   }
 
   return (

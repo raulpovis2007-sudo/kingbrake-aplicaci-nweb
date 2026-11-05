@@ -12,6 +12,7 @@ import {
   GripVertical,
   Play,
 } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminReels.module.css";
 
 // ============================================
@@ -201,9 +202,7 @@ export default function AdminReelsPage() {
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Cargando reels...</div>
-      </div>
+      <AdminSkeleton variant="cards" rows={6} />
     );
   }
 

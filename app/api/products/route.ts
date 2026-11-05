@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
         images: true,
         featured: true,
         category: { select: { name: true, slug: true } },
+        subcategories: { where: { isActive: true }, select: { id: true, name: true } },
       },
       orderBy: [{ featured: "desc" }, { name: "asc" }],
     });

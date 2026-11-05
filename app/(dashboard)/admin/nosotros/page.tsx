@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Save, Upload, ImageIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminNosotros.module.css";
 
 interface NosotrosData {
@@ -80,7 +81,7 @@ export default function AdminNosotrosPage() {
   }
 
   if (loading) {
-    return <div className={styles.loading}>Cargando...</div>;
+    return <AdminSkeleton cols={3} rows={4} />;
   }
 
   return (

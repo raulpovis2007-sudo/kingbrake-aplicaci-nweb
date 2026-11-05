@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
         images: true,
         featured: true,
         category: { select: { name: true, slug: true } },
+        subcategories: { where: { isActive: true }, select: { id: true, name: true } },
         compatibility: {
           where: {
             OR: [

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Upload, X, Loader2, ImageIcon, Video, Monitor, Smartphone } from "lucide-react";
+import AdminSkeleton from "../../../components/AdminSkeleton/AdminSkeleton";
 import formStyles from "../../nuevo/BannerForm.module.css";
 
 type Platform = "desktop" | "mobile";
@@ -165,7 +166,7 @@ export default function EditarBannerPage() {
   };
 
   if (loading) {
-    return <div className={formStyles.container}><p>Cargando banner...</p></div>;
+    return <AdminSkeleton cols={3} rows={4} />;
   }
 
   const currentUploading = activePlatform === "mobile" ? uploadingMobile : uploading;

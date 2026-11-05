@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
   const { id } = params;
   const body = await req.json();
-  const { name, description, icon, order, parentId } = body;
+  const { name, description, icon, order, parentId, isActive } = body;
 
   const existing = await db.category.findUnique({ where: { id } });
   if (!existing) {
@@ -57,6 +57,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (icon !== undefined) data.icon = icon?.trim() || null;
   if (order !== undefined) data.order = order;
   if (parentId !== undefined) data.parentId = parentId || null;
+  if (isActive !== undefined) data.isActive = isActive;
 
   const updated = await db.category.update({ where: { id }, data });
   return NextResponse.json(updated);

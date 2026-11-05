@@ -38,6 +38,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  position: sticky;
+  top: 1.5rem;
+  max-height: calc(100vh - 3rem);
 }
 
 .imagenBox {
@@ -48,11 +51,54 @@
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
+  cursor: crosshair;
 }
 
 .imagenProducto {
   object-fit: contain;
   padding: 1.5rem;
+}
+
+.zoomOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 20, 105, 0.08);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.zoomLens {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(14, 20, 105, 0.4);
+  background: rgba(14, 20, 105, 0.12);
+  border-radius: 4px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.zoomPanel {
+  position: fixed;
+  top: 96px;
+  right: 0;
+  left: 50%;
+  height: calc(100vh - 128px);
+  background-color: #fff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -4px 0 30px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.zoomImage {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(2.5);
 }
 
 .noImage {
@@ -70,16 +116,29 @@
 .thumbRow {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .thumbBox {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 2px solid #e5e7eb;
   background: #fff;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+}
+
+.thumbBox:hover {
+  border-color: #9ca3af;
+}
+
+.thumbBoxActive {
+  border-color: #0e1469;
 }
 
 .thumbImg {
@@ -91,6 +150,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .categoriaLabel {
@@ -99,6 +159,23 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #6b7280;
+}
+
+.subcatTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+}
+
+.subcatTag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #0e1469;
+  background: rgba(14, 20, 105, 0.07);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .titulo {
@@ -175,6 +252,35 @@
   background: #0e1469;
 }
 
+.compatSection {
+  margin-top: 0.15rem;
+}
+
+.compatTitulo {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  margin: 0 0 0.3rem;
+}
+
+.compatTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.compatTag {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #166534;
+  background: #dcfce7;
+  padding: 1px 7px;
+  border-radius: 3px;
+  line-height: 1.5;
+}
+
 .acciones {
   margin-top: 1.5rem;
 }
@@ -202,8 +308,10 @@
 .detalleBody {
   font-size: 0.9rem;
   color: #4b5563;
-  line-height: 1.7;
-  margin-top: 0.75rem;
+  line-height: 1.4;
+  margin-top: 0.15rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .detalleBody h1,
@@ -319,6 +427,110 @@
   color: #1f2937;
   padding: 0.75rem;
   line-height: 1.3;
+}
+
+/* ── Lightbox ── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.lightboxClose {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  z-index: 1;
+}
+
+.lightboxClose:hover {
+  opacity: 1;
+}
+
+.lightboxContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 80vh;
+  width: 90vw;
+  cursor: default;
+}
+
+.lightboxImageBox {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.lightboxImage {
+  object-fit: contain;
+}
+
+.lightboxInfo {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lightboxCategory {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.lightboxTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.lightboxSku {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: monospace;
+}
+
+.lightboxThumbs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.lightboxThumb {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s;
+}
+
+.lightboxThumb:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.lightboxThumbActive {
+  border-color: #fff;
 }
 
 @media (max-width: 768px) {

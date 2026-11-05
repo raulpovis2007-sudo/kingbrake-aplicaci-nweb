@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import { Pencil, Trash2, Plus, X, FolderTree, Upload, AlertTriangle } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "../categorias/AdminCategorias.module.css";
 
 interface Category {
@@ -12,6 +13,7 @@ interface Category {
   description: string | null;
   icon: string | null;
   order: number;
+  isActive: boolean;
   parentId: string | null;
   _count: { products: number };
   children?: Category[];
@@ -146,7 +148,16 @@ export default function AdminSubcategoriasPage() {
     fetchCategories();
   }
 
-  if (loading) return <div className={styles.container}><p>Cargando...</p></div>;
+  async function toggleActive(sub: Category) {
+    await fetch(`/api/admin/categories/${sub.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: !sub.isActive }),
+    });
+    fetchCategories();
+  }
+
+  if (loading) return <AdminSkeleton cols={4} rows={6} />;
 
   return (
     <div className={styles.container}>
@@ -202,6 +213,7 @@ export default function AdminSubcategoriasPage() {
                     <th>Nombre</th>
                     <th>Slug</th>
                     <th>Productos</th>
+                    <th>Disponible</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -221,6 +233,23 @@ export default function AdminSubcategoriasPage() {
                       </td>
                       <td className={styles.slug}>{sub.slug}</td>
                       <td>{sub._count.products}</td>
+                      <td>
+                        <button
+                          onClick={() => toggleActive(sub)}
+                          style={{
+                            padding: "3px 10px",
+                            borderRadius: 6,
+                            border: "none",
+                            fontSize: "0.75rem",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            background: sub.isActive ? "#dcfce7" : "#fee2e2",
+                            color: sub.isActive ? "#166534" : "#991b1b",
+                          }}
+                        >
+                          {sub.isActive ? "Sí" : "No"}
+                        </button>
+                      </td>
                       <td>
                         <div className={styles.actions}>
                           <button className={styles.editBtn} onClick={() => openEdit(sub)} title="Editar">

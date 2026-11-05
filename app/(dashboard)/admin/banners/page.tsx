@@ -12,6 +12,7 @@ import {
   GripVertical,
   ImageIcon,
 } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminBanners.module.css";
 
 const TABS = [
@@ -167,7 +168,7 @@ export default function AdminBannersPage() {
       </nav>
 
       {loading ? (
-        <div className={styles.loading}>Cargando...</div>
+        <AdminSkeleton variant="cards" rows={4} />
       ) : banners.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><ImageIcon size={48} /></div>

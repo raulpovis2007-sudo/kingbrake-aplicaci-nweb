@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Pencil, Trash2, Plus, X, Package, AlertTriangle } from "lucide-react";
+import AdminSkeleton from "../components/AdminSkeleton/AdminSkeleton";
 import styles from "./AdminCategorias.module.css";
 
 interface Category {
@@ -117,7 +118,7 @@ export default function AdminCategoriasPage() {
     fetchCategories();
   }
 
-  if (loading) return <div className={styles.container}><p>Cargando...</p></div>;
+  if (loading) return <AdminSkeleton cols={3} rows={5} />;
 
   return (
     <div className={styles.container}>
