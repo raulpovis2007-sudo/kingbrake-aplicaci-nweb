@@ -31,11 +31,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(banners, {
-      headers: {
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
-      },
-    });
+    return NextResponse.json(banners);
   } catch (error) {
     console.error("Error obteniendo banners:", error);
     return NextResponse.json(

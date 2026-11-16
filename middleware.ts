@@ -47,7 +47,7 @@ const SENSITIVE_API_PATHS = [
   '/api/payments',
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Defensa en profundidad: bloquear header interno de Next.js que podría usarse
   // para bypass de middleware (CVE-2025-29927, parcheado en 14.2.25 pero protección extra)
   if (request.headers.get('x-middleware-subrequest')) {
@@ -94,6 +94,28 @@ export function middleware(request: NextRequest) {
 
   if (suspiciousPaths.some(path => pathname.toLowerCase().includes(path))) {
     return new NextResponse(null, { status: 404 });
+  }
+
+  // Modo mantenimiento: solo para rutas públicas de página (no API, no admin)
+  const skipMaintenance =
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/admin') ||
+    pathname === '/mantenimiento' ||
+    pathname === '/login' ||
+    pathname.startsWith('/_next/');
+
+  if (!skipMaintenance) {
+    try {
+      const res = await fetch(new URL('/api/maintenance', request.url));
+      if (res.ok) {
+        const { enabled } = await res.json();
+        if (enabled) {
+          return NextResponse.redirect(new URL('/mantenimiento', request.url));
+        }
+      }
+    } catch {
+      // Si falla el check, no bloquear el sitio
+    }
   }
 
   // Continuar con la request normal

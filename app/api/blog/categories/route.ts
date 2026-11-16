@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/blog/categories - List all categories
 export async function GET() {
   try {
@@ -15,12 +17,7 @@ export async function GET() {
       },
     });
 
-    // Cache por 1 hora - las categorías rara vez cambian
-    return NextResponse.json(categories, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
-      },
-    });
+    return NextResponse.json(categories);
   } catch (error) {
     console.error("Error fetching blog categories:", error);
     return NextResponse.json(

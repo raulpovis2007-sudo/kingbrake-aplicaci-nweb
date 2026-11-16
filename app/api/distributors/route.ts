@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const distributors = await db.distributor.findMany({
@@ -8,9 +10,7 @@ export async function GET() {
       select: { id: true, name: true, address: true, region: true, lat: true, lng: true, phone: true, image: true },
       orderBy: { name: "asc" },
     });
-    return NextResponse.json(distributors, {
-      headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" },
-    });
+    return NextResponse.json(distributors);
   } catch {
     return NextResponse.json({ error: "Error al obtener distribuidores" }, { status: 500 });
   }

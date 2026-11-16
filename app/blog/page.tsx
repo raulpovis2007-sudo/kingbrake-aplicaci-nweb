@@ -3,9 +3,7 @@ import { Metadata } from "next";
 import { db } from "@/lib/db";
 import BlogList from "./BlogList";
 
-// ISR: Regenerar cada 5 minutos - reduce Function Invocations ~90%
-// El blog no necesita datos en tiempo real
-export const revalidate = 300; // 5 minutos
+export const dynamic = "force-dynamic";
 
 // Metadata para SEO del blog
 export const metadata: Metadata = {

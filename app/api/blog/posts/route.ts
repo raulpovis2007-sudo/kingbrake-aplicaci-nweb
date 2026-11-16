@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/blog/posts - List posts with search and filter
 export async function GET(request: NextRequest) {
   try {
@@ -48,24 +50,15 @@ export async function GET(request: NextRequest) {
       db.blogPost.count({ where }),
     ]);
 
-    // Cache por 5 minutos para reducir Function Invocations
-    // stale-while-revalidate permite servir cache mientras se actualiza en background
-    return NextResponse.json(
-      {
-        posts,
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages: Math.ceil(total / limit),
-        },
+    return NextResponse.json({
+      posts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
-      {
-        headers: {
-          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
-        },
-      }
-    );
+    });
   } catch (error) {
     console.error("Error fetching blog posts:", error);
     return NextResponse.json(
